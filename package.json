@@ -1,0 +1,15 @@
+{
+  "name": "safe_nodejs",
+  "version": "0.1.0",
+  "description": "NodeJS binding for SAFE API",
+  "main": "lib/index.js",
+  "author": "Josh Wilson <joshuef@gmail.com>",
+  "contributors": "Gabriel Viganotti <gabrielviganotti@gmail.com>",
+  "license": "(MIT OR BSD-3-Clause)",
+  "dependencies": {
+    "neon-cli": "^0.3.1"
+  },
+  "scripts": {
+    "install": "neon build --release"
+  }
+}

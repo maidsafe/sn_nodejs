@@ -1,0 +1,29 @@
+[package]
+name = "safe_nodejs"
+version = "0.1.0"
+authors = ["Josh Wilson <joshuef@gmail.com>", "Gabriel Viganotti <gabrielviganotti@gmail.com>"]
+license = "MIT OR BSD-3-Clause"
+build = "build.rs"
+exclude = ["artifacts.json", "index.node"]
+edition = "2018"
+
+[lib]
+name = "safe_nodejs"
+crate-type = ["cdylib"]
+
+[build-dependencies]
+neon-build = "0.2.0"
+
+[dependencies]
+safe_cli = { git = "https://github.com/maidsafe/safe-cli", revision = "0.2.3" }
+neon = "0.2.0"
+neon-serde = "0.1.1"
+
+[patch.crates-io]
+neon = { git = "https://github.com/kjvalencik/neon", branch = "node12" }
+neon-runtime = { git = "https://github.com/kjvalencik/neon", branch = "node12" }
+
+[features]
+mock-network = ["safe_cli/mock-network"]
+fake-auth = ["safe_cli/fake-auth"]
+scl-mock = ["safe_cli/scl-mock"]
