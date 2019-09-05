@@ -17,6 +17,7 @@ pub extern "C" fn __cxa_pure_virtual() {
 declare_types! {
     /// JS class wrapping Safe struct
     pub class JsSafe for Safe {
+        // Initialise a new Safe instance
         init(mut cx) {
             let xorurl_base = match cx.argument_opt(0) {
                 Some(arg) => arg.downcast::<JsString>().or_throw(&mut cx)?.value(),
@@ -28,6 +29,7 @@ declare_types! {
             Ok(safe)
         }
 
+        // Gets the XOR-URL base encoding set to be used for XOR-URLs generated
         method xorurl_base(mut cx) {
             let base = {
                 let this = cx.this();
@@ -100,6 +102,103 @@ declare_types! {
             let js_value = neon_serde::to_value(&mut cx, &data)?;
             Ok(js_value)
         }
+
+        // Upload files/folder into a new FilesContainer returning its XOR-URL
+        // pub fn files_container_create(&mut self, location: &str, dest: Option<String>, recursive: bool, dry_run: bool) -> ResultReturn<(XorUrl, ProcessedFiles, FilesMap)>
+        method files_container_create(mut cx) {
+            let location = cx.argument::<JsString>(0)?.value();
+            let dest = match cx.argument_opt(1) {
+                Some(arg) => {
+                    Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value())
+                },
+                None => None
+            };
+
+            let recursive = cx.argument::<JsBoolean>(2)?.value();
+            let dry_run = cx.argument::<JsBoolean>(3)?.value();
+            println!("Creating FilesContainer: {} - {:?} - {} - {}", location, dest, recursive, dry_run);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.files_container_create(&location, dest, recursive, dry_run).unwrap_or_else(|err| { panic!(format!("Failed to create FilesContainer: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Sync up files/folder with an existing FilesContainer
+        // pub fn files_container_sync(&mut self, location: &str, url: &str, recursive: bool, delete: bool, update_nrs: bool, dry_run: bool) -> ResultReturn<(u64, ProcessedFiles, FilesMap)>
+        method files_container_sync(mut cx) {
+            let location = cx.argument::<JsString>(0)?.value();
+            let url = cx.argument::<JsString>(1)?.value();
+            let recursive = cx.argument::<JsBoolean>(2)?.value();
+            let delete = cx.argument::<JsBoolean>(3)?.value();
+            let update_nrs = cx.argument::<JsBoolean>(4)?.value();
+            let dry_run = cx.argument::<JsBoolean>(5)?.value();
+            println!("Sync-ing FilesContainer: {} - {} - {} - {} - {} - {}", location, url, recursive, delete, update_nrs, dry_run);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.files_container_sync(&location, &url, recursive, delete, update_nrs, dry_run).unwrap_or_else(|err| { panic!(format!("Failed to sync up FilesContainer: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Fetch an existing FilesContainer
+        // pub fn files_container_get(&self, url: &str) -> ResultReturn<(u64, FilesMap)>
+        method files_container_get(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            println!("Fetching FilesContainer from: {}", url);
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.files_container_get(&url).unwrap_or_else(|err| { panic!(format!("Failed to fetch FilesContainer: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Pub PublishedImmutableData
+        // pub fn files_put_published_immutable(&mut self, data: &[u8]) -> ResultReturn<XorUrl>
+        method files_put_published_immutable(mut cx) {
+            let b: Handle<JsArrayBuffer> = cx.argument(0)?;
+            let data = cx.borrow(&b, |data| data.as_slice::<u8>());
+            println!("Putting PublishedImmutableData: {:?}", data);
+            let url = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.files_put_published_immutable(&data).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
+            };
+
+            Ok(cx.string(&url).upcast())
+        }
+
+        // Get a PublishedImmutableData
+        // pub fn files_get_published_immutable(&self, url: &str) -> ResultReturn<Vec<u8>>
+        method files_get_published_immutable(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            println!("Fetching PublishedImmutableData from: {}", url);
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.files_get_published_immutable(&url).unwrap_or_else(|err| { panic!(format!("Failed to fetch PublishedImmutableData: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
     }
 }
 
