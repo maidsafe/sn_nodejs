@@ -199,6 +199,112 @@ declare_types! {
             Ok(js_value)
         }
 
+        // NRS Map Container create
+        // pub fn nrs_map_container_create(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> ResultReturn<(XorUrl, ProcessedEntries, NrsMap)>
+        method nrs_map_container_create(mut cx) {
+            let name = cx.argument::<JsString>(0)?.value();
+            let link = cx.argument::<JsString>(1)?.value();
+            let default = cx.argument::<JsBoolean>(2)?.value();
+            let hard_link = cx.argument::<JsBoolean>(3)?.value();
+            let dry_run = cx.argument::<JsBoolean>(4)?.value();
+            println!("Creating an NRS MAP Container: {} - {} - {} - {} - {}", name, link, default, hard_link, dry_run);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.nrs_map_container_create(&name, &link, default, hard_link, dry_run).unwrap_or_else(|err| { panic!(format!("Failed to create NRS Map Container: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Add/update a subname to an existing NRS Map Container
+        // pub fn nrs_map_container_add(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> ResultReturn<(u64, XorUrl, ProcessedEntries, NrsMap)>
+        method nrs_map_container_add(mut cx) {
+            let name = cx.argument::<JsString>(0)?.value();
+            let link = cx.argument::<JsString>(1)?.value();
+            let default = cx.argument::<JsBoolean>(2)?.value();
+            let hard_link = cx.argument::<JsBoolean>(3)?.value();
+            let dry_run = cx.argument::<JsBoolean>(4)?.value();
+            println!("Creating an NRS MAP Container: {} - {} - {} - {} - {}", name, link, default, hard_link, dry_run);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.nrs_map_container_add(&name, &link, default, hard_link, dry_run).unwrap_or_else(|err| { panic!(format!("Failed to create NRS Map Container: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Remove an NRS Map Container
+        // pub fn nrs_map_container_remove(&mut self, name: &str, dry_run: bool) -> ResultReturn<(u64, XorUrl, ProcessedEntries, NrsMap)>
+        method nrs_map_container_remove(mut cx) {
+            let name = cx.argument::<JsString>(0)?.value();
+            let dry_run = cx.argument::<JsBoolean>(1)?.value();
+            println!("Removing an NRS Map Container: {} - {}", name, dry_run);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.nrs_map_container_remove(&name, dry_run).unwrap_or_else(|err| { panic!(format!("Failed to remove an NRS Map Container: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Fetch an NRS Map Container
+        // pub fn nrs_map_container_get(&self, url: &str) -> ResultReturn<(u64, NrsMap)>
+        method nrs_map_container_get(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            println!("Fetching NRS Map Container from: {}", url);
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.nrs_map_container_get(&url).unwrap_or_else(|err| { panic!(format!("Failed to fetch an NRS Map Container: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Parses a safe:// URL and returns all the info in a XorUrlEncoder instance.
+        // pub fn parse_url(url: &str) -> ResultReturn<XorUrlEncoder>
+        method parse_url(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            println!("Parsing a safe:// URL: {}", url);
+            let _data = Safe::parse_url(&url).unwrap_or_else(|err| { panic!(format!("Failed to parse a safe:// URL: {:?}", err)) } );
+
+            // TODO: create XorUrlEncoder class binding to return it from here
+            //let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(cx.boolean(true).upcast())
+        }
+
+        // Parses a safe:// URL and returns all the info in a XorUrlEncoder instance.
+        // It also returns a flag indicating if it the URL has to be resolved as NRS-URL
+        // pub fn parse_and_resolve_url(&self, url: &str) -> ResultReturn<(XorUrlEncoder, bool)>
+        method parse_and_resolve_url(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            println!("Parsing and resolving a safe:// URL: {}", url);
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.parse_and_resolve_url(&url).unwrap_or_else(|err| { panic!(format!("Failed to parse/resolve a safe:// URL: {:?}", err)) } )
+            };
+
+            // TODO: create XorUrlEncoder class binding to return it from here
+            //let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(cx.boolean(data.1).upcast())
+        }
+
     }
 }
 
