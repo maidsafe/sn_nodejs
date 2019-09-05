@@ -12,16 +12,12 @@ name = "safe_nodejs"
 crate-type = ["cdylib"]
 
 [build-dependencies]
-neon-build = "0.2.0"
+neon-build = "0.3.1"
 
 [dependencies]
-safe_cli = { git = "https://github.com/maidsafe/safe-cli", revision = "0.2.3" }
-neon = "0.2.0"
-neon-serde = "0.1.1"
-
-[patch.crates-io]
-neon = { git = "https://github.com/kjvalencik/neon", branch = "node12" }
-neon-runtime = { git = "https://github.com/kjvalencik/neon", branch = "node12" }
+safe_cli = { git = "https://github.com/maidsafe/safe-cli", revision = "0.2.2" }
+neon = "0.3.1"
+neon-serde = "0.2.0"
 
 [features]
 mock-network = ["safe_cli/mock-network"]
