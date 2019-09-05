@@ -29,6 +29,11 @@ coverage
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
 
+# Rust compiled
+native/target
+native/index.node
+native/artifacts.json
+
 # Dependency directories
 node_modules
 jspm_packages
@@ -39,12 +44,6 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-src/native/prod/
-src/native/mock/
 .idea
-out
-src/native/*.dll
 .cache/
 .npmignore
-/native
-/system_uri
