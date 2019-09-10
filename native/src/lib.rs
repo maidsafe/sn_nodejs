@@ -6,12 +6,232 @@ extern crate neon;
 extern crate neon_serde;
 
 use neon::prelude::*;
-use safe_cli::Safe;
+use safe_cli::{Safe, SafeContentType, SafeDataType, XorName, XorUrlEncoder};
 
 // Temporary patch to have it work for electron v6
 #[no_mangle]
 pub extern "C" fn __cxa_pure_virtual() {
     loop {}
+}
+
+declare_types! {
+    /// JS class wrapping XorUrlEncoder struct
+    pub class JsXorUrlEncoder for XorUrlEncoder {
+        // Initialise a new XorUrlEncoder instance
+        // pub fn new(xorname: XorName, type_tag: u64, data_type: SafeDataType, content_type: SafeContentType, path: Option<&str>, sub_names: Option<Vec<String>>, content_version: Option<u64>) -> Self
+        init(mut cx) {
+            let b: Handle<JsArrayBuffer> = cx.argument(0)?;
+            let xorname_slice = cx.borrow(&b, |data| data.as_slice::<u8>());
+            let mut xorname = XorName::default();
+            xorname.0.copy_from_slice(&xorname_slice);
+            let type_tag = cx.argument::<JsNumber>(1)?.value() as u64;
+            let data_type = SafeDataType::PublishedImmutableData; //cx.argument::<JsNumber>(2)?.value();
+            let content_type = SafeContentType::Raw;//cx.argument::<JsNumber>(3)?.value();
+            #[allow(unused_assignments)]
+            let mut str = String::default();
+            let path = match cx.argument_opt(4) {
+                Some(arg) => {
+                    str = arg.downcast::<JsString>().or_throw(&mut cx)?.value();
+                    Some(str.as_str())
+                },
+                None => None
+            };
+
+            let js_arr_handle: Handle<JsArray> = cx.argument(5)?;
+            // Convert a JsArray to a Rust Vec
+            let vec: Vec<Handle<JsValue>> = js_arr_handle.to_vec(&mut cx)?;
+            // Interate over the Rust Vec and return a new Vec of Vec<JsNumber>
+            let sub_names: Option<Vec<String>> = if vec.is_empty() {
+                None
+            } else {
+                let sub_names_vec = vec
+                .iter()
+                .map(|js_value| {
+                    js_value
+                        .downcast::<JsString>()
+                        // If downcast fails, default to using 0
+                        .unwrap_or(cx.string(""))
+                        // Get the value of the unwrapped value
+                        .value()
+                })
+                .collect();
+                Some(sub_names_vec)
+            };
+
+            let content_version = match cx.argument_opt(6) {
+                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u64),
+                None => None
+            };
+
+            println!("Creating XorUrlEncoder instance");
+            let xorurl_encoder = XorUrlEncoder::new(xorname, type_tag, data_type, content_type, path, sub_names, content_version);
+            Ok(xorurl_encoder)
+        }
+
+        // Instantiate from a XOR-URL string
+        // pub fn from_url(xorurl: &str) -> ResultReturn<Self>
+        /*method from_url(mut cx) {
+            let xorurl = cx.argument::<JsString>(0)?.value();
+            let data = XorUrlEncoder::from_url(&xorurl).unwrap_or_else(|err| { panic!(format!("Failed to create from URL: {:?}", err)) } );
+
+            let this = cx.this();
+            Ok(this.upcast())
+        }*/
+
+        // pub fn encoding_version(&self) -> u64
+        method encoding_version(mut cx) {
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.encoding_version()
+            };
+            Ok(cx.number(data as f64).upcast())
+        }
+
+        // pub fn data_type(&self) -> SafeDataType
+        method data_type(mut cx) {
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.data_type()
+            };
+            Ok(cx.number(1 as f64).upcast())
+        }
+
+        // pub fn content_type(&self) -> SafeContentType
+        method content_type(mut cx) {
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.content_type()
+            };
+            Ok(cx.number(1 as f64).upcast())
+        }
+
+        // pub fn xorname(&self) -> XorName
+        method xorname(mut cx) {
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.xorname()
+            };
+
+            let js_array = JsArray::new(&mut cx, data.0.len() as u32);
+            for (i, obj) in data.0.iter().enumerate() {
+                let js_number = cx.number(*obj as i8);
+                js_array.set(&mut cx, i as u32, js_number).unwrap();
+            }
+
+            Ok(js_array.upcast())
+        }
+
+        // pub fn type_tag(&self) -> u64
+        method type_tag(mut cx) {
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.type_tag()
+            };
+            Ok(cx.number(data as f64).upcast())
+        }
+
+        // pub fn path(&self) -> &str
+        method path(mut cx) {
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.path().to_string()
+            };
+            Ok(cx.string(&data).upcast())
+        }
+
+        // pub fn set_path(&mut self, path: &str)
+        method set_path(mut cx) {
+            let path = cx.argument::<JsString>(0)?.value();
+            {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.set_path(&path);
+            }
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // pub fn sub_names(&self) -> Vec<String>
+        method sub_names(mut cx) {
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.sub_names()
+            };
+
+            let js_array = JsArray::new(&mut cx, data.len() as u32);
+            for (i, obj) in data.iter().enumerate() {
+                let js_string = cx.string(obj);
+                js_array.set(&mut cx, i as u32, js_string).unwrap();
+            }
+
+            Ok(js_array.upcast())
+        }
+
+        // pub fn content_version(&self) -> Option<u64>
+        method content_version(mut cx) {
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.content_version().map_or_else(|| 0 as f64, |v| v as f64)
+            };
+            Ok(cx.number(data).upcast())
+        }
+
+        // pub fn set_content_version(&mut self, version: Option<u64>)
+        method set_content_version(mut cx) {
+            let version = match cx.argument_opt(0) {
+                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u64),
+                None => None
+            };
+            {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.set_content_version(version);
+            }
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // pub fn to_string(&self) -> ResultReturn<String>
+        method to_string(mut cx) {
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.to_string()
+            };
+            Ok(cx.string(&data).upcast())
+        }
+
+        // pub fn to_base(&self, base: &str) -> ResultReturn<String>
+        method to_base(mut cx) {
+            let base = cx.argument::<JsString>(0)?.value();
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.to_base(&base).unwrap_or_else(|err| { panic!(format!("Failed to encode with base {}: {:?}", base, err)) } )
+            };
+            Ok(cx.string(&data).upcast())
+        }
+    }
 }
 
 declare_types! {
@@ -280,10 +500,11 @@ declare_types! {
         method parse_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             println!("Parsing a safe:// URL: {}", url);
-            let _data = Safe::parse_url(&url).unwrap_or_else(|err| { panic!(format!("Failed to parse a safe:// URL: {:?}", err)) } );
+            let _xorurl_encoder = Safe::parse_url(&url).unwrap_or_else(|err| { panic!(format!("Failed to parse a safe:// URL: {:?}", err)) } );
+            //let xorurl_encoder_js = JsXorUrlEncoder::new();
 
-            // TODO: create XorUrlEncoder class binding to return it from here
-            //let js_value = neon_serde::to_value(&mut cx, &data)?;
+            //let xorurl_encoder_js = JsXorUrlEncoder::new(&mut cx, xorurl_encoder.xorname())?;
+            //Ok(xorurl_encoder_js.upcast())
             Ok(cx.boolean(true).upcast())
         }
 
@@ -293,7 +514,7 @@ declare_types! {
         method parse_and_resolve_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             println!("Parsing and resolving a safe:// URL: {}", url);
-            let data = {
+            let _data = {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
@@ -302,7 +523,7 @@ declare_types! {
 
             // TODO: create XorUrlEncoder class binding to return it from here
             //let js_value = neon_serde::to_value(&mut cx, &data)?;
-            Ok(cx.boolean(data.1).upcast())
+            Ok(cx.boolean(true).upcast())
         }
 
     }
@@ -310,5 +531,6 @@ declare_types! {
 
 register_module!(mut m, {
     m.export_class::<JsSafe>("Safe")?;
+    m.export_class::<JsXorUrlEncoder>("XorUrlEncoder")?;
     Ok(())
 });
