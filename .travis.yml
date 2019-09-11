@@ -5,10 +5,8 @@ os:
 language: node_js
 
 node_js:
-  - node
   - 12
   - 10
-  - 8
 
 cache: cargo
 
@@ -21,6 +19,7 @@ before_install:
   # Install NPM packages
   - node -v
   - npm -v
+  - echo $TRAVIS_NODE_VERSION
   - yarn
 
 script:
