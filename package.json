@@ -6,10 +6,33 @@
   "author": "Josh Wilson <joshuef@gmail.com>",
   "contributors": "Gabriel Viganotti <gabrielviganotti@gmail.com>",
   "license": "(MIT OR BSD-3-Clause)",
-  "dependencies": {
-    "neon-cli": "^0.3.1"
-  },
   "scripts": {
-    "install": "neon build --release"
+    "install": "node-pre-gyp install --fallback-to-build=false || neon build --release",
+    "package": "node-pre-gyp package",
+    "package-electron": "node-pre-gyp package --runtime=electron --target=6.0.7",
+    "upload-binary": "yarn package && yarn package-electron && node-pre-gyp-github publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshuef/safe-nodejs.git"
+  },
+  "files": [
+    "native/index.node",
+    "lib"
+  ],
+  "binary": {
+    "module_name": "index",
+    "host": "https://github.com/joshuef/safe-nodejs/releases/download/",
+    "remote_path": "{version}",
+    "package_name": "{node_abi}-{platform}-{arch}.tar.gz",
+    "module_path": "./native",
+    "pkg_path": "."
+  },
+  "dependencies": {
+    "add": "^2.0.6",
+    "neon-cli": "^0.3.1",
+    "node-pre-gyp": "amilajack/node-pre-gyp",
+    "node-pre-gyp-github": "^1.4.3",
+    "yarn": "^1.17.3"
   }
 }
