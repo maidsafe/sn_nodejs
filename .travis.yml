@@ -21,9 +21,14 @@ before_install:
   - npm -v
   - echo $TRAVIS_NODE_VERSION
   - yarn
+  # First build for electron 6 to get that ABI. Other header rebuilds work fine from there.
+  - yarn neon-build-electron
+  # remove native folder to prevent packaging EVERYTHING
+  - rm -rf native/target
+
 
 script:
   # - npm test
   # Publish when using '[publish binary]' keywords
   - COMMIT_MESSAGE=$(git log --format=%B --no-merges -n 1 | tr -d '\n')
-  - if [[ ${COMMIT_MESSAGE} =~ "[publish binary]" ]]; then yarn upload-binary || exit 0; fi;
+  - if [[ ${COMMIT_MESSAGE} =~ "[publish binary]" ]]; then NODE_PRE_GYP_GITHUB_TOKEN=$GITHUB_ACCESS_TOKEN yarn upload-binaries || exit 0; fi;
