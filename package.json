@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/joshuef/safe-nodejs.git"
+    "url": "git+https://github.com/maidsafe/safe-nodejs.git"
   },
   "files": [
     "native/index.node",
@@ -23,7 +23,7 @@
   ],
   "binary": {
     "module_name": "index",
-    "host": "https://github.com/joshuef/safe-nodejs/releases/download/",
+    "host": "https://github.com/maidsafe/safe-nodejs/releases/download/",
     "remote_path": "{version}",
     "package_name": "{node_abi}-{platform}-{arch}.tar.gz",
     "module_path": "./native",
