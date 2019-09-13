@@ -14,7 +14,7 @@ Before uploading binaries you should ensure you remove `native/target` folder or
 
 Then `yarn upload binaries` will upload the current node version and an electron one too.
 
-To trigger a release to gitub, a commit with message `"[publish binary]"` is needed.
+Releases are triggered on github via the presence of TRAVIS_TAG.
 
 ## License
 
