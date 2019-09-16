@@ -64,19 +64,9 @@ declare_types! {
             };
 
             println!("Creating XorUrlEncoder instance");
-            let xorurl_encoder = XorUrlEncoder::new(xorname, type_tag, data_type, content_type, path, sub_names, content_version);
+            let xorurl_encoder = XorUrlEncoder::new(xorname, type_tag, data_type, content_type, path, sub_names, content_version).unwrap_or_else(|err| { panic!(format!("Failed to instantiate XorUrlEncoder: {:?}", err)) } );
             Ok(xorurl_encoder)
         }
-
-        // Instantiate from a XOR-URL string
-        // pub fn from_url(xorurl: &str) -> ResultReturn<Self>
-        /*method from_url(mut cx) {
-            let xorurl = cx.argument::<JsString>(0)?.value();
-            let data = XorUrlEncoder::from_url(&xorurl).unwrap_or_else(|err| { panic!(format!("Failed to create from URL: {:?}", err)) } );
-
-            let this = cx.this();
-            Ok(this.upcast())
-        }*/
 
         // pub fn encoding_version(&self) -> u64
         method encoding_version(mut cx) {
@@ -327,9 +317,12 @@ declare_types! {
         // pub fn files_container_create(&mut self, location: &str, dest: Option<String>, recursive: bool, dry_run: bool) -> ResultReturn<(XorUrl, ProcessedFiles, FilesMap)>
         method files_container_create(mut cx) {
             let location = cx.argument::<JsString>(0)?.value();
+            #[allow(unused_assignments)]
+            let mut str = String::default();
             let dest = match cx.argument_opt(1) {
                 Some(arg) => {
-                    Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value())
+                    str = arg.downcast::<JsString>().or_throw(&mut cx)?.value();
+                    Some(str.as_str())
                 },
                 None => None
             };
@@ -387,17 +380,91 @@ declare_types! {
             Ok(js_value)
         }
 
+        // Add file to an existing FilesContainer
+        // pub fn files_container_add(&mut self, source_file: &str, url: &str, force: bool, update_nrs: bool, dry_run: bool) -> ResultReturn<(u64, ProcessedFiles, FilesMap)>
+        method files_container_add(mut cx) {
+            let source_file = cx.argument::<JsString>(0)?.value();
+            let url = cx.argument::<JsString>(1)?.value();
+            let force = cx.argument::<JsBoolean>(2)?.value();
+            let update_nrs = cx.argument::<JsBoolean>(3)?.value();
+            let dry_run = cx.argument::<JsBoolean>(4)?.value();
+            println!("Adding to FilesContainer: {} - {} - {} - {} - {}", source_file, url, force, update_nrs, dry_run);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.files_container_add(&source_file, &url, force, update_nrs, dry_run).unwrap_or_else(|err| { panic!(format!("Failed to add file to FilesContainer: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Add file from raw bytes to an existing FilesContainer
+        // pub fn files_container_add_from_raw(&mut self, data: &[u8], url: &str, force: bool, update_nrs: bool, dry_run: bool) -> ResultReturn<(u64, ProcessedFiles, FilesMap)>
+        method files_container_add_from_raw(mut cx) {
+            let v: Handle<JsValue> = cx.argument(0)?;
+            let buffer: Handle<JsBuffer>;
+            let array_buffer: Handle<JsArrayBuffer>;
+            let data = if v.is_a::<JsBuffer>() {
+                buffer = cx.argument(0)?;
+                cx.borrow(&buffer, |data| data.as_slice::<u8>())
+            } else if v.is_a::<JsArrayBuffer>() {
+                array_buffer = cx.argument(0)?;
+                cx.borrow(&array_buffer, |data| data.as_slice::<u8>())
+            } else {
+                panic!("A Buffer or ArrayBuffer is expected as first argument");
+            };
+
+            let url = cx.argument::<JsString>(1)?.value();
+            let force = cx.argument::<JsBoolean>(2)?.value();
+            let update_nrs = cx.argument::<JsBoolean>(3)?.value();
+            let dry_run = cx.argument::<JsBoolean>(4)?.value();
+            println!("Adding from raw bytes to FilesContainer: {:?} - {} - {} - {} - {}", data, url, force, update_nrs, dry_run);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.files_container_add_from_raw(&data, &url, force, update_nrs, dry_run).unwrap_or_else(|err| { panic!(format!("Failed to add file form raw bytes to FilesContainer: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
         // Pub PublishedImmutableData
         // pub fn files_put_published_immutable(&mut self, data: &[u8]) -> ResultReturn<XorUrl>
         method files_put_published_immutable(mut cx) {
-            let b: Handle<JsArrayBuffer> = cx.argument(0)?;
-            let data = cx.borrow(&b, |data| data.as_slice::<u8>());
+            let v: Handle<JsValue> = cx.argument(0)?;
+            let buffer: Handle<JsBuffer>;
+            let array_buffer: Handle<JsArrayBuffer>;
+            let data = if v.is_a::<JsBuffer>() {
+                buffer = cx.argument(0)?;
+                cx.borrow(&buffer, |data| data.as_slice::<u8>())
+            } else if v.is_a::<JsArrayBuffer>() {
+                array_buffer = cx.argument(0)?;
+                cx.borrow(&array_buffer, |data| data.as_slice::<u8>())
+            } else {
+                panic!("A Buffer or ArrayBuffer is expected as first argument");
+            };
+
+            #[allow(unused_assignments)]
+            let mut str = String::default();
+            let media_type = match cx.argument_opt(1) {
+                Some(arg) => {
+                    str = arg.downcast::<JsString>().or_throw(&mut cx)?.value();
+                    Some(str.as_str())
+                },
+                None => None
+            };
             println!("Putting PublishedImmutableData: {:?}", data);
             let url = {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                user.files_put_published_immutable(&data).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
+                user.files_put_published_immutable(&data, media_type).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
             };
 
             Ok(cx.string(&url).upcast())
