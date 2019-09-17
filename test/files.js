@@ -1,4 +1,4 @@
-var assert = require('assert');
+const assert = require('assert');
 
 const { new_safe } = require('./helpers.js');
 

@@ -18,19 +18,62 @@ pub extern "C" fn __cxa_pure_virtual() {
     loop {}
 }
 
+const SAFE_CONTENT_TYPE: &[SafeContentType] = &[
+    SafeContentType::Raw,             // 0x00
+    SafeContentType::Wallet,          // 0x01
+    SafeContentType::FilesContainer,  // 0x02
+    SafeContentType::NrsMapContainer, // 0x03
+];
+
+const SAFE_DATA_TYPE: &[SafeDataType] = &[
+    SafeDataType::SafeKey,                        // 0x00
+    SafeDataType::PublishedImmutableData,         // 0x01
+    SafeDataType::UnpublishedImmutableData,       // 0x02
+    SafeDataType::SeqMutableData,                 // 0x03
+    SafeDataType::UnseqMutableData,               // 0x04
+    SafeDataType::PublishedSeqAppendOnlyData,     // 0x05
+    SafeDataType::PublishedUnseqAppendOnlyData,   // 0x06
+    SafeDataType::UnpublishedSeqAppendOnlyData,   // 0x07
+    SafeDataType::UnpublishedUnseqAppendOnlyData, // 0x08
+];
+
 declare_types! {
     /// JS class wrapping XorUrlEncoder struct
     pub class JsXorUrlEncoder for XorUrlEncoder {
         // Initialise a new XorUrlEncoder instance
         // pub fn new(xorname: XorName, type_tag: u64, data_type: SafeDataType, content_type: SafeContentType, path: Option<&str>, sub_names: Option<Vec<String>>, content_version: Option<u64>) -> Self
         init(mut cx) {
-            let b: Handle<JsArrayBuffer> = cx.argument(0)?;
-            let xorname_slice = cx.borrow(&b, |data| data.as_slice::<u8>());
+            let v0: Handle<JsValue> = cx.argument(0)?;
+            let buffer: Handle<JsBuffer>;
+            let array_buffer: Handle<JsArrayBuffer>;
+            let xorname_slice = if v0.is_a::<JsBuffer>() {
+                buffer = cx.argument(0)?;
+                cx.borrow(&buffer, |data| data.as_slice::<u8>())
+            } else if v0.is_a::<JsArrayBuffer>() {
+                array_buffer = cx.argument(0)?;
+                cx.borrow(&array_buffer, |data| data.as_slice::<u8>())
+            } else {
+                panic!("A Buffer or ArrayBuffer is expected as first argument");
+            };
             let mut xorname = XorName::default();
             xorname.0.copy_from_slice(&xorname_slice);
+
             let type_tag = cx.argument::<JsNumber>(1)?.value() as u64;
-            let data_type = SafeDataType::PublishedImmutableData; //cx.argument::<JsNumber>(2)?.value();
-            let content_type = SafeContentType::Raw;//cx.argument::<JsNumber>(3)?.value();
+
+            let data_type_index = cx.argument::<JsNumber>(2)?.value();
+            let data_type = SAFE_DATA_TYPE[data_type_index as usize].clone();
+
+            let v3: Handle<JsValue> = cx.argument(3)?;
+            let content_type = if v3.is_a::<JsNumber>() {
+                let content_type_index = cx.argument::<JsNumber>(3)?.value();
+                SAFE_CONTENT_TYPE[content_type_index as usize].clone()
+            } else if v3.is_a::<JsString>() {
+                let media_type_str = cx.argument::<JsString>(3)?.value();
+                SafeContentType::MediaType(media_type_str.to_string())
+            } else {
+                panic!("MediaType argument contains an invalid value");
+            };
+
             #[allow(unused_assignments)]
             let mut str = String::default();
             let path = match cx.argument_opt(4) {
@@ -91,7 +134,8 @@ declare_types! {
                 let user = this.borrow(&guard);
                 user.data_type()
             };
-            Ok(cx.number(1 as f64).upcast())
+            let index = SAFE_DATA_TYPE.iter().position(|r| r == &data).unwrap();
+            Ok(cx.number(index as f64).upcast())
         }
 
         // pub fn content_type(&self) -> SafeContentType
@@ -102,7 +146,12 @@ declare_types! {
                 let user = this.borrow(&guard);
                 user.content_type()
             };
-            Ok(cx.number(1 as f64).upcast())
+            if let SafeContentType::MediaType(media_type_str) = data {
+                Ok(cx.string(media_type_str).upcast())
+            } else {
+                let index = SAFE_CONTENT_TYPE.iter().position(|r| r == &data).unwrap();
+                Ok(cx.number(index as f64).upcast())
+            }
         }
 
         // pub fn xorname(&self) -> XorName
@@ -604,5 +653,24 @@ register_module!(mut m, {
     env_logger::init();
     m.export_class::<JsSafe>("Safe")?;
     m.export_class::<JsXorUrlEncoder>("XorUrlEncoder")?;
+
+    let safe_data_type = JsObject::new(&mut m);
+    for (i, data_type) in SAFE_DATA_TYPE.iter().enumerate() {
+        let js_number = m.number(i as f64);
+        safe_data_type
+            .set(&mut m, data_type.to_string().as_str(), js_number)
+            .unwrap();
+    }
+    m.export_value("SafeDataType", safe_data_type)?;
+
+    let safe_content_type = JsObject::new(&mut m);
+    for (i, content_type) in SAFE_CONTENT_TYPE.iter().enumerate() {
+        let js_number = m.number(i as f64);
+        safe_content_type
+            .set(&mut m, content_type.to_string().as_str(), js_number)
+            .unwrap();
+    }
+    m.export_value("SafeContentType", safe_content_type)?;
+
     Ok(())
 });
