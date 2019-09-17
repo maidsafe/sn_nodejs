@@ -5,6 +5,10 @@ extern crate neon;
 #[macro_use]
 extern crate neon_serde;
 
+extern crate log;
+
+use env_logger;
+use log::debug;
 use neon::prelude::*;
 use safe_cli::{Safe, SafeContentType, SafeDataType, XorName, XorUrlEncoder};
 
@@ -63,7 +67,7 @@ declare_types! {
                 None => None
             };
 
-            println!("Creating XorUrlEncoder instance");
+            debug!("Creating XorUrlEncoder instance");
             let xorurl_encoder = XorUrlEncoder::new(xorname, type_tag, data_type, content_type, path, sub_names, content_version).unwrap_or_else(|err| { panic!(format!("Failed to instantiate XorUrlEncoder: {:?}", err)) } );
             Ok(xorurl_encoder)
         }
@@ -233,7 +237,7 @@ declare_types! {
                 Some(arg) => arg.downcast::<JsString>().or_throw(&mut cx)?.value(),
                 None => "".to_string()
             };
-            println!("Creating Safe API instance with xorurl base: '{}'", xorurl_base);
+            debug!("Creating Safe API instance with xorurl base: '{}'", xorurl_base);
             let safe = Safe::new(&xorurl_base);
 
             Ok(safe)
@@ -247,7 +251,7 @@ declare_types! {
                 let user = this.borrow(&guard);
                 user.xorurl_base.clone()
             };
-            println!("{}", &base);
+            debug!("{}", &base);
             Ok(cx.string(&base).upcast())
         }
 
@@ -266,10 +270,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                println!("Sending application authorisation request...");
+                debug!("Sending application authorisation request...");
                 user.auth_app(&app_id, &app_name, &app_vendor, port).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } )
             };
-            println!("Application successfully authorised!");
+            debug!("Application successfully authorised!");
             Ok(cx.string(&auth_credentials).upcast())
         }
 
@@ -292,7 +296,7 @@ declare_types! {
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let _ = user.connect(&app_id, credentials).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
-                println!("Successfully connected to the Network!");
+                debug!("Successfully connected to the Network!");
             }
             Ok(cx.undefined().upcast())
         }
@@ -301,7 +305,7 @@ declare_types! {
         // pub fn fetch(&self, url: &str) -> ResultReturn<SafeData>
         method fetch(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            println!("Fetching from: {}", url);
+            debug!("Fetching from: {}", url);
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -329,7 +333,7 @@ declare_types! {
 
             let recursive = cx.argument::<JsBoolean>(2)?.value();
             let dry_run = cx.argument::<JsBoolean>(3)?.value();
-            println!("Creating FilesContainer: {} - {:?} - {} - {}", location, dest, recursive, dry_run);
+            debug!("Creating FilesContainer: {} - {:?} - {} - {}", location, dest, recursive, dry_run);
 
             let data = {
                 let mut this = cx.this();
@@ -351,7 +355,7 @@ declare_types! {
             let delete = cx.argument::<JsBoolean>(3)?.value();
             let update_nrs = cx.argument::<JsBoolean>(4)?.value();
             let dry_run = cx.argument::<JsBoolean>(5)?.value();
-            println!("Sync-ing FilesContainer: {} - {} - {} - {} - {} - {}", location, url, recursive, delete, update_nrs, dry_run);
+            debug!("Sync-ing FilesContainer: {} - {} - {} - {} - {} - {}", location, url, recursive, delete, update_nrs, dry_run);
 
             let data = {
                 let mut this = cx.this();
@@ -368,7 +372,7 @@ declare_types! {
         // pub fn files_container_get(&self, url: &str) -> ResultReturn<(u64, FilesMap)>
         method files_container_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            println!("Fetching FilesContainer from: {}", url);
+            debug!("Fetching FilesContainer from: {}", url);
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -388,7 +392,7 @@ declare_types! {
             let force = cx.argument::<JsBoolean>(2)?.value();
             let update_nrs = cx.argument::<JsBoolean>(3)?.value();
             let dry_run = cx.argument::<JsBoolean>(4)?.value();
-            println!("Adding to FilesContainer: {} - {} - {} - {} - {}", source_file, url, force, update_nrs, dry_run);
+            debug!("Adding to FilesContainer: {} - {} - {} - {} - {}", source_file, url, force, update_nrs, dry_run);
 
             let data = {
                 let mut this = cx.this();
@@ -421,7 +425,7 @@ declare_types! {
             let force = cx.argument::<JsBoolean>(2)?.value();
             let update_nrs = cx.argument::<JsBoolean>(3)?.value();
             let dry_run = cx.argument::<JsBoolean>(4)?.value();
-            println!("Adding from raw bytes to FilesContainer: {:?} - {} - {} - {} - {}", data, url, force, update_nrs, dry_run);
+            debug!("Adding from raw bytes to FilesContainer: {:?} - {} - {} - {} - {}", data, url, force, update_nrs, dry_run);
 
             let data = {
                 let mut this = cx.this();
@@ -459,7 +463,7 @@ declare_types! {
                 },
                 None => None
             };
-            println!("Putting PublishedImmutableData: {:?}", data);
+            debug!("Putting PublishedImmutableData: {:?}", data);
             let url = {
                 let mut this = cx.this();
                 let guard = cx.lock();
@@ -474,7 +478,7 @@ declare_types! {
         // pub fn files_get_published_immutable(&self, url: &str) -> ResultReturn<Vec<u8>>
         method files_get_published_immutable(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            println!("Fetching PublishedImmutableData from: {}", url);
+            debug!("Fetching PublishedImmutableData from: {}", url);
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -494,7 +498,7 @@ declare_types! {
             let default = cx.argument::<JsBoolean>(2)?.value();
             let hard_link = cx.argument::<JsBoolean>(3)?.value();
             let dry_run = cx.argument::<JsBoolean>(4)?.value();
-            println!("Creating an NRS MAP Container: {} - {} - {} - {} - {}", name, link, default, hard_link, dry_run);
+            debug!("Creating an NRS MAP Container: {} - {} - {} - {} - {}", name, link, default, hard_link, dry_run);
 
             let data = {
                 let mut this = cx.this();
@@ -515,7 +519,7 @@ declare_types! {
             let default = cx.argument::<JsBoolean>(2)?.value();
             let hard_link = cx.argument::<JsBoolean>(3)?.value();
             let dry_run = cx.argument::<JsBoolean>(4)?.value();
-            println!("Creating an NRS MAP Container: {} - {} - {} - {} - {}", name, link, default, hard_link, dry_run);
+            debug!("Creating an NRS MAP Container: {} - {} - {} - {} - {}", name, link, default, hard_link, dry_run);
 
             let data = {
                 let mut this = cx.this();
@@ -533,7 +537,7 @@ declare_types! {
         method nrs_map_container_remove(mut cx) {
             let name = cx.argument::<JsString>(0)?.value();
             let dry_run = cx.argument::<JsBoolean>(1)?.value();
-            println!("Removing an NRS Map Container: {} - {}", name, dry_run);
+            debug!("Removing an NRS Map Container: {} - {}", name, dry_run);
 
             let data = {
                 let mut this = cx.this();
@@ -550,7 +554,7 @@ declare_types! {
         // pub fn nrs_map_container_get(&self, url: &str) -> ResultReturn<(u64, NrsMap)>
         method nrs_map_container_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            println!("Fetching NRS Map Container from: {}", url);
+            debug!("Fetching NRS Map Container from: {}", url);
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -566,7 +570,7 @@ declare_types! {
         // pub fn parse_url(url: &str) -> ResultReturn<XorUrlEncoder>
         method parse_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            println!("Parsing a safe:// URL: {}", url);
+            debug!("Parsing a safe:// URL: {}", url);
             let _xorurl_encoder = Safe::parse_url(&url).unwrap_or_else(|err| { panic!(format!("Failed to parse a safe:// URL: {:?}", err)) } );
             //let xorurl_encoder_js = JsXorUrlEncoder::new();
 
@@ -580,7 +584,7 @@ declare_types! {
         // pub fn parse_and_resolve_url(&self, url: &str) -> ResultReturn<(XorUrlEncoder, bool)>
         method parse_and_resolve_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            println!("Parsing and resolving a safe:// URL: {}", url);
+            debug!("Parsing and resolving a safe:// URL: {}", url);
             let _data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -597,6 +601,7 @@ declare_types! {
 }
 
 register_module!(mut m, {
+    env_logger::init();
     m.export_class::<JsSafe>("Safe")?;
     m.export_class::<JsXorUrlEncoder>("XorUrlEncoder")?;
     Ok(())

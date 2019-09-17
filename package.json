@@ -11,7 +11,8 @@
     "package": "node-pre-gyp package",
     "package-electron": "yarn node-pre-gyp package --runtime=electron --target=6.0.7 --dist-url=https://electronjs.org/headers",
     "upload-binaries": "yarn package && yarn package-electron && node-pre-gyp-github publish",
-    "neon-build-electron": "npm_config_target=6.0.7 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release"
+    "neon-build-electron": "npm_config_target=6.0.7 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
+    "test": "cross-env RUSTFLAGS='--cfg feature=\"scl-mock\"' neon build --release && cross-env NODE_ENV=test mocha --recursive"
   },
   "repository": {
     "type": "git",
@@ -36,5 +37,9 @@
     "node-pre-gyp": "amilajack/node-pre-gyp",
     "node-pre-gyp-github": "^1.4.3",
     "yarn": "^1.17.3"
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.1",
+    "mocha": "^6.2.0"
   }
 }
