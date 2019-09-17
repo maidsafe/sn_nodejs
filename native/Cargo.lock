@@ -2174,7 +2174,7 @@ dependencies = [
 [[package]]
 name = "safe_cli"
 version = "0.3.0"
-source = "git+https://github.com/maidsafe/safe-cli?rev=756c77ca#756c77ca03cc684d98d70d887aab4d250c66d7d7"
+source = "git+https://github.com/maidsafe/safe-cli#756c77ca03cc684d98d70d887aab4d250c66d7d7"
 dependencies = [
  "bincode 1.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2248,7 +2248,7 @@ dependencies = [
  "neon 0.3.1 (git+https://github.com/neon-bindings/neon?branch=windows-electron)",
  "neon-build 0.3.1 (git+https://github.com/neon-bindings/neon?branch=windows-electron)",
  "neon-serde 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "safe_cli 0.3.0 (git+https://github.com/maidsafe/safe-cli?rev=756c77ca)",
+ "safe_cli 0.3.0 (git+https://github.com/maidsafe/safe-cli)",
 ]
 
 [[package]]
@@ -3460,7 +3460,7 @@ dependencies = [
 "checksum safe-nd 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c978fa3c89fada1890d4128bebeca88d9bf5644800c0782a2ebf23447f883aa2"
 "checksum safe_app 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3824fe6c85c192f1da37865f291ccd67c969ee72c79e91d46c998dd17e00eb3f"
 "checksum safe_authenticator 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "581af5ef5032be3b3084ede70c72f899ab49cdbdf25e5e843692758909946722"
-"checksum safe_cli 0.3.0 (git+https://github.com/maidsafe/safe-cli?rev=756c77ca)" = "<none>"
+"checksum safe_cli 0.3.0 (git+https://github.com/maidsafe/safe-cli)" = "<none>"
 "checksum safe_core 0.33.0 (registry+https://github.com/rust-lang/crates.io-index)" = "182eb4c695987a158bf940452009a6edb11dd39201eb88a85164439fe37e49f3"
 "checksum safemem 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d2b08423011dae9a5ca23f07cf57dac3857f5c885d352b76f6d95f4aea9434d0"
 "checksum same-file 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)" = "585e8ddcedc187886a30fa705c47985c3fa88d06624095856b36ca0b82ff4421"
