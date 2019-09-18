@@ -22,6 +22,9 @@ before_install:
     fi;
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'; fi;
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then PowerShell -File scripts\\install_rustup.ps1; fi;
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export PATH=$PATH:~/.cargo/bin ; fi;
+  - rustup -V
+  - rustc -V
 
 
   # Install NPM packages
