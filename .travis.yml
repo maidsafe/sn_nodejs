@@ -3,6 +3,7 @@ env:
     - RUST_BACKTRACE=1
     - PATH=$PATH:$HOME/.cargo/bin
     - YARN_GPG=no # otherwise this starts gpg-agent that never exits
+
 os:
   - osx
   - linux
@@ -45,7 +46,6 @@ before_install:
   - rustup -V
   - rustc -V
 
-
   # Install NPM packages
   - node -v
   - npm -v
@@ -55,9 +55,15 @@ before_install:
   # First build for electron 6 to get that ABI. Other header rebuilds work fine from there.
   - if [[ ${TRAVIS_TAG} != "" ]]; then yarn neon-build-electron; fi;
 
+install:
+  # Install only npm deps to be able to run tests
+  - cross-env SAFE_NODEJS_DEV=true yarn
 
 script:
+  # Run automated NodeJs tests
   - yarn test
+
+after_success:
   # remove native folder to prevent packaging EVERYTHING
   - rm -rf native/target
   # Publish when built on a tag
