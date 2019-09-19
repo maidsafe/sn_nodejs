@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 [[package]]
 name = "adler32"
-version = "1.0.3"
+version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -1248,7 +1248,7 @@ name = "miniz_oxide"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "adler32 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "adler32 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2173,8 +2173,8 @@ dependencies = [
 
 [[package]]
 name = "safe_cli"
-version = "0.3.0"
-source = "git+https://github.com/maidsafe/safe-cli#756c77ca03cc684d98d70d887aab4d250c66d7d7"
+version = "0.4.0"
+source = "git+https://github.com/maidsafe/safe-cli#159c3dbef0f299cdb78e09ecf706fa3e1eb64a79"
 dependencies = [
  "bincode 1.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2248,7 +2248,7 @@ dependencies = [
  "neon 0.3.1 (git+https://github.com/neon-bindings/neon?branch=windows-electron)",
  "neon-build 0.3.1 (git+https://github.com/neon-bindings/neon?branch=windows-electron)",
  "neon-serde 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "safe_cli 0.3.0 (git+https://github.com/maidsafe/safe-cli)",
+ "safe_cli 0.4.0 (git+https://github.com/maidsafe/safe-cli)",
 ]
 
 [[package]]
@@ -3224,7 +3224,7 @@ dependencies = [
 ]
 
 [metadata]
-"checksum adler32 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "7e522997b529f05601e05166c07ed17789691f562762c7f3b987263d2dedee5c"
+"checksum adler32 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)" = "5d2e7343e7fc9de883d1b0341e0b13970f764c14101234857d2ddafa1cb1cac2"
 "checksum aho-corasick 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)" = "81ce3d38065e618af2d7b77e10c5ad9a069859b4be3c2250f674af3840d9c8a5"
 "checksum aho-corasick 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)" = "58fb5e95d83b38284460a5fda7d6470aa0b8844d283a0b614b8535e880800d2d"
 "checksum alloc-no-stdlib 2.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "5192ec435945d87bc2f70992b4d818154b5feede43c09fb7592146374eac90a6"
@@ -3460,7 +3460,7 @@ dependencies = [
 "checksum safe-nd 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c978fa3c89fada1890d4128bebeca88d9bf5644800c0782a2ebf23447f883aa2"
 "checksum safe_app 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3824fe6c85c192f1da37865f291ccd67c969ee72c79e91d46c998dd17e00eb3f"
 "checksum safe_authenticator 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "581af5ef5032be3b3084ede70c72f899ab49cdbdf25e5e843692758909946722"
-"checksum safe_cli 0.3.0 (git+https://github.com/maidsafe/safe-cli)" = "<none>"
+"checksum safe_cli 0.4.0 (git+https://github.com/maidsafe/safe-cli)" = "<none>"
 "checksum safe_core 0.33.0 (registry+https://github.com/rust-lang/crates.io-index)" = "182eb4c695987a158bf940452009a6edb11dd39201eb88a85164439fe37e49f3"
 "checksum safemem 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d2b08423011dae9a5ca23f07cf57dac3857f5c885d352b76f6d95f4aea9434d0"
 "checksum same-file 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)" = "585e8ddcedc187886a30fa705c47985c3fa88d06624095856b36ca0b82ff4421"
