@@ -7,7 +7,7 @@
   "contributors": "Gabriel Viganotti <gabrielviganotti@gmail.com>",
   "license": "(MIT OR BSD-3-Clause)",
   "scripts": {
-    "install": "node-pre-gyp install --fallback-to-build=false || neon build --release",
+    "postinstall": "if cross-var test $SAFE_NODEJS_DEV != \"true\"; then node-pre-gyp install --fallback-to-build=false || neon build --release ; fi ",
     "package": "node-pre-gyp package",
     "package-electron": "yarn node-pre-gyp package --runtime=electron --target=6.0.7 --dist-url=https://electronjs.org/headers",
     "upload-binaries": "yarn package && yarn package-electron && node-pre-gyp-github publish",
@@ -32,14 +32,14 @@
   },
   "dependencies": {
     "add": "^2.0.6",
-    "cross-env": "^6.0.0",
     "neon-cli": "^0.3.1",
     "node-pre-gyp": "amilajack/node-pre-gyp",
     "node-pre-gyp-github": "^1.4.3",
     "yarn": "^1.17.3"
   },
   "devDependencies": {
-    "cross-env": "^5.2.1",
+    "cross-env": "^6.0.0",
+    "cross-var": "^1.1.0",
     "mocha": "^6.2.0"
   }
 }
