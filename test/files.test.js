@@ -2,10 +2,10 @@ const assert = require('assert');
 
 const { new_safe } = require('./helpers.js');
 
-describe('Files API', function() {
+describe('Files API', () => {
   let safe = new_safe();
 
-  it('Create a FilesContainer and fetch it', function() {
+  test('Create a FilesContainer and fetch it', () => {
     let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
     let processedFiles = filesContainer[1];
     let filesMap = filesContainer[2];
@@ -16,10 +16,10 @@ describe('Files API', function() {
     assert.equal(fetched.FilesContainer.files_map['/test.txt'].link, filesMap['/test.txt'].link);
 
     let fetchedFile = safe.fetch(`${filesContainer[0]}/test.txt`);
-    assert.equal("hello test.txt!\n", String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublishedImmutableData.data)));
+    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublishedImmutableData.data)).startsWith("hello test.txt!"));
   });
 
-  it('Get a FilesContainer', function() {
+  test('Get a FilesContainer', () => {
     let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
     let filesMap = filesContainer[2];
 
@@ -28,7 +28,7 @@ describe('Files API', function() {
     assert.equal(filesContainerData[1]['/test.txt'].link, filesMap['/test.txt'].link);
   });
 
-  it('Sync a FilesContainer', function() {
+  test('Sync a FilesContainer', () => {
     let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
     let filesMap = filesContainer[2];
 
@@ -40,7 +40,7 @@ describe('Files API', function() {
     assert.equal(filesContainerData[1]['/new-files.js'].link, newFilesMap['/new-files.js'].link);
   });
 
-  it('Add a file to FilesContainer from Buffer and get it', function() {
+  test('Add a file to FilesContainer from Buffer and get it', () => {
     let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
     let filesMap = filesContainer[2];
 
@@ -56,7 +56,7 @@ describe('Files API', function() {
     assert.equal(rawBytes.toString(), String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublishedImmutableData.data)));
   });
 
-  it('Add a file to FilesContainer from Uint8Array and get it', function() {
+  test('Add a file to FilesContainer from Uint8Array and get it', () => {
     let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
     let filesMap = filesContainer[2];
 
@@ -72,7 +72,7 @@ describe('Files API', function() {
     assert.equal(rawBytes.toString(), new Uint8Array(fetchedFile.PublishedImmutableData.data).toString());
   });
 
-  it('Put a PublishedImmutableData from Buffer and get it', function() {
+  test('Put a PublishedImmutableData from Buffer and get it', () => {
     let rawBytes = Buffer.from("bytes-of-file");
     let immdUrl = safe.files_put_published_immutable(rawBytes);
 
@@ -80,7 +80,7 @@ describe('Files API', function() {
     assert.equal(rawBytes.toString(), String.fromCharCode.apply(null, new Uint8Array(fetchedFile)));
   });
 
-  it('Put a PublishedImmutableData from Uint8Array and get it', function() {
+  test('Put a PublishedImmutableData from Uint8Array and get it', () => {
     let rawBytes = Uint8Array.from([62, 79, 74, 65, 73]);
     let immdUrl = safe.files_put_published_immutable(rawBytes);
 

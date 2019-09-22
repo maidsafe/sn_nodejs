@@ -3,10 +3,10 @@ const assert = require('assert');
 const { new_safe } = require('./helpers.js');
 const { SafeDataType, SafeContentType, XorUrlEncoder } = require('../lib/index');
 
-describe('XorUrlEncoder API', function() {
+describe('XorUrlEncoder API', () => {
   let safe = new_safe();
 
-  it('Instantiate a XorUrlEncoder', function() {
+  test('Instantiate a XorUrlEncoder', () => {
     let random = Math.floor(Math.random() * Math.floor(1000));
     let xorname = Uint8Array.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1]);
     let subNames = ['sub1', 'sub2'];
@@ -33,7 +33,7 @@ describe('XorUrlEncoder API', function() {
     assert(xorUrlEncoder.to_string().endsWith("/newpath?v=888"));
   });
 
-  it('Encode XorUrl with MediaType', function() {
+  test('Encode XorUrl with MediaType', () => {
     let random = Math.floor(Math.random() * Math.floor(1000));
     let xorname = Uint8Array.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1]);
     let subNames = ['sub1', 'sub2'];
