@@ -7,6 +7,7 @@ npm-debug.log*
 pids
 *.pid
 *.seed
+fake_vault_data.json
 
 # build
 build

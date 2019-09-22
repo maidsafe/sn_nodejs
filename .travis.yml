@@ -24,8 +24,8 @@ before_install:
     travis-wait-enhanced --version; fi;
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget -qO- "https://github.com/crazy-max/travis-wait-enhanced/releases/download/v0.2.0/travis-wait-enhanced_0.2.0_darwin_x86_64.tar.gz" | tar -zxvf - travis-wait-enhanced
-    ll /Users/travis
-    mkdirp /Users/travis/bin
+    ls -l /Users/travis
+    mkdir -p /Users/travis/bin
     mv travis-wait-enhanced /Users/travis/bin/
     export PATH="/Users/travis/bin:${PATH}"
     travis-wait-enhanced --version; fi;
@@ -42,28 +42,24 @@ before_install:
     fi;
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then PowerShell -Command 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned'; fi;
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then PowerShell -File scripts\\install_rustup.ps1; fi;
-  # - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export PATH=$PATH:~/.cargo/bin ; fi;
   - rustup -V
   - rustc -V
-
-  # Install NPM packages
   - node -v
   - npm -v
   - echo $TRAVIS_NODE_VERSION
-  - travis-wait-enhanced --timeout 120m yarn
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then yarn cross-env npm_config_target=6.0.7 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release; fi;
-  # First build for electron 6 to get that ABI. Other header rebuilds work fine from there.
-  - if [[ ${TRAVIS_TAG} != "" ]]; then yarn neon-build-electron; fi;
 
 install:
   # Install only npm deps to be able to run tests
-  - cross-env SAFE_NODEJS_DEV=true yarn
+  - SAFE_NODEJS_DEV=true travis-wait-enhanced --timeout 120m yarn
 
 script:
   # Run automated NodeJs tests
-  - yarn test
+  - yarn test-with-mock
 
 after_success:
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then yarn cross-env npm_config_target=6.0.7 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release; fi;
+  # First build for electron 6 to get that ABI. Other header rebuilds work fine from there.
+  - if [[ ${TRAVIS_TAG} != "" ]]; then yarn neon-build-electron; fi;
   # remove native folder to prevent packaging EVERYTHING
   - rm -rf native/target
   # Publish when built on a tag
