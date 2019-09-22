@@ -24,4 +24,4 @@ jobs:
     - name: npm install, build and test
       run: |
         SAFE_NODEJS_DEV=true npm install
-        npm test
+        npm run test
