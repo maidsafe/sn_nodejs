@@ -1,13 +1,13 @@
 const assert = require('assert');
 const { new_safe } = require('./helpers.js');
 
-describe('NRS API', function() {
+describe('NRS API', () => {
   let safe = new_safe();
   let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
   let filesContainerXorUrl = filesContainer[0];
   let filesMap = filesContainer[2];
 
-  it('Create an NRS name', function() {
+  test('Create an NRS name', () => {
     let random = Math.floor(Math.random() * Math.floor(1000));
     let nrsName = `safe://pubname-${random}`;
     let nrsMapData = safe.nrs_map_container_create(nrsName, `${filesContainerXorUrl}?v=0`, true, false, false);
@@ -18,7 +18,7 @@ describe('NRS API', function() {
     assert.equal(nrsMapData[1].default.OtherRdf.link, `${filesContainerXorUrl}?v=0`);
   });
 
-  it('Add a subname to an NRS name', function() {
+  test('Add a subname to an NRS name', () => {
     let random = Math.floor(Math.random() * Math.floor(1000));
     let nrsName = `safe://pubname-${random}`;
     let nrsMapData = safe.nrs_map_container_create(nrsName, `${filesContainerXorUrl}?v=0`, true, false, false);
@@ -29,10 +29,10 @@ describe('NRS API', function() {
     let fetchedTxt = safe.fetch(nrsName);
     assert.equal(fetchedTxt.FilesContainer.files_map['/test.txt'].link, filesMap['/test.txt'].link);
     let fetchedMd = safe.fetch(nrsSubName);
-    assert.equal("hello test.md!\n", String.fromCharCode.apply(null, new Uint8Array(fetchedMd.PublishedImmutableData.data)));
+    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedMd.PublishedImmutableData.data)).startsWith("hello test.md!"));
   });
 
-  it('Remove a subname from an NRS name', function() {
+  test('Remove a subname from an NRS name', () => {
     let random = Math.floor(Math.random() * Math.floor(1000));
     let nrsName = `safe://pubname-${random}`;
     safe.nrs_map_container_create(nrsName, `${filesContainerXorUrl}?v=0`, true, false, false);

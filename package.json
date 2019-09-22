@@ -7,12 +7,14 @@
   "contributors": "Gabriel Viganotti <gabrielviganotti@gmail.com>",
   "license": "(MIT OR BSD-3-Clause)",
   "scripts": {
-    "postinstall": "if cross-var test $SAFE_NODEJS_DEV != \"true\"; then node-pre-gyp install --fallback-to-build=false || neon build --release ; fi ",
+    "postinstall": "node scripts/postinstall.js",
+    "download-node-abi": "node-pre-gyp install --fallback-to-build=false || neon build --release",
     "package": "node-pre-gyp package",
     "package-electron": "yarn node-pre-gyp package --runtime=electron --target=6.0.7 --dist-url=https://electronjs.org/headers",
     "upload-binaries": "yarn package && yarn package-electron && node-pre-gyp-github publish",
     "neon-build-electron": "npm_config_target=6.0.7 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
-    "test": "cross-env RUSTFLAGS='--cfg feature=\"scl-mock\"' neon build --release && cross-env NODE_ENV=test mocha --recursive"
+    "test-with-mock": "cross-env RUSTFLAGS=\"--cfg feature=\\\"scl-mock\\\"\" neon build --release && yarn test",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -39,7 +41,7 @@
   },
   "devDependencies": {
     "cross-env": "^6.0.0",
-    "cross-var": "^1.1.0",
+    "jest": "^24.9.0",
     "mocha": "^6.2.0"
   }
 }
