@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.2.4 (2019-09-23)
+
+
+### Bug Fixes
+
+* **ci:** remove native/target folder before creating electron package in CI ([951cb43](https://github.com/maidsafe/safe-nodejs/commit/951cb43))
+
 ### 0.2.3 (2019-09-23)
 
 
