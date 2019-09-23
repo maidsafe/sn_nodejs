@@ -7,6 +7,7 @@
   "contributors": "Gabriel Viganotti <gabrielviganotti@gmail.com>",
   "license": "(MIT OR BSD-3-Clause)",
   "scripts": {
+	"bump": "standard-version -a",
     "postinstall": "node scripts/postinstall.js",
     "download-node-abi": "node-pre-gyp install --fallback-to-build=false || neon build --release",
     "package": "node-pre-gyp package",
@@ -37,6 +38,7 @@
     "neon-cli": "^0.3.1",
     "node-pre-gyp": "amilajack/node-pre-gyp",
     "node-pre-gyp-github": "^1.4.3",
+    "standard-version": "7.0.0",
     "yarn": "^1.17.3"
   },
   "devDependencies": {
