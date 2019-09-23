@@ -3,7 +3,13 @@ const { exec } = require('child_process');
 if (process.env.SAFE_NODEJS_DEV) {
     console.log('Skipped downloading node abi');
 } else {
-  exec('yarn run download-node-abi', (err, stdout, stderr) => {
+	const isTravis = process.env.TRAVIS;
+	let command = 'yarn run download-node-abi';
+
+	if( isTravis )
+		command = `travis-wait-enhanced ${command}`;
+
+  exec( command, (err, stdout, stderr) => {
     if (err) {
       // node couldn't execute the command
       return;
