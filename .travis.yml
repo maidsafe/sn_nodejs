@@ -66,6 +66,8 @@ after_success:
   - rm -rf build
   # build and publish electron
   - if [[ ${TRAVIS_TAG} != "" ]]; then yarn neon-build-electron; fi;
+  # remove native folder again to prevent packaging EVERYTHING
+  - rm -rf native/target
   # Publish when built on a tag
   - if [[ ${TRAVIS_TAG} != "" ]]; then yarn package-electron; fi;
   - if [[ ${TRAVIS_TAG} != "" ]]; then NODE_PRE_GYP_GITHUB_TOKEN=$GITHUB_ACCESS_TOKEN yarn publish-gh-draft || exit 0; fi;
