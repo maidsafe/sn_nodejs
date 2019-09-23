@@ -1,13 +1,13 @@
 {
   "name": "safe-nodejs",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "NodeJS binding for SAFE API",
   "main": "lib/index.js",
   "author": "Josh Wilson <joshuef@gmail.com>",
   "contributors": "Gabriel Viganotti <gabrielviganotti@gmail.com>",
   "license": "(MIT OR BSD-3-Clause)",
   "scripts": {
-	"bump": "standard-version -a",
+    "bump": "standard-version -a",
     "postinstall": "node scripts/postinstall.js",
     "download-node-abi": "node-pre-gyp install --fallback-to-build=false || neon build --release",
     "package": "node-pre-gyp package",
