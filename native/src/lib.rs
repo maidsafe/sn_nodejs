@@ -10,7 +10,7 @@ extern crate log;
 use env_logger;
 use log::debug;
 use neon::prelude::*;
-use safe_cli::{Safe, SafeContentType, SafeDataType, XorName, XorUrlEncoder};
+use safe_api::{Safe, SafeContentType, SafeDataType, XorName, XorUrlEncoder};
 
 // Temporary patch to have it work for electron v6
 #[no_mangle]
@@ -74,13 +74,8 @@ declare_types! {
                 panic!("MediaType argument contains an invalid value");
             };
 
-            #[allow(unused_assignments)]
-            let mut str = String::default();
             let path = match cx.argument_opt(4) {
-                Some(arg) => {
-                    str = arg.downcast::<JsString>().or_throw(&mut cx)?.value();
-                    Some(str.as_str())
-                },
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
                 None => None
             };
 
@@ -111,7 +106,7 @@ declare_types! {
             };
 
             debug!("Creating XorUrlEncoder instance");
-            let xorurl_encoder = XorUrlEncoder::new(xorname, type_tag, data_type, content_type, path, sub_names, content_version).unwrap_or_else(|err| { panic!(format!("Failed to instantiate XorUrlEncoder: {:?}", err)) } );
+            let xorurl_encoder = XorUrlEncoder::new(xorname, type_tag, data_type, content_type, path.as_ref().map(String::as_str), sub_names, content_version).unwrap_or_else(|err| { panic!(format!("Failed to instantiate XorUrlEncoder: {:?}", err)) } );
             Ok(xorurl_encoder)
         }
 
@@ -275,9 +270,7 @@ declare_types! {
             Ok(cx.string(&data).upcast())
         }
     }
-}
 
-declare_types! {
     /// JS class wrapping Safe struct
     pub class JsSafe for Safe {
         // Initialise a new Safe instance
@@ -330,13 +323,8 @@ declare_types! {
         // pub fn connect(&mut self, app_id: &str, auth_credentials: Option<&str>) -> ResultReturn<()>
         method connect(mut cx) {
             let app_id = cx.argument::<JsString>(0)?.value();
-            #[allow(unused_assignments)]
-            let mut str = String::default();
             let credentials = match cx.argument_opt(1) {
-                Some(arg) => {
-                    str = arg.downcast::<JsString>().or_throw(&mut cx)?.value();
-                    Some(str.as_str())
-                },
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
                 None => None
             };
 
@@ -344,7 +332,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                let _ = user.connect(&app_id, credentials).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
+                let _ = user.connect(&app_id, credentials.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
                 debug!("Successfully connected to the Network!");
             }
             Ok(cx.undefined().upcast())
@@ -366,17 +354,15 @@ declare_types! {
             Ok(js_value)
         }
 
+
+        //**** FilesContainer ****//
+
         // Upload files/folder into a new FilesContainer returning its XOR-URL
-        // pub fn files_container_create(&mut self, location: &str, dest: Option<String>, recursive: bool, dry_run: bool) -> ResultReturn<(XorUrl, ProcessedFiles, FilesMap)>
+        // pub fn files_container_create(&mut self, location: &str, dest: Option<&str>, recursive: bool, dry_run: bool) -> ResultReturn<(XorUrl, ProcessedFiles, FilesMap)>
         method files_container_create(mut cx) {
             let location = cx.argument::<JsString>(0)?.value();
-            #[allow(unused_assignments)]
-            let mut str = String::default();
             let dest = match cx.argument_opt(1) {
-                Some(arg) => {
-                    str = arg.downcast::<JsString>().or_throw(&mut cx)?.value();
-                    Some(str.as_str())
-                },
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
                 None => None
             };
 
@@ -388,7 +374,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                user.files_container_create(&location, dest, recursive, dry_run).unwrap_or_else(|err| { panic!(format!("Failed to create FilesContainer: {:?}", err)) } )
+                user.files_container_create(&location, dest.as_ref().map(String::as_str), recursive, dry_run).unwrap_or_else(|err| { panic!(format!("Failed to create FilesContainer: {:?}", err)) } )
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -503,13 +489,8 @@ declare_types! {
                 panic!("A Buffer or ArrayBuffer is expected as first argument");
             };
 
-            #[allow(unused_assignments)]
-            let mut str = String::default();
             let media_type = match cx.argument_opt(1) {
-                Some(arg) => {
-                    str = arg.downcast::<JsString>().or_throw(&mut cx)?.value();
-                    Some(str.as_str())
-                },
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
                 None => None
             };
             debug!("Putting PublishedImmutableData: {:?}", data);
@@ -517,7 +498,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                user.files_put_published_immutable(&data, media_type).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
+                user.files_put_published_immutable(&data, media_type.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
             };
 
             Ok(cx.string(&url).upcast())
@@ -538,6 +519,9 @@ declare_types! {
             let js_value = neon_serde::to_value(&mut cx, &data)?;
             Ok(js_value)
         }
+
+
+        //**** NRS ****//
 
         // NRS Map Container create
         // pub fn nrs_map_container_create(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> ResultReturn<(XorUrl, ProcessedEntries, NrsMap)>
@@ -617,7 +601,7 @@ declare_types! {
 
         // Parses a safe:// URL and returns all the info in a XorUrlEncoder instance.
         // pub fn parse_url(url: &str) -> ResultReturn<XorUrlEncoder>
-        method parse_url(mut cx) {
+        /*method parse_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Parsing a safe:// URL: {}", url);
             let _xorurl_encoder = Safe::parse_url(&url).unwrap_or_else(|err| { panic!(format!("Failed to parse a safe:// URL: {:?}", err)) } );
@@ -626,12 +610,12 @@ declare_types! {
             //let xorurl_encoder_js = JsXorUrlEncoder::new(&mut cx, xorurl_encoder.xorname())?;
             //Ok(xorurl_encoder_js.upcast())
             Ok(cx.boolean(true).upcast())
-        }
+        }*/
 
         // Parses a safe:// URL and returns all the info in a XorUrlEncoder instance.
         // It also returns a flag indicating if it the URL has to be resolved as NRS-URL
         // pub fn parse_and_resolve_url(&self, url: &str) -> ResultReturn<(XorUrlEncoder, bool)>
-        method parse_and_resolve_url(mut cx) {
+        /*method parse_and_resolve_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Parsing and resolving a safe:// URL: {}", url);
             let _data = {
@@ -644,8 +628,251 @@ declare_types! {
             // TODO: create XorUrlEncoder class binding to return it from here
             //let js_value = neon_serde::to_value(&mut cx, &data)?;
             Ok(cx.boolean(true).upcast())
+        }*/
+
+
+        //**** Keys ****///
+
+        // Generate a key pair without creating and/or storing a SafeKey on the network
+        // pub fn keypair(&self) -> ResultReturn<BlsKeyPair>
+        method keypair(mut cx) {
+            debug!("Generating random key pair");
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.keypair().unwrap_or_else(|err| { panic!(format!("Failed to generate a key pair: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
         }
 
+        // Create a SafeKey on the network and return its XOR-URL.
+        // pub fn keys_create(&mut self, from: Option<&str>, preload_amount: Option<&str>, pk: Option<&str>) -> ResultReturn<(XorUrl, Option<BlsKeyPair>)>
+        method keys_create(mut cx) {
+            let from = match cx.argument_opt(0) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            let preload_amount = match cx.argument_opt(1) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            let pk = match cx.argument_opt(2) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            debug!("Creating a SafeKey preloaded with '{:?}' coins", preload_amount);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.keys_create(from.as_ref().map(String::as_str), preload_amount.as_ref().map(String::as_str), pk.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Create a SafeKey on the network, allocates testcoins onto it, and return the SafeKey's XOR-URL
+        // pub fn keys_create_preload_test_coins(&mut self, preload_amount: &str) -> ResultReturn<(XorUrl, Option<BlsKeyPair>)>
+        method keys_create_preload_test_coins(mut cx) {
+            let preload_amount = cx.argument::<JsString>(0)?.value();
+            debug!("Creating SafeKey with ('{}') test-coins", preload_amount);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.keys_create_preload_test_coins(&preload_amount).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey with test coins: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Check SafeKey's balance from the network from a given SecretKey string
+        // pub fn keys_balance_from_sk(&self, sk: &str) -> ResultReturn<String>
+        method keys_balance_from_sk(mut cx) {
+            let sk = cx.argument::<JsString>(0)?.value();
+            debug!("Checking SafeKey balance...");
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.keys_balance_from_sk(&sk).unwrap_or_else(|err| { panic!(format!("Failed query the balance from SafeKey: {:?}", err)) } )
+            };
+
+            Ok(cx.string(data).upcast())
+        }
+
+        // Check SafeKey's balance from the network from a given XOR/NRS-URL and secret key string.
+        // pub fn keys_balance_from_url(&self, url: &str, sk: &str) -> ResultReturn<String>
+        method keys_balance_from_url(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            let sk = cx.argument::<JsString>(1)?.value();
+            debug!("Checking SafeKey balance from URL '{:?}'", url);
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.keys_balance_from_url(&url, &sk).unwrap_or_else(|err| { panic!(format!("Failed to check balance from the SafeKey URL '{}': {:?}", url, err)) } )
+            };
+
+            Ok(cx.string(data).upcast())
+        }
+
+        // Check that the XOR/NRS-URL corresponds to the public key derived from the provided secret key
+        // pub fn validate_sk_for_url(&self, sk: &str, url: &str) -> ResultReturn<String>
+        method validate_sk_for_url(mut cx) {
+            let sk = cx.argument::<JsString>(0)?.value();
+            let url = cx.argument::<JsString>(1)?.value();
+            debug!("Validating secret key for URL '{:?}'", url);
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.validate_sk_for_url(&sk, &url).unwrap_or_else(|err| { panic!(format!("Failed to vaildate the secret key for the SafeKey URL '{}': {:?}", url, err)) } )
+            };
+
+            Ok(cx.string(data).upcast())
+        }
+
+        // Transfer safecoins from one SafeKey to another, or to a Wallet
+        // pub fn keys_transfer(&mut self, amount: &str, from_sk: Option<&str>, to_url: &str, tx_id: Option<u64>) -> ResultReturn<u64>
+        method keys_transfer(mut cx) {
+            let amount = cx.argument::<JsString>(0)?.value();
+            let from_sk = match cx.argument_opt(1) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            let to_url = cx.argument::<JsString>(2)?.value();
+            let tx_id = match cx.argument_opt(3) {
+                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u64),
+                None => None
+            };
+            debug!("Transferring '{}' from SafeKey", amount);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.keys_transfer(&amount, from_sk.as_ref().map(String::as_str), &to_url, tx_id).unwrap_or_else(|err| { panic!(format!("Failed to transfer from SafeKey: {:?}", err)) } )
+            };
+
+            Ok(cx.number(data as f64).upcast())
+        }
+
+
+        //**** Wallet ****//
+
+        // Create an empty Wallet and return its XOR-URL
+        // pub fn wallet_create(&mut self) -> ResultReturn<XorUrl>
+        method wallet_create(mut cx) {
+            debug!("Creating a Wallet...");
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.wallet_create().unwrap_or_else(|err| { panic!(format!("Failed to create Wallet: {:?}", err)) } )
+            };
+
+            Ok(cx.string(data).upcast())
+        }
+
+        // Add a SafeKey to a Wallet to make it spendable, and returns the friendly name set for it
+        // pub fn wallet_insert(&mut self, url: &str, name: Option<&str>, default: bool, sk: &str) -> ResultReturn<String>
+        method wallet_insert(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            let name = match cx.argument_opt(1) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            let default = cx.argument::<JsBoolean>(2)?.value();
+            let sk = cx.argument::<JsString>(3)?.value();
+            debug!("Inserting '{:?}' in Wallet at '{}'", name, url);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.wallet_insert(&url, name.as_ref().map(String::as_str), default, &sk).unwrap_or_else(|err| { panic!(format!("Failed to insert in Wallet: {:?}", err)) } )
+            };
+
+            Ok(cx.string(data).upcast())
+        }
+
+        // Check the total balance of a Wallet found at a given XOR-URL
+        // pub fn wallet_balance(&mut self, url: &str) -> ResultReturn<String>
+        method wallet_balance(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            debug!("Checking balance of a Wallet at '{}'", url);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.wallet_balance(&url).unwrap_or_else(|err| { panic!(format!("Failed to check balance of Wallet at '{}': {:?}", url, err)) } )
+            };
+
+            Ok(cx.string(data).upcast())
+        }
+
+        // pub fn wallet_get_default_balance(&self, url: &str) -> ResultReturn<(WalletSpendableBalance, u64)>
+        method wallet_get_default_balance(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            debug!("Fetching default spendable balance from Wallet at '{:?}'", url);
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.wallet_get_default_balance(&url).unwrap_or_else(|err| { panic!(format!("Failed to get default spendable balance from Wallet at '{}': {:?}", url, err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // pub fn wallet_transfer(&mut self, amount: &str, from_url: Option<&str>, to_url: &str, tx_id: Option<u64>) -> ResultReturn<u64>
+        method wallet_transfer(mut cx) {
+            let amount = cx.argument::<JsString>(0)?.value();
+            let from_url = match cx.argument_opt(1) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            let to_url = cx.argument::<JsString>(2)?.value();
+            let tx_id = match cx.argument_opt(3) {
+                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u64),
+                None => None
+            };
+            debug!("Transferring '{}' from Wallet at '{:?}'", amount, from_url);
+
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.wallet_transfer(&amount, from_url.as_ref().map(String::as_str), &to_url, tx_id).unwrap_or_else(|err| { panic!(format!("Failed to transfer from Wallet at: {:?}", err)) } )
+            };
+
+            Ok(cx.number(data as f64).upcast())
+        }
+
+        // pub fn wallet_get(&self, url: &str) -> ResultReturn<WalletSpendableBalances>
+        method wallet_get(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            debug!("Fetching Wallet from '{:?}'", url);
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.wallet_get(&url).unwrap_or_else(|err| { panic!(format!("Failed to get Wallet from '{}': {:?}", url, err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
     }
 }
 
