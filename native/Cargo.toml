@@ -1,5 +1,5 @@
 [package]
-name = "safe_nodejs"
+name = "safe-nodejs"
 version = "0.1.0"
 authors = ["Josh Wilson <joshuef@gmail.com>", "Gabriel Viganotti <gabrielviganotti@gmail.com>"]
 license = "MIT OR BSD-3-Clause"
@@ -17,7 +17,8 @@ neon-build = "0.3.1"
 [dependencies]
 log = "0.4.8"
 env_logger = "0.6.2"
-safe_cli = { git = "https://github.com/maidsafe/safe-cli", revision = "0.4.0" }
+#safe-api = { git = "https://github.com/maidsafe/safe-cli", branch = "master" }
+safe-api = { git = "https://github.com/bochaco/safe-cli", branch = "issue-65" }
 neon = "0.3.1"
 neon-serde = "0.2.0"
 
@@ -27,6 +28,6 @@ neon-runtime = { git = "https://github.com/neon-bindings/neon", branch = "window
 neon-build = { git = "https://github.com/neon-bindings/neon", branch = "windows-electron" }
 
 [features]
-mock-network = ["safe_cli/mock-network"]
-fake-auth = ["safe_cli/fake-auth"]
-scl-mock = ["safe_cli/scl-mock"]
+mock-network = ["safe-api/mock-network"]
+fake-auth = ["safe-api/fake-auth"]
+scl-mock = ["safe-api/scl-mock"]
