@@ -12,9 +12,9 @@
     "build-native": "neon build --release",
     "download-node-abi": "node-pre-gyp install --fallback-to-build=false || neon build --release",
     "package": "node-pre-gyp package",
-    "package-electron": "yarn node-pre-gyp package --runtime=electron --target=6.0.7 --dist-url=https://electronjs.org/headers",
+    "package-electron": "yarn node-pre-gyp package --runtime=electron --target=6.0.11 --dist-url=https://electronjs.org/headers",
     "publish-gh-draft": "node-pre-gyp-github publish",
-    "neon-build-electron": "cross-env npm_config_target=6.0.7 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
+    "neon-build-electron": "cross-env npm_config_target=6.0.11 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
     "test-with-mock": "cross-env RUSTFLAGS=\"--cfg feature=\\\"scl-mock\\\"\" neon build --release && yarn test",
     "test": "jest"
   },
