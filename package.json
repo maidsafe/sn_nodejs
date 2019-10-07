@@ -24,7 +24,8 @@
   },
   "files": [
     "native/index.node",
-    "lib"
+    "lib",
+    "scripts"
   ],
   "binary": {
     "module_name": "index",
