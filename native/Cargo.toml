@@ -17,8 +17,7 @@ neon-build = "0.3.1"
 [dependencies]
 log = "0.4.8"
 env_logger = "0.6.2"
-#safe-api = { git = "https://github.com/maidsafe/safe-cli", branch = "master" }
-safe-api = { git = "https://github.com/bochaco/safe-cli", branch = "issue-65" }
+safe-api = { git = "https://github.com/maidsafe/safe-cli", branch = "master" }
 neon = "0.3.1"
 neon-serde = "0.2.0"
 
