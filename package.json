@@ -16,6 +16,7 @@
     "publish-gh-draft": "node-pre-gyp-github publish",
     "neon-build-electron": "cross-env npm_config_target=7.0.0 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
     "test-with-mock": "cross-env RUSTFLAGS=\"--cfg feature=\\\"scl-mock\\\"\" neon build --release && yarn test",
+    "test-with-vault": "neon build --release && yarn test",
     "test": "jest"
   },
   "repository": {

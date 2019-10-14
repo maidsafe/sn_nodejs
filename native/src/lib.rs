@@ -7,7 +7,7 @@ extern crate log;
 use env_logger;
 use log::debug;
 use neon::prelude::*;
-use safe_api::{Safe, SafeContentType, SafeDataType, XorName, XorUrlEncoder};
+use safe_api::{Safe, SafeContentType, SafeDataType, XorName, XorUrlEncoder, SafeAuthdClient};
 
 const SAFE_CONTENT_TYPE: &[SafeContentType] = &[
     SafeContentType::Raw,             // 0x00
@@ -855,6 +855,214 @@ declare_types! {
             Ok(js_value)
         }
     }
+
+    /// JS class wrapping SafeAuthdClient struct
+    pub class JsSafeAuthdClient for SafeAuthdClient {
+        // Initialise a new SafeAuthdClient instance
+        init(mut cx) {
+            let port = match cx.argument_opt(0) {
+                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u16),
+                None => None
+            };
+            debug!("Creating SafeAuthdClient API instance with port number: '{:?}'", port);
+            let safe_authd_client = SafeAuthdClient::new(port);
+
+            Ok(safe_authd_client)
+        }
+
+        // Send a login action request to remote authd endpoint
+        // pub fn log_in(&mut self, secret: &str, password: &str) -> ResultReturn<()>
+        method log_in(mut cx) {
+            let secret = cx.argument::<JsString>(0)?.value();
+            let password = cx.argument::<JsString>(1)?.value();
+            debug!("Logging in...");
+
+            {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.log_in(&secret, &password).unwrap_or_else(|err| { panic!(format!("Failed to log in: {:?}", err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Sends a logout action request to the SAFE Authenticator
+        // pub fn log_out(&mut self) -> ResultReturn<()>
+        method log_out(mut cx) {
+            debug!("Logging out...");
+
+            {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.log_out().unwrap_or_else(|err| { panic!(format!("Failed to log out: {:?}", err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Sends an account creation request to the SAFE Authenticator
+        // pub fn create_acc(&self, sk: &str, secret: &str, password: &str) -> ResultReturn<()>
+        method create_acc(mut cx) {
+            let sk = cx.argument::<JsString>(0)?.value();
+            let secret = cx.argument::<JsString>(1)?.value();
+            let password = cx.argument::<JsString>(2)?.value();
+            debug!("Creating a SAFE account...");
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.create_acc(&sk, &secret, &password).unwrap_or_else(|err| { panic!(format!("Failed to create SAFE account: {:?}", err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Get the list of applications authorised from remote authd
+        // pub fn authed_apps(&self) -> ResultReturn</*Vec<AuthedAppsList>*/ String>
+        method authed_apps(mut cx) {
+            debug!("Retrieving list of authorised apps...");
+
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.authed_apps().unwrap_or_else(|err| { panic!(format!("Failed to retrieve list of authorised apps: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Revoke all permissions from an application
+        // pub fn revoke_app(&self, app_id: &str) -> ResultReturn<()>
+        method revoke_app(mut cx) {
+            let app_id = cx.argument::<JsString>(0)?.value();
+            debug!("Revoking app with ID: {}", app_id);
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.revoke_app(&app_id).unwrap_or_else(|err| { panic!(format!("Failed to revoke app ('{}'): {:?}", app_id, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Get the list of pending authorisation requests from remote authd
+        // pub fn auth_reqs(&self) -> ResultReturn</*Vec<AuthReqsList>*/ String>
+        method auth_reqs(mut cx) {
+            debug!("Retrieving list of pending authorisation requests...");
+
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.auth_reqs().unwrap_or_else(|err| { panic!(format!("Failed to retrieve list of pending authorisation requests: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Allow an authorisation request
+        // pub fn allow(&self, req_id: SafeAuthReqId) -> ResultReturn<()>
+        method allow(mut cx) {
+            let req_id = cx.argument::<JsNumber>(0)?.value() as u32;
+            debug!("Allowing authorisation request with ID: {}", req_id);
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.allow(req_id).unwrap_or_else(|err| { panic!(format!("Failed to allow authorisation request ('{}'): {:?}", req_id, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Deny an authorisation request
+        // pub fn deny(&self, req_id: SafeAuthReqId) -> ResultReturn<()>
+        method deny(mut cx) {
+            let req_id = cx.argument::<JsNumber>(0)?.value() as u32;
+            debug!("Denying authorisation request with ID: {}", req_id);
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.deny(req_id).unwrap_or_else(|err| { panic!(format!("Failed to allow authorisation request ('{}'): {:?}", req_id, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Subscribe a callback to receive notifications to allow/deny authorisation requests
+        // pub fn subscribe(&mut self, endpoint_url: &str, allow_cb: &'static AuthAllowPrompt) -> ResultReturn<()>
+        method subscribe(mut cx) {
+            let endpoint_url = cx.argument::<JsString>(0)?.value();
+            let _allow_cb = cx.argument::<JsFunction>(1)?;
+
+            /*let allow_auth_cb = |app_id: &str| -> bool {
+                debug!("Allow auth req for app id '{}'?", app_id);
+                let args: Vec<Handle<JsString>> = vec![cx.string(app_id)];
+                let null = cx.null();
+                //allow_cb.call(&mut cx, null, args)?.downcast::<JsBoolean>().or_throw(&mut cx)?;
+                true
+            };*/
+
+            debug!("Subscribing to receive auth req notifs...");
+
+            {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.subscribe(&endpoint_url, &allow_auth_cb).unwrap_or_else(|err| { panic!(format!("Failed to subscribe ('{}'): {:?}", endpoint_url, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Subscribe an endpoint URL where notifications to allow/deny authorisation requests shall be sent
+        // pub fn subscribe_url(&self, endpoint_url: &str) -> ResultReturn<()>
+        method subscribe_url(mut cx) {
+            let endpoint_url = cx.argument::<JsString>(0)?.value();
+            debug!("Subscribing URL for auth req notifs...");
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.subscribe_url(&endpoint_url).unwrap_or_else(|err| { panic!(format!("Failed to subscribe URL ('{}'): {:?}", endpoint_url, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Unsubscribe from notifications to allow/deny authorisation requests
+        // pub fn unsubscribe(&self, endpoint_url: &str) -> ResultReturn<()>
+        method unsubscribe(mut cx) {
+            let endpoint_url = cx.argument::<JsString>(0)?.value();
+            debug!("Unsubscribing URL from auth req notifs...");
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.unsubscribe(&endpoint_url).unwrap_or_else(|err| { panic!(format!("Failed to unsubscribe URL ('{}'): {:?}", endpoint_url, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+    }
+}
+
+fn allow_auth_cb(app_id: &str) -> bool {
+    debug!("Automatically allowing auth req for app id '{}'", app_id);
+    true
 }
 
 fn get_optional_string(
@@ -901,6 +1109,7 @@ register_module!(mut m, {
     env_logger::init();
     m.export_class::<JsSafe>("Safe")?;
     m.export_class::<JsXorUrlEncoder>("XorUrlEncoder")?;
+    m.export_class::<JsSafeAuthdClient>("SafeAuthdClient")?;
 
     let safe_data_type = JsObject::new(&mut m);
     for (i, data_type) in SAFE_DATA_TYPE.iter().enumerate() {
