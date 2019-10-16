@@ -870,6 +870,63 @@ declare_types! {
             Ok(safe_authd_client)
         }
 
+        // Start the Authenticator daemon
+        // pub fn start(&self, authd_path: Option<&str>) -> ResultReturn<()>
+        method start(mut cx) {
+            let authd_path = match cx.argument_opt(0) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            debug!("Starting authd from {:?} ...", authd_path);
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.start(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to start authd from '{:?}': {:?}", authd_path, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Stop the Authenticator daemon
+        // pub fn stop(&self, authd_path: Option<&str>) -> ResultReturn<()>
+        method stop(mut cx) {
+            let authd_path = match cx.argument_opt(0) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            debug!("Stopping authd from {:?} ...", authd_path);
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.stop(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to stop authd from '{:?}': {:?}", authd_path, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Restart the Authenticator daemon
+        // pub fn restart(&self, authd_path: Option<&str>) -> ResultReturn<()>
+        method restart(mut cx) {
+            let authd_path = match cx.argument_opt(0) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            debug!("Restarting authd from {:?} ...", authd_path);
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.restart(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to restart authd from '{:?}': {:?}", authd_path, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
         // Send a login action request to remote authd endpoint
         // pub fn log_in(&mut self, secret: &str, password: &str) -> ResultReturn<()>
         method log_in(mut cx) {
