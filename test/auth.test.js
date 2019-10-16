@@ -8,7 +8,7 @@ describe.only('Authd Client API', () => {
   const password = `random-password-${Math.floor(Math.random() * Math.floor(1000))}`;
   let safe = new_safe();
   const sk = safe.keys_create_preload_test_coins("10")[1].sk;
-  // TODO: launch authd
+  safe_authd_client.start("/opt/safe/safe-authd");
 
   test('Create account', () => {
     safe_authd_client.create_acc(sk, secret, password);
