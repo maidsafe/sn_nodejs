@@ -347,13 +347,28 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.fetch(&url).unwrap_or_else(|err| { panic!(format!("Failed to fetch content: {:?}", err)) } )
+                user.fetch(&url).unwrap_or_else(|err| { panic!(format!("Failed to fetch content from '{}': {:?}", url, err)) } )
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
             Ok(js_value)
         }
 
+        // Inspect URL without retrieving the actual targeted data
+        // pub fn inspect(&self, url: &str) -> ResultReturn<SafeData>
+        method inspect(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            debug!("Inspecting '{}' ...", url);
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.inspect(&url).unwrap_or_else(|err| { panic!(format!("Failed to inspect '{}': {:?}", url, err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
 
         //**** FilesContainer ****//
 
