@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.3.0 (2019-10-16)
+
+
+### Features
+
+* **Electron:** Update to 6.0.11 ([0ead232](https://github.com/maidsafe/safe-nodejs/commit/0ead232aef21fab006b866322cf691b108e9a82b))
+* **Electron:** Update to building 6.0.12 ([2d7c6c2](https://github.com/maidsafe/safe-nodejs/commit/2d7c6c263fb59b8e30f06a0b24f508a5f5b86ad8))
+* **inspect:** implementation of binding for inspect API ([8f8e1c0](https://github.com/maidsafe/safe-nodejs/commit/8f8e1c01a841d6a79a2a829120f697cd134a30a4))
+* **wallet:** implementation of Keys and Wallet bindings ([a542e8d](https://github.com/maidsafe/safe-nodejs/commit/a542e8d0acf4da300f0a701c735f7d464ba53b8f))
+
+
+### Bug Fixes
+
+* postinstall script module ([d754cbc](https://github.com/maidsafe/safe-nodejs/commit/d754cbc18828adcdd39145f6f4f4ff71b41fd0f3))
+
+
 ### 0.2.4 (2019-09-23)
 
 
