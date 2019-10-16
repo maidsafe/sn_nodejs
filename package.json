@@ -1,6 +1,6 @@
 {
   "name": "safe-nodejs",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "NodeJS binding for SAFE API",
   "main": "lib/index.js",
   "author": "Josh Wilson <joshuef@gmail.com>",
@@ -34,6 +34,12 @@
     "package_name": "{node_abi}-{platform}-{arch}.tar.gz",
     "module_path": "./native",
     "pkg_path": "."
+  },
+  "standard-version": {
+    "skip": {
+      "tag": true,
+      "commit": true
+    }
   },
   "dependencies": {
     "add": "^2.0.6",
