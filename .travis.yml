@@ -2,6 +2,7 @@ env:
   global:
     - RUST_BACKTRACE=1
     - PATH=$PATH:$HOME/.cargo/bin
+    - USE_TRAVIS_WAIT_ENHANCED=true
     - YARN_GPG=no # otherwise this starts gpg-agent that never exits
 
 os:
