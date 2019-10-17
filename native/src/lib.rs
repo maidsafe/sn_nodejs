@@ -233,10 +233,7 @@ declare_types! {
 
         // pub fn set_content_version(&mut self, version: Option<u64>)
         method set_content_version(mut cx) {
-            let version = match cx.argument_opt(0) {
-                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u64),
-                None => None
-            };
+            let version = get_optional_number(&mut cx, 0).map(|r| r.map(|v| v as u64))?;
             {
                 let mut this = cx.this();
                 let guard = cx.lock();
@@ -304,10 +301,7 @@ declare_types! {
             let app_id = cx.argument::<JsString>(0)?.value();
             let app_name = cx.argument::<JsString>(1)?.value();
             let app_vendor = cx.argument::<JsString>(2)?.value();
-            let port = match cx.argument_opt(3) {
-                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u16),
-                None => None
-            };
+            let port = get_optional_number(&mut cx, 3).map(|r| r.map(|v| v as u16))?;
             let auth_credentials = {
                 let mut this = cx.this();
                 let guard = cx.lock();
@@ -323,10 +317,7 @@ declare_types! {
         // pub fn connect(&mut self, app_id: &str, auth_credentials: Option<&str>) -> ResultReturn<()>
         method connect(mut cx) {
             let app_id = cx.argument::<JsString>(0)?.value();
-            let credentials = match cx.argument_opt(1) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let credentials = get_optional_string(&mut cx, 1)?;
 
             {
                 let mut this = cx.this();
@@ -343,6 +334,7 @@ declare_types! {
         method fetch(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching from: {}", url);
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -359,6 +351,7 @@ declare_types! {
         method inspect(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Inspecting '{}' ...", url);
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -376,10 +369,7 @@ declare_types! {
         // pub fn files_container_create(&mut self, location: &str, dest: Option<&str>, recursive: bool, dry_run: bool) -> ResultReturn<(XorUrl, ProcessedFiles, FilesMap)>
         method files_container_create(mut cx) {
             let location = cx.argument::<JsString>(0)?.value();
-            let dest = match cx.argument_opt(1) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let dest = get_optional_string(&mut cx, 1)?;
 
             let recursive = cx.argument::<JsBoolean>(2)?.value();
             let dry_run = cx.argument::<JsBoolean>(3)?.value();
@@ -423,6 +413,7 @@ declare_types! {
         method files_container_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching FilesContainer from: {}", url);
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -504,11 +495,9 @@ declare_types! {
                 panic!("A Buffer or ArrayBuffer is expected as first argument");
             };
 
-            let media_type = match cx.argument_opt(1) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let media_type = get_optional_string(&mut cx, 1)?;
             debug!("Putting PublishedImmutableData: {:?}", data);
+
             let url = {
                 let mut this = cx.this();
                 let guard = cx.lock();
@@ -524,6 +513,7 @@ declare_types! {
         method files_get_published_immutable(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching PublishedImmutableData from: {}", url);
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -603,6 +593,7 @@ declare_types! {
         method nrs_map_container_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching NRS Map Container from: {}", url);
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -666,18 +657,9 @@ declare_types! {
         // Create a SafeKey on the network and return its XOR-URL.
         // pub fn keys_create(&mut self, from: Option<&str>, preload_amount: Option<&str>, pk: Option<&str>) -> ResultReturn<(XorUrl, Option<BlsKeyPair>)>
         method keys_create(mut cx) {
-            let from = match cx.argument_opt(0) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
-            let preload_amount = match cx.argument_opt(1) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
-            let pk = match cx.argument_opt(2) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let from = get_optional_string(&mut cx, 0)?;
+            let preload_amount = get_optional_string(&mut cx, 1)?;
+            let pk = get_optional_string(&mut cx, 2)?;
             debug!("Creating a SafeKey preloaded with '{:?}' coins", preload_amount);
 
             let data = {
@@ -713,6 +695,7 @@ declare_types! {
         method keys_balance_from_sk(mut cx) {
             let sk = cx.argument::<JsString>(0)?.value();
             debug!("Checking SafeKey balance...");
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -729,6 +712,7 @@ declare_types! {
             let url = cx.argument::<JsString>(0)?.value();
             let sk = cx.argument::<JsString>(1)?.value();
             debug!("Checking SafeKey balance from URL '{:?}'", url);
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -745,6 +729,7 @@ declare_types! {
             let sk = cx.argument::<JsString>(0)?.value();
             let url = cx.argument::<JsString>(1)?.value();
             debug!("Validating secret key for URL '{:?}'", url);
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -759,15 +744,9 @@ declare_types! {
         // pub fn keys_transfer(&mut self, amount: &str, from_sk: Option<&str>, to_url: &str, tx_id: Option<u64>) -> ResultReturn<u64>
         method keys_transfer(mut cx) {
             let amount = cx.argument::<JsString>(0)?.value();
-            let from_sk = match cx.argument_opt(1) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let from_sk = get_optional_string(&mut cx, 1)?;
             let to_url = cx.argument::<JsString>(2)?.value();
-            let tx_id = match cx.argument_opt(3) {
-                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u64),
-                None => None
-            };
+            let tx_id = get_optional_number(&mut cx, 3).map(|r| r.map(|v| v as u64))?;
             debug!("Transferring '{}' from SafeKey", amount);
 
             let data = {
@@ -801,10 +780,7 @@ declare_types! {
         // pub fn wallet_insert(&mut self, url: &str, name: Option<&str>, default: bool, sk: &str) -> ResultReturn<String>
         method wallet_insert(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            let name = match cx.argument_opt(1) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let name = get_optional_string(&mut cx, 1)?;
             let default = cx.argument::<JsBoolean>(2)?.value();
             let sk = cx.argument::<JsString>(3)?.value();
             debug!("Inserting '{:?}' in Wallet at '{}'", name, url);
@@ -839,6 +815,7 @@ declare_types! {
         method wallet_get_default_balance(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching default spendable balance from Wallet at '{:?}'", url);
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -853,10 +830,7 @@ declare_types! {
         // pub fn wallet_transfer(&mut self, amount: &str, from_url: Option<&str>, to_url: &str, tx_id: Option<u64>) -> ResultReturn<u64>
         method wallet_transfer(mut cx) {
             let amount = cx.argument::<JsString>(0)?.value();
-            let from_url = match cx.argument_opt(1) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let from_url = get_optional_string(&mut cx, 1)?;
             let to_url = cx.argument::<JsString>(2)?.value();
             let tx_id = match cx.argument_opt(3) {
                 Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u64),
@@ -878,6 +852,7 @@ declare_types! {
         method wallet_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching Wallet from '{:?}'", url);
+
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
@@ -889,6 +864,46 @@ declare_types! {
             Ok(js_value)
         }
     }
+}
+
+fn get_optional_string(
+    cx: &mut CallContext<JsSafe>,
+    arg_index: i32,
+) -> Result<Option<String>, neon::result::Throw> {
+    let optional_value = match cx.argument_opt(arg_index) {
+        Some(arg) => {
+            if arg.is_a::<JsNull>() {
+                None
+            } else {
+                match arg.downcast::<JsString>() {
+                    Ok(a) => Some(a.value()),
+                    Err(err) => panic!(err.to_string()),
+                }
+            }
+        }
+        None => None,
+    };
+    Ok(optional_value)
+}
+
+fn get_optional_number<T: neon::object::Class>(
+    cx: &mut CallContext<T>,
+    arg_index: i32,
+) -> Result<Option<f64>, neon::result::Throw> {
+    let optional_value = match cx.argument_opt(arg_index) {
+        Some(arg) => {
+            if arg.is_a::<JsNull>() {
+                None
+            } else {
+                match arg.downcast::<JsNumber>() {
+                    Ok(a) => Some(a.value()),
+                    Err(err) => panic!(err.to_string()),
+                }
+            }
+        }
+        None => None,
+    };
+    Ok(optional_value)
 }
 
 register_module!(mut m, {
