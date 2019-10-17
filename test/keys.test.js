@@ -23,7 +23,7 @@ describe('Keys API', () => {
   test('Create a SafeKey', () => {
     let safeKeyData = safe.keys_create_preload_test_coins("5");
     let keypair = safe.keypair();
-    let newSafeKeyData = safe.keys_create(safeKeyData[1].sk, "3", keypair.pk);
+    let newSafeKeyData = safe.keys_create(safeKeyData[1].sk, null, keypair.pk);
     let xorurl = newSafeKeyData[0];
     let fetched = safe.fetch(xorurl);
     expect(fetched.SafeKey.xorname.length).toBe(32);
