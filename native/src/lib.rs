@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate neon;
-
 #[allow(unused_imports)]
 #[macro_use]
 extern crate neon_serde;
@@ -11,12 +8,6 @@ use env_logger;
 use log::debug;
 use neon::prelude::*;
 use safe_api::{Safe, SafeContentType, SafeDataType, XorName, XorUrlEncoder};
-
-// Temporary patch to have it work for electron v6
-#[no_mangle]
-pub extern "C" fn __cxa_pure_virtual() {
-    loop {}
-}
 
 const SAFE_CONTENT_TYPE: &[SafeContentType] = &[
     SafeContentType::Raw,             // 0x00

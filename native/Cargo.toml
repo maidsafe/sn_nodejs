@@ -1,6 +1,6 @@
 [package]
 name = "safe-nodejs"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Josh Wilson <joshuef@gmail.com>", "Gabriel Viganotti <gabrielviganotti@gmail.com>"]
 license = "MIT OR BSD-3-Clause"
 build = "build.rs"
@@ -12,14 +12,14 @@ name = "safe_nodejs"
 crate-type = ["cdylib"]
 
 [build-dependencies]
-neon-build = "0.3.2"
+neon-build = "~0.3.2"
 
 [dependencies]
 log = "0.4.8"
 env_logger = "0.6.2"
 safe-api = "0.5.0"
-neon = "0.3.2"
-neon-serde = "0.3.0"
+neon = "~0.3.2"
+neon-serde = "0.2.0"
 
 [features]
 mock-network = ["safe-api/mock-network"]
