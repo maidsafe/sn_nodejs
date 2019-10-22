@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/maidsafe/safe-nodejs/compare/v0.3.1...v0.3.2) (2019-10-22)
+
+
+### Features
+
+* **package:** Upgrade neon to 0.3.2
+
+### Bug Fixes
+
+* **api:** allow optional arguments to be passed as null ([a1f6640](https://github.com/maidsafe/safe-nodejs/commit/a1f66400c79e59337c208dd5eeb3c933adb8e4a4))
+* **Travis:** Use project specific env var for full build. ([fd81dad](https://github.com/maidsafe/safe-nodejs/commit/fd81dad36a823fe5b028f45056f50e704087ef3a))
+
 ### [0.3.1](https://github.com/maidsafe/safe-nodejs/compare/v0.3.0...v0.3.1) (2019-10-16)
 
 ### Features
