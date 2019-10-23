@@ -1,9 +1,3 @@
-#[allow(unused_imports)]
-#[macro_use]
-extern crate neon_serde;
-
-extern crate log;
-
 use env_logger;
 use log::debug;
 use neon::prelude::*;
@@ -235,7 +229,7 @@ declare_types! {
             Ok(cx.undefined().upcast())
         }
 
-        // pub fn to_string(&self) -> ResultReturn<String>
+        // pub fn to_string(&self) -> safe_api::Result<String>
         method to_string(mut cx) {
             let data = {
                 let this = cx.this();
@@ -246,7 +240,7 @@ declare_types! {
             Ok(cx.string(&data).upcast())
         }
 
-        // pub fn to_base(&self, base: &str) -> ResultReturn<String>
+        // pub fn to_base(&self, base: &str) -> safe_api::Result<String>
         method to_base(mut cx) {
             let base = cx.argument::<JsString>(0)?.value();
             let data = {
@@ -287,7 +281,7 @@ declare_types! {
 
         // Generate an authorisation request string and send it to a SAFE Authenticator.
         // Ir returns the credentials necessary to connect to the network, encoded in a single string.
-        // pub fn auth_app(&mut self, app_id: &str, app_name: &str, app_vendor: &str, port: Option<u16>) -> ResultReturn<String>
+        // pub fn auth_app(&mut self, app_id: &str, app_name: &str, app_vendor: &str, port: Option<u16>) -> safe_api::Result<String>
         method auth_app(mut cx) {
             let app_id = cx.argument::<JsString>(0)?.value();
             let app_name = cx.argument::<JsString>(1)?.value();
@@ -305,7 +299,7 @@ declare_types! {
         }
 
         // Connect to the SAFE Network using the provided app id and auth credentials
-        // pub fn connect(&mut self, app_id: &str, auth_credentials: Option<&str>) -> ResultReturn<()>
+        // pub fn connect(&mut self, app_id: &str, auth_credentials: Option<&str>) -> safe_api::Result<()>
         method connect(mut cx) {
             let app_id = cx.argument::<JsString>(0)?.value();
             let credentials = get_optional_string(&mut cx, 1)?;
@@ -321,7 +315,7 @@ declare_types! {
         }
 
         // Retrieve data from a safe:// URL
-        // pub fn fetch(&self, url: &str) -> ResultReturn<SafeData>
+        // pub fn fetch(&self, url: &str) -> safe_api::Result<SafeData>
         method fetch(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching from: {}", url);
@@ -338,7 +332,7 @@ declare_types! {
         }
 
         // Inspect URL without retrieving the actual targeted data
-        // pub fn inspect(&self, url: &str) -> ResultReturn<SafeData>
+        // pub fn inspect(&self, url: &str) -> safe_api::Result<SafeData>
         method inspect(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Inspecting '{}' ...", url);
@@ -357,7 +351,7 @@ declare_types! {
         //**** FilesContainer ****//
 
         // Upload files/folder into a new FilesContainer returning its XOR-URL
-        // pub fn files_container_create(&mut self, location: &str, dest: Option<&str>, recursive: bool, dry_run: bool) -> ResultReturn<(XorUrl, ProcessedFiles, FilesMap)>
+        // pub fn files_container_create(&mut self, location: &str, dest: Option<&str>, recursive: bool, dry_run: bool) -> safe_api::Result<(XorUrl, ProcessedFiles, FilesMap)>
         method files_container_create(mut cx) {
             let location = cx.argument::<JsString>(0)?.value();
             let dest = get_optional_string(&mut cx, 1)?;
@@ -378,7 +372,7 @@ declare_types! {
         }
 
         // Sync up files/folder with an existing FilesContainer
-        // pub fn files_container_sync(&mut self, location: &str, url: &str, recursive: bool, delete: bool, update_nrs: bool, dry_run: bool) -> ResultReturn<(u64, ProcessedFiles, FilesMap)>
+        // pub fn files_container_sync(&mut self, location: &str, url: &str, recursive: bool, delete: bool, update_nrs: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
         method files_container_sync(mut cx) {
             let location = cx.argument::<JsString>(0)?.value();
             let url = cx.argument::<JsString>(1)?.value();
@@ -400,7 +394,7 @@ declare_types! {
         }
 
         // Fetch an existing FilesContainer
-        // pub fn files_container_get(&self, url: &str) -> ResultReturn<(u64, FilesMap)>
+        // pub fn files_container_get(&self, url: &str) -> safe_api::Result<(u64, FilesMap)>
         method files_container_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching FilesContainer from: {}", url);
@@ -417,7 +411,7 @@ declare_types! {
         }
 
         // Add file to an existing FilesContainer
-        // pub fn files_container_add(&mut self, source_file: &str, url: &str, force: bool, update_nrs: bool, dry_run: bool) -> ResultReturn<(u64, ProcessedFiles, FilesMap)>
+        // pub fn files_container_add(&mut self, source_file: &str, url: &str, force: bool, update_nrs: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
         method files_container_add(mut cx) {
             let source_file = cx.argument::<JsString>(0)?.value();
             let url = cx.argument::<JsString>(1)?.value();
@@ -438,7 +432,7 @@ declare_types! {
         }
 
         // Add file from raw bytes to an existing FilesContainer
-        // pub fn files_container_add_from_raw(&mut self, data: &[u8], url: &str, force: bool, update_nrs: bool, dry_run: bool) -> ResultReturn<(u64, ProcessedFiles, FilesMap)>
+        // pub fn files_container_add_from_raw(&mut self, data: &[u8], url: &str, force: bool, update_nrs: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
         method files_container_add_from_raw(mut cx) {
             let v: Handle<JsValue> = cx.argument(0)?;
             let buffer: Handle<JsBuffer>;
@@ -471,7 +465,7 @@ declare_types! {
         }
 
         // Pub PublishedImmutableData
-        // pub fn files_put_published_immutable(&mut self, data: &[u8]) -> ResultReturn<XorUrl>
+        // pub fn files_put_published_immutable(&mut self, data: &[u8]) -> safe_api::Result<XorUrl>
         method files_put_published_immutable(mut cx) {
             let v: Handle<JsValue> = cx.argument(0)?;
             let buffer: Handle<JsBuffer>;
@@ -500,7 +494,7 @@ declare_types! {
         }
 
         // Get a PublishedImmutableData
-        // pub fn files_get_published_immutable(&self, url: &str) -> ResultReturn<Vec<u8>>
+        // pub fn files_get_published_immutable(&self, url: &str) -> safe_api::Result<Vec<u8>>
         method files_get_published_immutable(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching PublishedImmutableData from: {}", url);
@@ -520,7 +514,7 @@ declare_types! {
         //**** NRS ****//
 
         // NRS Map Container create
-        // pub fn nrs_map_container_create(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> ResultReturn<(XorUrl, ProcessedEntries, NrsMap)>
+        // pub fn nrs_map_container_create(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> safe_api::Result<(XorUrl, ProcessedEntries, NrsMap)>
         method nrs_map_container_create(mut cx) {
             let name = cx.argument::<JsString>(0)?.value();
             let link = cx.argument::<JsString>(1)?.value();
@@ -541,7 +535,7 @@ declare_types! {
         }
 
         // Add/update a subname to an existing NRS Map Container
-        // pub fn nrs_map_container_add(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> ResultReturn<(u64, XorUrl, ProcessedEntries, NrsMap)>
+        // pub fn nrs_map_container_add(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> safe_api::Result<(u64, XorUrl, ProcessedEntries, NrsMap)>
         method nrs_map_container_add(mut cx) {
             let name = cx.argument::<JsString>(0)?.value();
             let link = cx.argument::<JsString>(1)?.value();
@@ -562,7 +556,7 @@ declare_types! {
         }
 
         // Remove an NRS Map Container
-        // pub fn nrs_map_container_remove(&mut self, name: &str, dry_run: bool) -> ResultReturn<(u64, XorUrl, ProcessedEntries, NrsMap)>
+        // pub fn nrs_map_container_remove(&mut self, name: &str, dry_run: bool) -> safe_api::Result<(u64, XorUrl, ProcessedEntries, NrsMap)>
         method nrs_map_container_remove(mut cx) {
             let name = cx.argument::<JsString>(0)?.value();
             let dry_run = cx.argument::<JsBoolean>(1)?.value();
@@ -580,7 +574,7 @@ declare_types! {
         }
 
         // Fetch an NRS Map Container
-        // pub fn nrs_map_container_get(&self, url: &str) -> ResultReturn<(u64, NrsMap)>
+        // pub fn nrs_map_container_get(&self, url: &str) -> safe_api::Result<(u64, NrsMap)>
         method nrs_map_container_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching NRS Map Container from: {}", url);
@@ -597,7 +591,7 @@ declare_types! {
         }
 
         // Parses a safe:// URL and returns all the info in a XorUrlEncoder instance.
-        // pub fn parse_url(url: &str) -> ResultReturn<XorUrlEncoder>
+        // pub fn parse_url(url: &str) -> safe_api::Result<XorUrlEncoder>
         /*method parse_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Parsing a safe:// URL: {}", url);
@@ -611,7 +605,7 @@ declare_types! {
 
         // Parses a safe:// URL and returns all the info in a XorUrlEncoder instance.
         // It also returns a flag indicating if it the URL has to be resolved as NRS-URL
-        // pub fn parse_and_resolve_url(&self, url: &str) -> ResultReturn<(XorUrlEncoder, bool)>
+        // pub fn parse_and_resolve_url(&self, url: &str) -> safe_api::Result<(XorUrlEncoder, bool)>
         /*method parse_and_resolve_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Parsing and resolving a safe:// URL: {}", url);
@@ -631,7 +625,7 @@ declare_types! {
         //**** Keys ****///
 
         // Generate a key pair without creating and/or storing a SafeKey on the network
-        // pub fn keypair(&self) -> ResultReturn<BlsKeyPair>
+        // pub fn keypair(&self) -> safe_api::Result<BlsKeyPair>
         method keypair(mut cx) {
             debug!("Generating random key pair");
             let data = {
@@ -646,7 +640,7 @@ declare_types! {
         }
 
         // Create a SafeKey on the network and return its XOR-URL.
-        // pub fn keys_create(&mut self, from: Option<&str>, preload_amount: Option<&str>, pk: Option<&str>) -> ResultReturn<(XorUrl, Option<BlsKeyPair>)>
+        // pub fn keys_create(&mut self, from: Option<&str>, preload_amount: Option<&str>, pk: Option<&str>) -> safe_api::Result<(XorUrl, Option<BlsKeyPair>)>
         method keys_create(mut cx) {
             let from = get_optional_string(&mut cx, 0)?;
             let preload_amount = get_optional_string(&mut cx, 1)?;
@@ -665,7 +659,7 @@ declare_types! {
         }
 
         // Create a SafeKey on the network, allocates testcoins onto it, and return the SafeKey's XOR-URL
-        // pub fn keys_create_preload_test_coins(&mut self, preload_amount: &str) -> ResultReturn<(XorUrl, Option<BlsKeyPair>)>
+        // pub fn keys_create_preload_test_coins(&mut self, preload_amount: &str) -> safe_api::Result<(XorUrl, Option<BlsKeyPair>)>
         method keys_create_preload_test_coins(mut cx) {
             let preload_amount = cx.argument::<JsString>(0)?.value();
             debug!("Creating SafeKey with ('{}') test-coins", preload_amount);
@@ -682,7 +676,7 @@ declare_types! {
         }
 
         // Check SafeKey's balance from the network from a given SecretKey string
-        // pub fn keys_balance_from_sk(&self, sk: &str) -> ResultReturn<String>
+        // pub fn keys_balance_from_sk(&self, sk: &str) -> safe_api::Result<String>
         method keys_balance_from_sk(mut cx) {
             let sk = cx.argument::<JsString>(0)?.value();
             debug!("Checking SafeKey balance...");
@@ -698,7 +692,7 @@ declare_types! {
         }
 
         // Check SafeKey's balance from the network from a given XOR/NRS-URL and secret key string.
-        // pub fn keys_balance_from_url(&self, url: &str, sk: &str) -> ResultReturn<String>
+        // pub fn keys_balance_from_url(&self, url: &str, sk: &str) -> safe_api::Result<String>
         method keys_balance_from_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             let sk = cx.argument::<JsString>(1)?.value();
@@ -715,7 +709,7 @@ declare_types! {
         }
 
         // Check that the XOR/NRS-URL corresponds to the public key derived from the provided secret key
-        // pub fn validate_sk_for_url(&self, sk: &str, url: &str) -> ResultReturn<String>
+        // pub fn validate_sk_for_url(&self, sk: &str, url: &str) -> safe_api::Result<String>
         method validate_sk_for_url(mut cx) {
             let sk = cx.argument::<JsString>(0)?.value();
             let url = cx.argument::<JsString>(1)?.value();
@@ -732,7 +726,7 @@ declare_types! {
         }
 
         // Transfer safecoins from one SafeKey to another, or to a Wallet
-        // pub fn keys_transfer(&mut self, amount: &str, from_sk: Option<&str>, to_url: &str, tx_id: Option<u64>) -> ResultReturn<u64>
+        // pub fn keys_transfer(&mut self, amount: &str, from_sk: Option<&str>, to_url: &str, tx_id: Option<u64>) -> safe_api::Result<u64>
         method keys_transfer(mut cx) {
             let amount = cx.argument::<JsString>(0)?.value();
             let from_sk = get_optional_string(&mut cx, 1)?;
@@ -754,7 +748,7 @@ declare_types! {
         //**** Wallet ****//
 
         // Create an empty Wallet and return its XOR-URL
-        // pub fn wallet_create(&mut self) -> ResultReturn<XorUrl>
+        // pub fn wallet_create(&mut self) -> safe_api::Result<XorUrl>
         method wallet_create(mut cx) {
             debug!("Creating a Wallet...");
             let data = {
@@ -768,7 +762,7 @@ declare_types! {
         }
 
         // Add a SafeKey to a Wallet to make it spendable, and returns the friendly name set for it
-        // pub fn wallet_insert(&mut self, url: &str, name: Option<&str>, default: bool, sk: &str) -> ResultReturn<String>
+        // pub fn wallet_insert(&mut self, url: &str, name: Option<&str>, default: bool, sk: &str) -> safe_api::Result<String>
         method wallet_insert(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             let name = get_optional_string(&mut cx, 1)?;
@@ -787,7 +781,7 @@ declare_types! {
         }
 
         // Check the total balance of a Wallet found at a given XOR-URL
-        // pub fn wallet_balance(&mut self, url: &str) -> ResultReturn<String>
+        // pub fn wallet_balance(&mut self, url: &str) -> safe_api::Result<String>
         method wallet_balance(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Checking balance of a Wallet at '{}'", url);
@@ -802,7 +796,7 @@ declare_types! {
             Ok(cx.string(data).upcast())
         }
 
-        // pub fn wallet_get_default_balance(&self, url: &str) -> ResultReturn<(WalletSpendableBalance, u64)>
+        // pub fn wallet_get_default_balance(&self, url: &str) -> safe_api::Result<(WalletSpendableBalance, u64)>
         method wallet_get_default_balance(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching default spendable balance from Wallet at '{:?}'", url);
@@ -818,7 +812,7 @@ declare_types! {
             Ok(js_value)
         }
 
-        // pub fn wallet_transfer(&mut self, amount: &str, from_url: Option<&str>, to_url: &str, tx_id: Option<u64>) -> ResultReturn<u64>
+        // pub fn wallet_transfer(&mut self, amount: &str, from_url: Option<&str>, to_url: &str, tx_id: Option<u64>) -> safe_api::Result<u64>
         method wallet_transfer(mut cx) {
             let amount = cx.argument::<JsString>(0)?.value();
             let from_url = get_optional_string(&mut cx, 1)?;
@@ -839,7 +833,7 @@ declare_types! {
             Ok(cx.number(data as f64).upcast())
         }
 
-        // pub fn wallet_get(&self, url: &str) -> ResultReturn<WalletSpendableBalances>
+        // pub fn wallet_get(&self, url: &str) -> safe_api::Result<WalletSpendableBalances>
         method wallet_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching Wallet from '{:?}'", url);
@@ -871,7 +865,7 @@ declare_types! {
         }
 
         // Start the Authenticator daemon
-        // pub fn start(&self, authd_path: Option<&str>) -> ResultReturn<()>
+        // pub fn start(&self, authd_path: Option<&str>) -> safe_api::Result<()>
         method start(mut cx) {
             let authd_path = match cx.argument_opt(0) {
                 Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
@@ -890,7 +884,7 @@ declare_types! {
         }
 
         // Stop the Authenticator daemon
-        // pub fn stop(&self, authd_path: Option<&str>) -> ResultReturn<()>
+        // pub fn stop(&self, authd_path: Option<&str>) -> safe_api::Result<()>
         method stop(mut cx) {
             let authd_path = match cx.argument_opt(0) {
                 Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
@@ -909,7 +903,7 @@ declare_types! {
         }
 
         // Restart the Authenticator daemon
-        // pub fn restart(&self, authd_path: Option<&str>) -> ResultReturn<()>
+        // pub fn restart(&self, authd_path: Option<&str>) -> safe_api::Result<()>
         method restart(mut cx) {
             let authd_path = match cx.argument_opt(0) {
                 Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
@@ -928,7 +922,7 @@ declare_types! {
         }
 
         // Send a login action request to remote authd endpoint
-        // pub fn log_in(&mut self, secret: &str, password: &str) -> ResultReturn<()>
+        // pub fn log_in(&mut self, secret: &str, password: &str) -> safe_api::Result<()>
         method log_in(mut cx) {
             let secret = cx.argument::<JsString>(0)?.value();
             let password = cx.argument::<JsString>(1)?.value();
@@ -945,7 +939,7 @@ declare_types! {
         }
 
         // Sends a logout action request to the SAFE Authenticator
-        // pub fn log_out(&mut self) -> ResultReturn<()>
+        // pub fn log_out(&mut self) -> safe_api::Result<()>
         method log_out(mut cx) {
             debug!("Logging out...");
 
@@ -960,7 +954,7 @@ declare_types! {
         }
 
         // Sends an account creation request to the SAFE Authenticator
-        // pub fn create_acc(&self, sk: &str, secret: &str, password: &str) -> ResultReturn<()>
+        // pub fn create_acc(&self, sk: &str, secret: &str, password: &str) -> safe_api::Result<()>
         method create_acc(mut cx) {
             let sk = cx.argument::<JsString>(0)?.value();
             let secret = cx.argument::<JsString>(1)?.value();
@@ -978,7 +972,7 @@ declare_types! {
         }
 
         // Get the list of applications authorised from remote authd
-        // pub fn authed_apps(&self) -> ResultReturn</*Vec<AuthedAppsList>*/ String>
+        // pub fn authed_apps(&self) -> safe_api::Result</*Vec<AuthedAppsList>*/ String>
         method authed_apps(mut cx) {
             debug!("Retrieving list of authorised apps...");
 
@@ -994,7 +988,7 @@ declare_types! {
         }
 
         // Revoke all permissions from an application
-        // pub fn revoke_app(&self, app_id: &str) -> ResultReturn<()>
+        // pub fn revoke_app(&self, app_id: &str) -> safe_api::Result<()>
         method revoke_app(mut cx) {
             let app_id = cx.argument::<JsString>(0)?.value();
             debug!("Revoking app with ID: {}", app_id);
@@ -1010,7 +1004,7 @@ declare_types! {
         }
 
         // Get the list of pending authorisation requests from remote authd
-        // pub fn auth_reqs(&self) -> ResultReturn</*Vec<AuthReqsList>*/ String>
+        // pub fn auth_reqs(&self) -> safe_api::Result</*Vec<AuthReqsList>*/ String>
         method auth_reqs(mut cx) {
             debug!("Retrieving list of pending authorisation requests...");
 
@@ -1026,7 +1020,7 @@ declare_types! {
         }
 
         // Allow an authorisation request
-        // pub fn allow(&self, req_id: SafeAuthReqId) -> ResultReturn<()>
+        // pub fn allow(&self, req_id: SafeAuthReqId) -> safe_api::Result<()>
         method allow(mut cx) {
             let req_id = cx.argument::<JsNumber>(0)?.value() as u32;
             debug!("Allowing authorisation request with ID: {}", req_id);
@@ -1042,7 +1036,7 @@ declare_types! {
         }
 
         // Deny an authorisation request
-        // pub fn deny(&self, req_id: SafeAuthReqId) -> ResultReturn<()>
+        // pub fn deny(&self, req_id: SafeAuthReqId) -> safe_api::Result<()>
         method deny(mut cx) {
             let req_id = cx.argument::<JsNumber>(0)?.value() as u32;
             debug!("Denying authorisation request with ID: {}", req_id);
@@ -1058,18 +1052,21 @@ declare_types! {
         }
 
         // Subscribe a callback to receive notifications to allow/deny authorisation requests
-        // pub fn subscribe(&mut self, endpoint_url: &str, allow_cb: &'static AuthAllowPrompt) -> ResultReturn<()>
+        // pub fn subscribe(&mut self, endpoint_url: &str, allow_cb: &'static AuthAllowPrompt) -> safe_api::Result<()>
         method subscribe(mut cx) {
             let endpoint_url = cx.argument::<JsString>(0)?.value();
-            let _allow_cb = cx.argument::<JsFunction>(1)?;
+            let js_callback = cx.argument::<JsFunction>(1)?;
+            let cb = EventHandler::new(js_callback);
 
-            /*let allow_auth_cb = |app_id: &str| -> bool {
-                debug!("Allow auth req for app id '{}'?", app_id);
-                let args: Vec<Handle<JsString>> = vec![cx.string(app_id)];
-                let null = cx.null();
-                //allow_cb.call(&mut cx, null, args)?.downcast::<JsBoolean>().or_throw(&mut cx)?;
-                true
-            };*/
+            let allow_auth_cb = move |app_id, req_id| -> Option<bool> {
+                cb.schedule(move |cx| {
+                    let cb_args: Vec<Handle<JsString>> = vec![cx.string(app_id), cx.string(req_id)];
+                    cb_args
+                });
+                // Since we cannot obtain a return value from the JS callback out of the schedule,
+                // we return no decision. The JS app will need to call 'allow' API to authorise the request.
+                None
+            };
 
             debug!("Subscribing to receive auth req notifs...");
 
@@ -1077,14 +1074,14 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                user.subscribe(&endpoint_url, &allow_auth_cb).unwrap_or_else(|err| { panic!(format!("Failed to subscribe ('{}'): {:?}", endpoint_url, err)) } )
+                user.subscribe(&endpoint_url, allow_auth_cb).unwrap_or_else(|err| { panic!(format!("Failed to subscribe ('{}'): {:?}", endpoint_url, err)) } )
             };
 
             Ok(cx.undefined().upcast())
         }
 
         // Subscribe an endpoint URL where notifications to allow/deny authorisation requests shall be sent
-        // pub fn subscribe_url(&self, endpoint_url: &str) -> ResultReturn<()>
+        // pub fn subscribe_url(&self, endpoint_url: &str) -> safe_api::Result<()>
         method subscribe_url(mut cx) {
             let endpoint_url = cx.argument::<JsString>(0)?.value();
             debug!("Subscribing URL for auth req notifs...");
@@ -1100,7 +1097,7 @@ declare_types! {
         }
 
         // Unsubscribe from notifications to allow/deny authorisation requests
-        // pub fn unsubscribe(&self, endpoint_url: &str) -> ResultReturn<()>
+        // pub fn unsubscribe(&self, endpoint_url: &str) -> safe_api::Result<()>
         method unsubscribe(mut cx) {
             let endpoint_url = cx.argument::<JsString>(0)?.value();
             debug!("Unsubscribing URL from auth req notifs...");
@@ -1115,11 +1112,6 @@ declare_types! {
             Ok(cx.undefined().upcast())
         }
     }
-}
-
-fn allow_auth_cb(app_id: &str) -> bool {
-    debug!("Automatically allowing auth req for app id '{}'", app_id);
-    true
 }
 
 fn get_optional_string(
