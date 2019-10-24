@@ -1,7 +1,9 @@
 use env_logger;
 use log::debug;
 use neon::prelude::*;
-use safe_api::{Safe, SafeContentType, SafeDataType, XorName, XorUrlEncoder, SafeAuthdClient};
+use safe_api::{
+    AuthReq, Safe, SafeAuthdClient, SafeContentType, SafeDataType, XorName, XorUrlEncoder,
+};
 
 const SAFE_CONTENT_TYPE: &[SafeContentType] = &[
     SafeContentType::Raw,             // 0x00
@@ -972,7 +974,7 @@ declare_types! {
         }
 
         // Get the list of applications authorised from remote authd
-        // pub fn authed_apps(&self) -> safe_api::Result</*Vec<AuthedAppsList>*/ String>
+        // pub fn authed_apps(&self) -> safe_api::Result<AuthedAppsList>
         method authed_apps(mut cx) {
             debug!("Retrieving list of authorised apps...");
 
@@ -1004,7 +1006,7 @@ declare_types! {
         }
 
         // Get the list of pending authorisation requests from remote authd
-        // pub fn auth_reqs(&self) -> safe_api::Result</*Vec<AuthReqsList>*/ String>
+        // pub fn auth_reqs(&self) -> safe_api::Result<PendingAuthReqs>
         method auth_reqs(mut cx) {
             debug!("Retrieving list of pending authorisation requests...");
 
@@ -1058,9 +1060,9 @@ declare_types! {
             let js_callback = cx.argument::<JsFunction>(1)?;
             let cb = EventHandler::new(js_callback);
 
-            let allow_auth_cb = move |app_id, req_id| -> Option<bool> {
+            let allow_auth_cb = move |auth_req: AuthReq| -> Option<bool> {
                 cb.schedule(move |cx| {
-                    let cb_args: Vec<Handle<JsString>> = vec![cx.string(app_id), cx.string(req_id)];
+                    let cb_args: Vec<Handle<JsString>> = vec![cx.string(auth_req.app_id), cx.string(auth_req.req_id.to_string())];
                     cb_args
                 });
                 // Since we cannot obtain a return value from the JS callback out of the schedule,
