@@ -923,6 +923,21 @@ declare_types! {
             Ok(cx.undefined().upcast())
         }
 
+        // Send a request to remote authd endpoint to retrieve an status report
+        // pub fn status(&self) -> safe_api::Result<AuthdStatus>
+        method status(mut cx) {
+            debug!("Retrieving authd status report...");
+            let data = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                user.status().unwrap_or_else(|err| { panic!(format!("Failed to retrieve authd status report: {:?}", err)) } )
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
         // Send a login action request to remote authd endpoint
         // pub fn log_in(&mut self, secret: &str, password: &str) -> safe_api::Result<()>
         method log_in(mut cx) {
