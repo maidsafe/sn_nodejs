@@ -1828,7 +1828,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "safe-api"
 version = "0.5.0"
-source = "git+https://github.com/bochaco/safe-cli?branch=authd-with-quic#92b173d0338bb41df745524f69fa344f3874a5d3"
+source = "git+https://github.com/bochaco/safe-cli?branch=authd-with-quic#289e9a185c1ffcebb8884f0b76cbf03fddf9eb99"
 dependencies = [
  "bincode 1.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
