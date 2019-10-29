@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/maidsafe/safe-nodejs/compare/v0.3.2...v0.4.0) (2019-10-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **electron:** Stop doing builds for electron 6 versions
+
+### Features
+
+* **electron:** Build for electron 7 ([351f1e7](https://github.com/maidsafe/safe-nodejs/commit/351f1e7))
+
 ### [0.3.2](https://github.com/maidsafe/safe-nodejs/compare/v0.3.1...v0.3.2) (2019-10-22)
 
 
