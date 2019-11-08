@@ -2,7 +2,7 @@ const assert = require('assert');
 const { new_safe } = require('./helpers.js');
 const { SafeAuthdClient } = require('../lib/index');
 
-describe.only('Authd Client API', () => {
+describe.skip('Authd Client API', () => {
   let safe_authd_client = new SafeAuthdClient(); // use default port number
   //const secret = `random-secret-${Math.floor(Math.random() * Math.floor(1000))}`;
   //const password = `random-password-${Math.floor(Math.random() * Math.floor(1000))}`;
@@ -21,7 +21,11 @@ describe.only('Authd Client API', () => {
     safe_authd_client.log_in(secret, password);
   });
 
-  test('Subscribe', (done) => {
+  test('Status', () => {
+    safe_authd_client.status();
+  });
+
+  test.skip('Subscribe', (done) => {
     safe_authd_client.subscribe("https://localhost:33001", (auth_req) => {
       console.log("New auth req received:", auth_req);
       //console.log("Allow safe-nodejs TEST app?:", appId);
