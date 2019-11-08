@@ -1069,10 +1069,11 @@ declare_types! {
         }
 
         // Subscribe a callback to receive notifications to allow/deny authorisation requests
-        // pub fn subscribe(&mut self, endpoint_url: &str, allow_cb: &'static AuthAllowPrompt) -> safe_api::Result<()>
+        // pub fn subscribe(&mut self, endpoint_url: &str, app_id: &str, allow_cb: &'static AuthAllowPrompt) -> safe_api::Result<()>
         method subscribe(mut cx) {
             let endpoint_url = cx.argument::<JsString>(0)?.value();
-            let js_callback = cx.argument::<JsFunction>(1)?;
+            let app_id = cx.argument::<JsString>(1)?.value();
+            let js_callback = cx.argument::<JsFunction>(2)?;
             let cb = EventHandler::new(js_callback);
 
             let allow_auth_cb = move |auth_req: AuthReq| -> Option<bool> {
@@ -1091,7 +1092,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                user.subscribe(&endpoint_url, allow_auth_cb).unwrap_or_else(|err| { panic!(format!("Failed to subscribe ('{}'): {:?}", endpoint_url, err)) } )
+                user.subscribe(&endpoint_url, &app_id, allow_auth_cb).unwrap_or_else(|err| { panic!(format!("Failed to subscribe ('{}'): {:?}", endpoint_url, err)) } )
             };
 
             Ok(cx.undefined().upcast())
@@ -1120,9 +1121,9 @@ declare_types! {
             debug!("Unsubscribing URL from auth req notifs...");
 
             {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 user.unsubscribe(&endpoint_url).unwrap_or_else(|err| { panic!(format!("Failed to unsubscribe URL ('{}'): {:?}", endpoint_url, err)) } )
             };
 
