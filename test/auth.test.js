@@ -4,45 +4,45 @@ const { SafeAuthdClient } = require('../lib/index');
 
 describe.skip('Authd Client API', () => {
   let safe_authd_client = new SafeAuthdClient(); // use default port number
-  //const secret = `random-secret-${Math.floor(Math.random() * Math.floor(1000))}`;
-  //const password = `random-password-${Math.floor(Math.random() * Math.floor(1000))}`;
-  const secret = "aa";
-  const password = "aa";
-  //let safe = new_safe();
-  //const sk = safe.keys_create_preload_test_coins("10")[1].sk;
-  //safe_authd_client.stop("/home/bochaco/safe/bochaco-safe-cli/target/debug/safe-authd");
-  //safe_authd_client.start("/home/bochaco/safe/bochaco-safe-cli/target/debug/safe-authd");
+  let safe = new_safe();
 
-  test.skip('Create account', () => {
-    safe_authd_client.create_acc(sk, secret, password);
+  const passphrase = `random-passphrase-${Math.floor(Math.random() * Math.floor(1000))}`;
+  const password = `random-password-${Math.floor(Math.random() * Math.floor(1000))}`;
+  const sk = safe.keys_create_preload_test_coins("10")[1].sk;
+
+  safe_authd_client.restart("../native/target/release/safe-authd");
+
+  test('Create account', () => {
+    safe_authd_client.create_acc(sk, passphrase, password);
+  });
+
+  test('Log out', () => {
+    safe_authd_client.log_out();
   });
 
   test('Log in', () => {
-    safe_authd_client.log_in(secret, password);
+    safe_authd_client.log_in(passphrase, password);
   });
 
   test('Status', () => {
-    safe_authd_client.status();
+    let status = safe_authd_client.status();
+    assert.equal(status.logged_in, true);
+    assert.equal(status.num_auth_reqs, 0);
+    assert.equal(status.num_notif_subs, 0);
   });
 
-  test.skip('Subscribe', (done) => {
-    safe_authd_client.subscribe("https://localhost:33001", (auth_req) => {
-      console.log("New auth req received:", auth_req);
-      //console.log("Allow safe-nodejs TEST app?:", appId);
+  test('Subscribe', (done) => {
+    const appId = "Jest.test.app.id";
+    const randomPort = 33001 + Math.floor(Math.random() * Math.floor(1000));
+    safe_authd_client.subscribe(`https://localhost:${randomPort}`, appId, (auppId, reqId) => {
+      console.log("New auth req received:", appId);
+      console.log("Allowing safe-nodejs TEST app:", reqId);
+      let allow_out = safe_authd_client.allow(parseInt(reqId));
+      console.log("Allowed? ", allow_out);
+      done();
     });
 
-    /*console.log("AUTHORISING...");
-    const appId = "Jest.test.app.id";
     let credentials = safe.auth_app(appId, "safe-nodejs Jest Test", "Maidsafe.net Ltd.");
-    console.log("AUTHORISED:", credentials);
-    return new Promise(resolve => {
-      safe.connect(appId, credentials);
-      console.log("CONNECTED!");
-      done();
-    });*/
-  });
-
-  test.skip('Log out', () => {
-    safe_authd_client.log_out();
+    safe.connect(appId, credentials);
   });
 });
