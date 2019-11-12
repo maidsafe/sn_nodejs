@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.1](https://github.com/maidsafe/safe-nodejs/compare/v0.4.0...v0.5.1) (2019-11-12)
+
+
+### Bug Fixes
+
+* **ci:** Cleanup between various electron releases. ([62dcc3a](https://github.com/maidsafe/safe-nodejs/commit/62dcc3a))
+
+
+### Features
+
+* **authd:** add nodejs bindings for SafeAuthdClient start/stop/restart APIs ([1dd4526](https://github.com/maidsafe/safe-nodejs/commit/1dd4526))
+* **authd:** implement binding for authd status API ([434e3c9](https://github.com/maidsafe/safe-nodejs/commit/434e3c9))
+* **authd:** implementation of nodejs bindings for SafeAuthdClient API ([4006c21](https://github.com/maidsafe/safe-nodejs/commit/4006c21))
+* **authd:** implementation of the subscribe JS binding to receive auth reqs notifications from authd ([640f0a1](https://github.com/maidsafe/safe-nodejs/commit/640f0a1))
+
 ## [0.5.0](https://github.com/maidsafe/safe-nodejs/compare/v0.3.2...v0.5.0) (2019-11-11)
 
 
