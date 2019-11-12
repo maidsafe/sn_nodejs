@@ -60,7 +60,7 @@ script:
 after_success:
   # remove native folder to prevent packaging EVERYTHING
   - rm -rf native/target
-  # First build for electron 6 to get that ABI. Other header rebuilds work fine from there.
+  # First build for node.
   - if [[ ${TRAVIS_TAG} != "" ]]; then yarn package; fi;
   - if [[ ${TRAVIS_TAG} != "" ]]; then NODE_PRE_GYP_GITHUB_TOKEN=$GITHUB_ACCESS_TOKEN yarn publish-gh-draft || exit 0; fi;
   # clean for next one
@@ -71,10 +71,13 @@ after_success:
   - rm -rf native/target
   # Publish when built on a tag
   - if [[ ${TRAVIS_TAG} != "" ]]; then yarn package-electron; fi;
+  - if [[ ${TRAVIS_TAG} != "" ]]; then NODE_PRE_GYP_GITHUB_TOKEN=$GITHUB_ACCESS_TOKEN yarn publish-gh-draft || exit 0; fi;
+   # clean for next one
+   - rm -rf build
   # electron 6
   - if [[ ${TRAVIS_TAG} != "" ]]; then yarn neon-build-electron6; fi;
   # remove native folder again to prevent packaging EVERYTHING
   - rm -rf native/target
-  - if [[ ${TRAVIS_TAG} != "" ]]; then yarn package-electron; fi;
+  - if [[ ${TRAVIS_TAG} != "" ]]; then yarn package-electron6; fi;
 
   - if [[ ${TRAVIS_TAG} != "" ]]; then NODE_PRE_GYP_GITHUB_TOKEN=$GITHUB_ACCESS_TOKEN yarn publish-gh-draft || exit 0; fi;
