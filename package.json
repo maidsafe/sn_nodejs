@@ -7,7 +7,7 @@
   "contributors": "Gabriel Viganotti <gabrielviganotti@gmail.com>",
   "license": "(MIT OR BSD-3-Clause)",
   "scripts": {
-    "bump": "standard-version -a",
+    "bump": "git fetch upstream --tags && standard-version -a",
     "postinstall": "node scripts/postinstall.js",
     "build-native": "neon build --release",
     "download-node-abi": "node-pre-gyp install --fallback-to-build=false || neon build --release",
