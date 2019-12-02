@@ -10,7 +10,7 @@ describe.skip('Authd Client API', () => {
   const password = `random-password-${Math.floor(Math.random() * Math.floor(1000))}`;
   const sk = safe.keys_create_preload_test_coins("10")[1].sk;
 
-  safe_authd_client.restart("../native/target/release/safe-authd");
+  safe_authd_client.install("./native/target/release/safe-authd");
 
   test('Create account', () => {
     safe_authd_client.create_acc(sk, passphrase, password);
