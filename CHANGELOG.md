@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/maidsafe/safe-nodejs/compare/v0.5.1...v0.6.0) (2019-12-03)
+
+
+### Features
+
+* **authd:** add bindings for authd install and uninstall APIs ([49b704c](https://github.com/maidsafe/safe-nodejs/commit/49b704cf5b4b3341d86e0eec3d4a511ce57bcb34))
+
 ### [0.5.1](https://github.com/maidsafe/safe-nodejs/compare/v0.4.0...v0.5.1) (2019-11-12)
 
 

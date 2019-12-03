@@ -823,7 +823,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "jsonrpc-quic"
 version = "0.0.1"
-source = "git+https://github.com/maidsafe/safe-api#5c321192dfed5ce7d7de4ab8ade6e3b18e589045"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "directories 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.29 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1775,8 +1775,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "safe-api"
-version = "0.5.0"
-source = "git+https://github.com/maidsafe/safe-api#5c321192dfed5ce7d7de4ab8ade6e3b18e589045"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bincode 1.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1784,7 +1784,7 @@ dependencies = [
  "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.29 (registry+https://github.com/rust-lang/crates.io-index)",
- "jsonrpc-quic 0.0.1 (git+https://github.com/maidsafe/safe-api)",
+ "jsonrpc-quic 0.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "mime_guess 2.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1795,9 +1795,9 @@ dependencies = [
  "rcgen 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "relative-path 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "safe-nd 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "safe_app 0.10.0 (git+https://github.com/maidsafe/safe_client_libs)",
- "safe_authenticator 0.10.0 (git+https://github.com/maidsafe/safe_client_libs)",
- "safe_core 0.35.0 (git+https://github.com/maidsafe/safe_client_libs)",
+ "safe_app 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "safe_authenticator 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "safe_core 0.36.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.103 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.42 (registry+https://github.com/rust-lang/crates.io-index)",
  "slog 2.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1833,20 +1833,20 @@ dependencies = [
 
 [[package]]
 name = "safe-nodejs"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "neon 0.3.1 (git+https://github.com/geovie/neon?branch=feature/threadsafe_callback)",
  "neon-build 0.3.1 (git+https://github.com/geovie/neon?branch=feature/threadsafe_callback)",
  "neon-serde 0.3.0 (git+https://github.com/bochaco/neon-serde?branch=neon-threadsafe_callback)",
- "safe-api 0.5.0 (git+https://github.com/maidsafe/safe-api)",
+ "safe-api 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "safe_app"
-version = "0.10.0"
-source = "git+https://github.com/maidsafe/safe_client_libs#26add7110b4de0368a5c485131597823cc4461ef"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bincode 1.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1859,8 +1859,8 @@ dependencies = [
  "rand 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "rust_sodium 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "safe-nd 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "safe_authenticator 0.10.0 (git+https://github.com/maidsafe/safe_client_libs)",
- "safe_core 0.35.0 (git+https://github.com/maidsafe/safe_client_libs)",
+ "safe_authenticator 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "safe_core 0.36.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "self_encryption 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.103 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.103 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1872,8 +1872,8 @@ dependencies = [
 
 [[package]]
 name = "safe_authenticator"
-version = "0.10.0"
-source = "git+https://github.com/maidsafe/safe_client_libs#26add7110b4de0368a5c485131597823cc4461ef"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bincode 1.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1887,7 +1887,7 @@ dependencies = [
  "rand 0.6.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "rust_sodium 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "safe-nd 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "safe_core 0.35.0 (git+https://github.com/maidsafe/safe_client_libs)",
+ "safe_core 0.36.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.103 (registry+https://github.com/rust-lang/crates.io-index)",
  "threshold_crypto 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "tiny-keccak 1.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1897,8 +1897,8 @@ dependencies = [
 
 [[package]]
 name = "safe_core"
-version = "0.35.0"
-source = "git+https://github.com/maidsafe/safe_client_libs#26add7110b4de0368a5c485131597823cc4461ef"
+version = "0.36.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bincode 1.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2901,7 +2901,7 @@ dependencies = [
 "checksum itoa 0.4.4 (registry+https://github.com/rust-lang/crates.io-index)" = "501266b7edd0174f8530248f87f99c88fbe60ca4ef3dd486835b8d8d53136f7f"
 "checksum jni 0.12.3 (registry+https://github.com/rust-lang/crates.io-index)" = "f4a55c714ea31fb1beb67ce930c92af5520bde9482eaa3805519c44e8c2762fc"
 "checksum jni-sys 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
-"checksum jsonrpc-quic 0.0.1 (git+https://github.com/maidsafe/safe-api)" = "<none>"
+"checksum jsonrpc-quic 0.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "a9d718723dd4746b448aa033a45c18e59bf29ca58c2334b01e8ff150aafd9272"
 "checksum keccak 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "67c21572b4949434e4fc1e1978b99c5f77064153c59d998bf13ecd96fb5ecba7"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a374c89b9db55895453a74c1e38861d9deec0b01b405a82516e9d5de4820dea1"
@@ -3002,11 +3002,11 @@ dependencies = [
 "checksum rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
 "checksum rustls 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)" = "f271e3552cd835fa28c541c34a7e8fdd8cdff09d77fe4eb8f6c42e87a11b096e"
 "checksum ryu 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "bfa8506c1de11c9c4e4c38863ccbe02a305c8188e85a05a784c9e11e1c3910c8"
-"checksum safe-api 0.5.0 (git+https://github.com/maidsafe/safe-api)" = "<none>"
+"checksum safe-api 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "7df637acd459da85590f52b8e0a3d1fbc956b0bc7c4ab6d37d456fe643b4beef"
 "checksum safe-nd 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a3e30058c32d76a167a1e081837d105ac878d35ef5abe490dd7cf8c8055b9720"
-"checksum safe_app 0.10.0 (git+https://github.com/maidsafe/safe_client_libs)" = "<none>"
-"checksum safe_authenticator 0.10.0 (git+https://github.com/maidsafe/safe_client_libs)" = "<none>"
-"checksum safe_core 0.35.0 (git+https://github.com/maidsafe/safe_client_libs)" = "<none>"
+"checksum safe_app 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "2c2a6426529b21ffa5c7343e71bc417a3189beb1079424811f58e91a527fbc52"
+"checksum safe_authenticator 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "0c152d3bc6ec16ba4c0271710658c937bb567bb411a9337278aa5f91e11d2761"
+"checksum safe_core 0.36.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ef7b998f659babfcbdcd856f6acea0e4bbd0a811400448bc50c338afc0f0fd5f"
 "checksum safemem 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "ef703b7cb59335eae2eb93ceb664c0eb7ea6bf567079d843e09420219668e072"
 "checksum same-file 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)" = "585e8ddcedc187886a30fa705c47985c3fa88d06624095856b36ca0b82ff4421"
 "checksum schannel 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "87f550b06b6cba9c8b8be3ee73f391990116bf527450d2556e9b9ce263b9a021"
