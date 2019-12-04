@@ -2,8 +2,9 @@ use env_logger;
 use log::debug;
 use neon::prelude::*;
 use safe_api::{
-    AuthReq, Safe, SafeAuthdClient, SafeContentType, SafeDataType, XorName, XorUrlEncoder,
+    AuthReq, Safe, SafeAuthdClient, SafeContentType, SafeDataType, XorName, XorUrlEncoder, XorUrlBase
 };
+use std::str::FromStr;
 
 const SAFE_CONTENT_TYPE: &[SafeContentType] = &[
     SafeContentType::Raw,             // 0x00
@@ -245,11 +246,12 @@ declare_types! {
         // pub fn to_base(&self, base: &str) -> safe_api::Result<String>
         method to_base(mut cx) {
             let base = cx.argument::<JsString>(0)?.value();
+            let xorurl_base = XorUrlBase::from_str(&base).unwrap_or_else(|err| { panic!(format!("Failed to parse base {}: {:?}", base, err)) } );
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.to_base(&base).unwrap_or_else(|err| { panic!(format!("Failed to encode with base {}: {:?}", base, err)) } )
+                user.to_base(xorurl_base).unwrap_or_else(|err| { panic!(format!("Failed to encode with base {}: {:?}", base, err)) } )
             };
             Ok(cx.string(&data).upcast())
         }
@@ -260,11 +262,15 @@ declare_types! {
         // Initialise a new Safe instance
         init(mut cx) {
             let xorurl_base = match cx.argument_opt(0) {
-                Some(arg) => arg.downcast::<JsString>().or_throw(&mut cx)?.value(),
-                None => "".to_string()
+                Some(arg) => {
+                    let base = arg.downcast::<JsString>().or_throw(&mut cx)?.value();
+                    let xorurl_base = XorUrlBase::from_str(&base).unwrap_or_else(|err| { panic!(format!("Failed to parse base {}: {:?}", base, err)) } );
+                    Some(xorurl_base)
+                },
+                None => None
             };
-            debug!("Creating Safe API instance with xorurl base: '{}'", xorurl_base);
-            let safe = Safe::new(&xorurl_base);
+            debug!("Creating Safe API instance with xorurl base: '{:?}'", xorurl_base);
+            let safe = Safe::new(xorurl_base);
 
             Ok(safe)
         }
@@ -275,26 +281,25 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.xorurl_base.clone()
+                user.xorurl_base
             };
-            debug!("{}", &base);
-            Ok(cx.string(&base).upcast())
+            Ok(cx.string(base.to_string()).upcast())
         }
 
         // Generate an authorisation request string and send it to a SAFE Authenticator.
         // Ir returns the credentials necessary to connect to the network, encoded in a single string.
-        // pub fn auth_app(&mut self, app_id: &str, app_name: &str, app_vendor: &str, port: Option<u16>) -> safe_api::Result<String>
+        // pub fn auth_app(&mut self, app_id: &str, app_name: &str, app_vendor: &str, port: Option<&str>) -> safe_api::Result<String>
         method auth_app(mut cx) {
             let app_id = cx.argument::<JsString>(0)?.value();
             let app_name = cx.argument::<JsString>(1)?.value();
             let app_vendor = cx.argument::<JsString>(2)?.value();
-            let port = get_optional_number(&mut cx, 3).map(|r| r.map(|v| v as u16))?;
+            let port = get_optional_string(&mut cx, 3)?;
             let auth_credentials = {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 debug!("Sending application authorisation request...");
-                user.auth_app(&app_id, &app_name, &app_vendor, port).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } )
+                user.auth_app(&app_id, &app_name, &app_vendor, port.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } )
             };
             debug!("Application successfully authorised!");
             Ok(cx.string(&auth_credentials).upcast())
@@ -857,13 +862,51 @@ declare_types! {
         // Initialise a new SafeAuthdClient instance
         init(mut cx) {
             let port = match cx.argument_opt(0) {
-                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u16),
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
                 None => None
             };
             debug!("Creating SafeAuthdClient API instance with port number: '{:?}'", port);
             let safe_authd_client = SafeAuthdClient::new(port);
 
             Ok(safe_authd_client)
+        }
+
+        // Install the Authenticator daemon
+        // pub fn install(&self, authd_path: Option<&str>) -> safe_api::Result<()>
+        method install(mut cx) {
+            let authd_path = match cx.argument_opt(0) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            debug!("Installing authd from {:?} ...", authd_path);
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.install(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to install authd from '{:?}': {:?}", authd_path, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
+        // Uninstall the Authenticator daemon
+        // pub fn uninstall(&self, authd_path: Option<&str>) -> safe_api::Result<()>
+        method uninstall(mut cx) {
+            let authd_path = match cx.argument_opt(0) {
+                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
+                None => None
+            };
+            debug!("Uninstalling authd from {:?} ...", authd_path);
+
+            {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                user.uninstall(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to uninstall authd from '{:?}': {:?}", authd_path, err)) } )
+            };
+
+            Ok(cx.undefined().upcast())
         }
 
         // Start the Authenticator daemon

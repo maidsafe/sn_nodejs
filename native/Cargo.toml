@@ -1,6 +1,6 @@
 [package]
 name = "safe-nodejs"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Josh Wilson <joshuef@gmail.com>", "Gabriel Viganotti <gabrielviganotti@gmail.com>"]
 license = "MIT OR BSD-3-Clause"
 build = "build.rs"
@@ -18,8 +18,7 @@ neon-build = { git = "https://github.com/geovie/neon", branch = "feature/threads
 [dependencies]
 log = "0.4.8"
 env_logger = "0.7.1"
-#safe-api = "0.5.0"
-safe-api = { git = "https://github.com/maidsafe/safe-cli", branch = "master" }
+safe-api = "0.6.0"
 #neon = "0.3.2"
 neon = { git = "https://github.com/geovie/neon", branch = "feature/threadsafe_callback" }
 #neon-serde = "0.3.0"
