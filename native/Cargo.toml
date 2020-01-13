@@ -18,7 +18,8 @@ neon-build = { git = "https://github.com/geovie/neon", branch = "feature/threads
 [dependencies]
 log = "0.4.8"
 env_logger = "0.7.1"
-safe-api = "0.6.0"
+#safe-api = "0.6.0"
+safe-api = { git = "https://github.com/maidsafe/safe-api", branch = "master" }
 #neon = "0.3.2"
 neon = { git = "https://github.com/geovie/neon", branch = "feature/threadsafe_callback" }
 #neon-serde = "0.3.0"

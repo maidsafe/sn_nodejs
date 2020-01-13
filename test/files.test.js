@@ -74,7 +74,7 @@ describe('Files API', () => {
 
   test('Put a PublishedImmutableData from Buffer and get it', () => {
     let rawBytes = Buffer.from("bytes-of-file");
-    let immdUrl = safe.files_put_published_immutable(rawBytes);
+    let immdUrl = safe.files_put_published_immutable(rawBytes, null, false);
 
     fetchedFile = safe.files_get_published_immutable(immdUrl);
     assert.equal(rawBytes.toString(), String.fromCharCode.apply(null, new Uint8Array(fetchedFile)));
@@ -82,7 +82,7 @@ describe('Files API', () => {
 
   test('Put a PublishedImmutableData from Uint8Array and get it', () => {
     let rawBytes = Uint8Array.from([62, 79, 74, 65, 73]);
-    let immdUrl = safe.files_put_published_immutable(rawBytes);
+    let immdUrl = safe.files_put_published_immutable(rawBytes, null, false);
 
     fetchedFile = safe.files_get_published_immutable(immdUrl);
     assert.equal(rawBytes.toString(), new Uint8Array(fetchedFile).toString());
