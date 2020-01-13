@@ -294,13 +294,8 @@ declare_types! {
             let app_name = cx.argument::<JsString>(1)?.value();
             let app_vendor = cx.argument::<JsString>(2)?.value();
             let port = get_optional_string(&mut cx, 3)?;
-            let auth_credentials = {
-                let mut this = cx.this();
-                let guard = cx.lock();
-                let mut user = this.borrow_mut(&guard);
-                debug!("Sending application authorisation request...");
-                user.auth_app(&app_id, &app_name, &app_vendor, port.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } )
-            };
+            debug!("Sending application authorisation request...");
+            let auth_credentials = Safe::auth_app(&app_id, &app_name, &app_vendor, port.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } );
             debug!("Application successfully authorised!");
             Ok(cx.string(&auth_credentials).upcast())
         }
@@ -472,7 +467,7 @@ declare_types! {
         }
 
         // Pub PublishedImmutableData
-        // pub fn files_put_published_immutable(&mut self, data: &[u8]) -> safe_api::Result<XorUrl>
+        // pub fn files_put_published_immutable(&mut self, data: &[u8], media_type: Option<&str>, dry_run: bool) -> safe_api::Result<XorUrl>
         method files_put_published_immutable(mut cx) {
             let v: Handle<JsValue> = cx.argument(0)?;
             let buffer: Handle<JsBuffer>;
@@ -488,13 +483,14 @@ declare_types! {
             };
 
             let media_type = get_optional_string(&mut cx, 1)?;
+            let dry_run = cx.argument::<JsBoolean>(2)?.value();
             debug!("Putting PublishedImmutableData: {:?}", data);
 
             let url = {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                user.files_put_published_immutable(&data, media_type.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
+                user.files_put_published_immutable(&data, media_type.as_ref().map(String::as_str), dry_run).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
             };
 
             Ok(cx.string(&url).upcast())
