@@ -1,6 +1,6 @@
 {
   "name": "safe-nodejs",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "NodeJS binding for SAFE API",
   "main": "lib/index.js",
   "author": "Josh Wilson <joshuef@gmail.com>",
