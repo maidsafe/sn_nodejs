@@ -75,9 +75,9 @@ after_success:
   # clean for next one
   - rm -rf build
   # electron 6
-  - if [[ ${TRAVIS_TAG} != "" && ${TRAVIS_NODE_VERSION} == "12"  ]]; then yarn neon-build-electron6; fi;
+  - if [[ ${TRAVIS_TAG} != "" && ${TRAVIS_NODE_VERSION} == "12"  ]]; then yarn neon-build-electron7; fi;
   # remove native folder again to prevent packaging EVERYTHING
   - rm -rf native/target
-  - if [[ ${TRAVIS_TAG} != "" && ${TRAVIS_NODE_VERSION} == "12"  ]]; then yarn package-electron6; fi;
+  - if [[ ${TRAVIS_TAG} != "" && ${TRAVIS_NODE_VERSION} == "12"  ]]; then yarn package-electron7; fi;
 
   - if [[ ${TRAVIS_TAG} != "" && ${TRAVIS_NODE_VERSION} == "12"  ]]; then NODE_PRE_GYP_GITHUB_TOKEN=$GITHUB_ACCESS_TOKEN yarn publish-gh-draft || exit 0; fi;
