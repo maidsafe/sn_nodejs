@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.0](https://github.com/maidsafe/safe-nodejs/compare/v0.8.1...v0.9.0) (2020-03-03)
+
+
+### Features
+
+* **api:** upgrade safe-api to v0.9.0 ([dc7aedc](https://github.com/maidsafe/safe-nodejs/commit/dc7aedcf9207e042fb2466efa090fe6ce906d54e))
+
+
 ### [0.8.1](https://github.com/maidsafe/safe-nodejs/compare/v0.8.0...v0.8.1) (2020-02-07)
 
 
