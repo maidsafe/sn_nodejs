@@ -2,7 +2,10 @@ use env_logger;
 use log::debug;
 use neon::prelude::*;
 use safe_api::{
-    AuthReq, Safe, SafeAuthdClient, SafeContentType, SafeDataType, XorName, XorUrlEncoder, XorUrlBase
+    AuthReq, Safe, SafeAuthdClient,
+    fetch::{SafeContentType, SafeDataType},
+    XorName,
+    xorurl::{XorUrlEncoder, XorUrlBase}
 };
 use std::str::FromStr;
 
