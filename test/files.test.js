@@ -72,6 +72,26 @@ describe('Files API', () => {
     assert.equal(rawBytes.toString(), new Uint8Array(fetchedFile.PublishedImmutableData.data).toString());
   });
 
+  test('Remove a file from a FilesContainer', () => {
+    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
+    let filesMap = filesContainer[2];
+    assert.equal(Object.keys(filesMap).length, 2);
+    let file_removed = `${filesContainer[0]}/test.txt`;
+
+    let filesContainerData = safe.files_container_remove_path(file_removed, false, false, false);
+    let newFilesMap = filesContainerData[2];
+    assert.equal(Object.keys(newFilesMap).length, 1);
+
+    filesContainerData = safe.files_container_get(filesContainer[0]);
+    assert.equal(filesContainerData[1]['/test.md'].link, newFilesMap['/test.md'].link);
+
+    try {
+      let fetchedFile = safe.fetch(file_removed);
+    } catch(err) {
+      assert(err.message.includes("No data found for path \\\"/test.txt/\\\""));
+    }
+  });
+
   test('Put a PublishedImmutableData from Buffer and get it', () => {
     let rawBytes = Buffer.from("bytes-of-file");
     let immdUrl = safe.files_put_published_immutable(rawBytes, null, false);
