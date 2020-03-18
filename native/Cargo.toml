@@ -16,9 +16,9 @@ crate-type = ["cdylib"]
 neon-build = { git = "https://github.com/geovie/neon", branch = "feature/threadsafe_callback" }
 
 [dependencies]
-log = "0.4.8"
-env_logger = "0.7.1"
-safe-api = { git = "https://github.com/maidsafe/safe-api", branch = "master", features = ["app", "authd_client"] }
+log = "^0.4.8"
+env_logger = "^0.7.1"
+safe-api = { version = "^0.10.0", features = ["app", "authd_client"] }
 #neon = "0.3.2"
 neon = { git = "https://github.com/geovie/neon", branch = "feature/threadsafe_callback" }
 #neon-serde = "0.3.0"

@@ -2,10 +2,9 @@ use env_logger;
 use log::debug;
 use neon::prelude::*;
 use safe_api::{
-    AuthReq, Safe, SafeAuthdClient,
     fetch::{SafeContentType, SafeDataType},
-    XorName,
-    xorurl::{XorUrlEncoder, XorUrlBase}
+    xorurl::{XorUrlBase, XorUrlEncoder},
+    AuthReq, Safe, SafeAuthdClient, XorName,
 };
 use std::str::FromStr;
 
@@ -97,7 +96,7 @@ declare_types! {
             };
 
             debug!("Creating XorUrlEncoder instance");
-            let xorurl_encoder = XorUrlEncoder::new(xorname, type_tag, data_type, content_type, path.as_ref().map(String::as_str), sub_names, content_version).unwrap_or_else(|err| { panic!(format!("Failed to instantiate XorUrlEncoder: {:?}", err)) } );
+            let xorurl_encoder = XorUrlEncoder::new(xorname, type_tag, data_type, content_type, path.as_deref(), sub_names, content_version).unwrap_or_else(|err| { panic!(format!("Failed to instantiate XorUrlEncoder: {:?}", err)) } );
             Ok(xorurl_encoder)
         }
 
@@ -298,7 +297,7 @@ declare_types! {
             let app_vendor = cx.argument::<JsString>(2)?.value();
             let port = get_optional_string(&mut cx, 3)?;
             debug!("Sending application authorisation request...");
-            let auth_credentials = async_std::task::block_on(Safe::auth_app(&app_id, &app_name, &app_vendor, port.as_ref().map(String::as_str))).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } );
+            let auth_credentials = async_std::task::block_on(Safe::auth_app(&app_id, &app_name, &app_vendor, port.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } );
             debug!("Application successfully authorised!");
             Ok(cx.string(&auth_credentials).upcast())
         }
@@ -313,23 +312,58 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                let _ = user.connect(&app_id, credentials.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
+                let _ = user.connect(&app_id, credentials.as_deref()).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
                 debug!("Successfully connected to the Network!");
             }
             Ok(cx.undefined().upcast())
         }
 
         // Retrieve data from a safe:// URL
-        // Binding for: pub async fn fetch(&self, url: &str) -> safe_api::Result<SafeData>
+        // Binding for: pub async fn fetch(&self, url: &str, range: Range) -> safe_api::Result<SafeData>
         method fetch(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            debug!("Fetching from: {}", url);
+            let range = match cx.argument_opt(1) {
+                Some(arg) => {
+                    if arg.is_a::<JsNull>() {
+                        None
+                    } else {
+                        match arg.downcast::<JsObject>() {
+                            Ok(range_obj) => {
+                                let start = match range_obj.get(&mut cx, "start") {
+                                    Ok(attr) => {
+                                        let start_value_handle = attr
+                                            .downcast::<JsNumber>()
+                                            .unwrap_or_else(|err| panic!(format!("Invalid 'start' range value: {:?}", err)));
+                                        Some(start_value_handle.value() as u64)
+                                    }
+                                    Err(_) => None,
+                                };
+                                let end = match range_obj.get(&mut cx, "end") {
+                                    Ok(attr) => {
+                                        let end_value_handle = attr
+                                            .downcast::<JsNumber>()
+                                            .unwrap_or_else(|err| panic!(format!("Invalid 'end' range value: {:?}", err)));
+                                        Some(end_value_handle.value() as u64)
+                                    }
+                                    Err(_) => None,
+                                };
+
+                                Some((start, end))
+                            },
+                            Err(err) => panic!(err.to_string()),
+                        }
+                    }
+                }
+                None => None,
+            };
+
+            debug!("Fetching from {} with range {:?}", url, range);
 
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.fetch(&url, None)).unwrap_or_else(|err| { panic!(format!("Failed to fetch content from '{}': {:?}", url, err)) } )
+                async_std::task::block_on(user.fetch(&url, range)).unwrap_or_else(|err| { panic!(format!("Failed to fetch content from '{}': {:?}", url, err)) } )
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -356,20 +390,20 @@ declare_types! {
         //**** FilesContainer ****//
 
         // Upload files/folder into a new FilesContainer returning its XOR-URL
-        // Binding for: pub async fn files_container_create(&mut self, location: &str, dest: Option<&str>, recursive: bool, dry_run: bool) -> safe_api::Result<(XorUrl, ProcessedFiles, FilesMap)>
+        // Binding for: pub async fn files_container_create(&mut self, location: Option<&str>, dest: Option<&str>, recursive: bool, dry_run: bool) -> safe_api::Result<(XorUrl, ProcessedFiles, FilesMap)>
         method files_container_create(mut cx) {
-            let location = cx.argument::<JsString>(0)?.value();
+            let location = get_optional_string(&mut cx, 0)?;
             let dest = get_optional_string(&mut cx, 1)?;
 
             let recursive = cx.argument::<JsBoolean>(2)?.value();
             let dry_run = cx.argument::<JsBoolean>(3)?.value();
-            debug!("Creating FilesContainer: {} - {:?} - {} - {}", location, dest, recursive, dry_run);
+            debug!("Creating FilesContainer: {:?} - {:?} - {} - {}", location, dest, recursive, dry_run);
 
             let data = {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_container_create(&location, dest.as_ref().map(String::as_str), recursive, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create FilesContainer: {:?}", err)) } )
+                async_std::task::block_on(user.files_container_create(location.as_deref(), dest.as_deref(), recursive, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create FilesContainer: {:?}", err)) } )
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -513,7 +547,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_put_published_immutable(&data, media_type.as_ref().map(String::as_str), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
+                async_std::task::block_on(user.files_put_published_immutable(&data, media_type.as_deref(), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
             };
 
             Ok(cx.string(&url).upcast())
@@ -677,7 +711,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.keys_create(from.as_ref().map(String::as_str), preload_amount.as_ref().map(String::as_str), pk.as_ref().map(String::as_str))).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey: {:?}", err)) } )
+                async_std::task::block_on(user.keys_create(from.as_deref(), preload_amount.as_deref(), pk.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey: {:?}", err)) } )
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -764,7 +798,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.keys_transfer(&amount, from_sk.as_ref().map(String::as_str), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from SafeKey: {:?}", err)) } )
+                async_std::task::block_on(user.keys_transfer(&amount, from_sk.as_deref(), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from SafeKey: {:?}", err)) } )
             };
 
             Ok(cx.number(data as f64).upcast())
@@ -800,7 +834,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.wallet_insert(&url, name.as_ref().map(String::as_str), default, &sk)).unwrap_or_else(|err| { panic!(format!("Failed to insert in Wallet: {:?}", err)) } )
+                async_std::task::block_on(user.wallet_insert(&url, name.as_deref(), default, &sk)).unwrap_or_else(|err| { panic!(format!("Failed to insert in Wallet: {:?}", err)) } )
             };
 
             Ok(cx.string(data).upcast())
@@ -853,7 +887,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.wallet_transfer(&amount, from_url.as_ref().map(String::as_str), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from Wallet at: {:?}", err)) } )
+                async_std::task::block_on(user.wallet_transfer(&amount, from_url.as_deref(), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from Wallet at: {:?}", err)) } )
             };
 
             Ok(cx.number(data as f64).upcast())
@@ -903,7 +937,7 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.install(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to install authd from '{:?}': {:?}", authd_path, err)) } )
+                user.install(authd_path.as_deref()).unwrap_or_else(|err| { panic!(format!("Failed to install authd from '{:?}': {:?}", authd_path, err)) } )
             };
 
             Ok(cx.undefined().upcast())
@@ -922,7 +956,7 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.uninstall(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to uninstall authd from '{:?}': {:?}", authd_path, err)) } )
+                user.uninstall(authd_path.as_deref()).unwrap_or_else(|err| { panic!(format!("Failed to uninstall authd from '{:?}': {:?}", authd_path, err)) } )
             };
 
             Ok(cx.undefined().upcast())
@@ -941,7 +975,7 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.start(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to start authd from '{:?}': {:?}", authd_path, err)) } )
+                user.start(authd_path.as_deref()).unwrap_or_else(|err| { panic!(format!("Failed to start authd from '{:?}': {:?}", authd_path, err)) } )
             };
 
             Ok(cx.undefined().upcast())
@@ -960,7 +994,7 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.stop(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to stop authd from '{:?}': {:?}", authd_path, err)) } )
+                user.stop(authd_path.as_deref()).unwrap_or_else(|err| { panic!(format!("Failed to stop authd from '{:?}': {:?}", authd_path, err)) } )
             };
 
             Ok(cx.undefined().upcast())
@@ -979,7 +1013,7 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.restart(authd_path.as_ref().map(String::as_str)).unwrap_or_else(|err| { panic!(format!("Failed to restart authd from '{:?}': {:?}", authd_path, err)) } )
+                user.restart(authd_path.as_deref()).unwrap_or_else(|err| { panic!(format!("Failed to restart authd from '{:?}': {:?}", authd_path, err)) } )
             };
 
             Ok(cx.undefined().upcast())

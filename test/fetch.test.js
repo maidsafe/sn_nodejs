@@ -41,6 +41,15 @@ describe('fetch/inspect APIs', function() {
     assert(String.fromCharCode.apply(null, new Uint8Array(data.PublishedImmutableData.data)).startsWith("hello test.txt!"));
   });
 
+  test('fetch PublishedImmutableData range', () => {
+    let filesContainer = safe.files_container_create("test/testfolder/test.txt", "", false, false);
+    let filesContainerXorUrl = filesContainer[0];
+
+    let data = safe.fetch(`safe://${filesContainerXorUrl}/test.txt`, {start: 2, end: 5});
+
+    assert.equal(String.fromCharCode.apply(null, new Uint8Array(data.PublishedImmutableData.data)), "llo");
+  });
+
   test('inspect PublishedImmutableData', () => {
     let filesContainer = safe.files_container_create("test/testfolder/test.txt", "", false, false);
     let filesContainerXorUrl = filesContainer[0];
