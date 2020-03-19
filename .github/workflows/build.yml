@@ -1,0 +1,69 @@
+name: Build on tag
+
+on: ["push"]
+  # create:
+  #   tags:
+  #     - v*
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  SAFE_CLI_VERSION: "0.10.1"
+
+jobs:
+  builds:
+    name: Build on tag
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: ["10", "12"]
+        os: [ubuntu-latest]
+        # os: [ubuntu-latest, windows-latest, macos-latest]
+        electron: ["7.1.14", "8.1.1"]
+    steps:
+      - name: install jq
+        run: sudo apt-get install jq
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Yarn Install
+        run: | 
+          yarn
+          yarn global add neon-cli
+      - name: set package version as env
+        run: echo ::set-env name=PACKAGE_VERSION::$(jq .version ./package.json)
+      - name: Build for node ${{ matrix.node }}
+        run: |
+          yarn package
+          NODE_PRE_GYP_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} yarn publish-gh-draft || exit 0
+      - run: ls build
+      - run: ls build/Release || true
+      - run: ls build/stage || true
+      - name: Archive Node Build
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.os }}-${{ matrix.node }}
+          path: ./build/Release/index.node
+
+      - name: Build Electron
+        if: matrix.node == '12'
+        run: |
+            rm -rf build || true
+            yarn cross-env npm_config_target=${{ matrix.electron }} npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release
+            rm -rf native/target
+            yarn node-pre-gyp package --runtime=electron --target=${{ matrix.electron }} --dist-url=https://electronjs.org/headers
+            NODE_PRE_GYP_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} yarn publish-gh-draft || exit 0
+      - run: ls build || true
+      - run: ls build/Release || true
+      - run: ls build/stage || true
+      # - name: Archive Electron
+      #   uses: actions/upload-artifact@master
+      #   with:
+      #     name: ${{ matrix.os }}-Electron-${{ matrix.electron }}
+      #     path: ./build/Release/index.node
+     

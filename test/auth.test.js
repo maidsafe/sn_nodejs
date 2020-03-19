@@ -1,16 +1,23 @@
 const assert = require('assert');
-const { new_safe } = require('./helpers.js');
+// const { new_safe } = require('./helpers.js');
 const { SafeAuthdClient } = require('../lib/index');
+const { Safe } = require('../lib/index');
 
-describe.skip('Authd Client API', () => {
+
+describe('Authd Client API', () => {
   let safe_authd_client = new SafeAuthdClient(); // use default port number
-  let safe = new_safe();
+  
+  let safe = new Safe();
+  // safe.connect("net.maidsafe.safe-nodejs", auth_credentials);
+  // return safe;
+  // let safe = new_safe();
 
   const passphrase = `random-passphrase-${Math.floor(Math.random() * Math.floor(1000))}`;
   const password = `random-password-${Math.floor(Math.random() * Math.floor(1000))}`;
   const sk = safe.keys_create_preload_test_coins("10")[1].sk;
 
-  safe_authd_client.install("./native/target/release/safe-authd");
+    //safe_authd_client.install("~/.safe/authd");
+  safe_authd_client.start();
 
   test('Create account', () => {
     safe_authd_client.create_acc(sk, passphrase, password);
