@@ -1939,7 +1939,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "safe-api"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "async-std 1.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1990,7 +1990,7 @@ dependencies = [
 
 [[package]]
 name = "safe-nodejs"
-version = "0.9.0"
+version = "0.10.0"
 dependencies = [
  "async-std 1.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1998,7 +1998,7 @@ dependencies = [
  "neon 0.3.3 (git+https://github.com/geovie/neon?branch=feature/threadsafe_callback)",
  "neon-build 0.3.3 (git+https://github.com/geovie/neon?branch=feature/threadsafe_callback)",
  "neon-serde 0.3.0 (git+https://github.com/bochaco/neon-serde?branch=neon-threadsafe_callback)",
- "safe-api 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "safe-api 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -3203,7 +3203,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum rustls-native-certs 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "51ffebdbb48c14f84eba0b715197d673aff1dd22cc1007ca647e28483bbcc307"
 "checksum rustversion 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "b3bba175698996010c4f6dce5e7f173b6eb781fce25d2cfc45e27091ce0b79f6"
 "checksum ryu 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "bfa8506c1de11c9c4e4c38863ccbe02a305c8188e85a05a784c9e11e1c3910c8"
-"checksum safe-api 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5782747c65be4f62420eb22d92ddfdeb86f57edde839b1d9cb3aef7033294eee"
+"checksum safe-api 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "34b2733697e400c8057737fed9e4cd8b8103757786b42f4199f67ced5737d4e5"
 "checksum safe-nd 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d22dcd7515d740dd0133c19c738830da96813e33dcc949849025d871de59564d"
 "checksum safe_app 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)" = "3a67c023ca33ddde22e9049ce82fefecceb39a8ce2666f056891c68471366c44"
 "checksum safe_authenticator 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)" = "484b0b5c6e7e9cf5ca49668373aa981103e091e9d53458fde6895c2276d8aeac"

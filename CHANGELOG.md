@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [0.9.0](https://github.com/maidsafe/safe-nodejs/compare/v0.8.1...v0.9.0) (2020-03-03)
+### [0.10.0](https://github.com/maidsafe/safe-nodejs/compare/v0.9.0...v0.10.0) (2020-03-23)
+
+
+### Features
+
+* **lib:** adapt fetch binding to support optional range arg, and adapt files_container_create binding to support creation of empty containers ([01ca8e9](https://github.com/maidsafe/safe-nodejs/commit/01ca8e95aa5bbf77774067c5d2e0e6d496fd89ed))
+* **lib:** add files_container_remove_path binding ([2f6d1cb](https://github.com/maidsafe/safe-nodejs/commit/2f6d1cb496f220895547113a8594007c4e06a9e8))
+
+### [0.9.0](https://github.com/maidsafe/safe-nodejs/compare/v0.8.1...v0.9.0) (2020-03-03)
 
 
 ### Features
