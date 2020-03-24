@@ -16,12 +16,21 @@ jobs:
     strategy:
       matrix:
         node: ["10", "12"]
-        os: [ubuntu-latest]
-        # os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         electron: ["7.1.14", "8.1.1"]
     steps:
-      - name: install jq
+      - name: Linux install jq
         run: sudo apt-get install jq
+        if: matrix.os == 'ubuntu-latest'
+     
+      - name: Mac install jq
+        run: brew install jq
+        if: matrix.os == 'macos-latest'
+
+      - name: Windows install jq
+        run: choco install jq
+        if: matrix.os == 'windows-latest'
+
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
