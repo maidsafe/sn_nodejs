@@ -4,7 +4,7 @@ const { SafeAuthdClient } = require('../lib/index');
 const { Safe } = require('../lib/index');
 
 
-describe('Authd Client API', () => {
+describe('Authd Client API', async () => {
   let safe_authd_client = new SafeAuthdClient(); // use default port number
   
   let safe = new Safe();
@@ -17,7 +17,7 @@ describe('Authd Client API', () => {
   const sk = safe.keys_create_preload_test_coins("10")[1].sk;
 
     //safe_authd_client.install("~/.safe/authd");
-  safe_authd_client.start();
+  await safe_authd_client.start();
 
   test('Create account', () => {
     safe_authd_client.create_acc(sk, passphrase, password);
