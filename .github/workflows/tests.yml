@@ -82,6 +82,14 @@ jobs:
           yarn test-api
       - run : safe vault run-baby-fleming
       - name: Mini-Network Tests
+        # true needed for windows?
+      - name: Build For Vault
+        run: yarn build
+      - name: Run Auth Tests
+        run: RUST_LOG=debug yarn test-auth
+      - name: Authd Logs
         run: |
-          yarn build-debug
-          yarn test-auth
+          cat $HOME/.safe/authd/logs/safe-authd.out
+          cat $HOME/.safe/authd/logs/safe-authd.err
+        if: failure()
+

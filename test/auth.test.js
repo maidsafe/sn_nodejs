@@ -1,34 +1,40 @@
 const assert = require('assert');
-// const { new_safe } = require('./helpers.js');
 const { SafeAuthdClient } = require('../lib/index');
 const { Safe } = require('../lib/index');
 
 
-describe('Authd Client API', async () => {
+describe('Authd Client API', () => {
   let safe_authd_client = new SafeAuthdClient(); // use default port number
   
   let safe = new Safe();
-  // safe.connect("net.maidsafe.safe-nodejs", auth_credentials);
-  // return safe;
-  // let safe = new_safe();
+  let passphrase;
+  let password;
+  let sk;
+  
+  beforeAll( async () => {
+    safe_authd_client.start();
+    passphrase = `random-passphrase-${Math.floor(Math.random() * Math.floor(1000))}`;
+    password = `random-password-${Math.floor(Math.random() * Math.floor(1000))}`;
+    sk = safe.keys_create_preload_test_coins("10")[1].sk;
+  })
 
-  const passphrase = `random-passphrase-${Math.floor(Math.random() * Math.floor(1000))}`;
-  const password = `random-password-${Math.floor(Math.random() * Math.floor(1000))}`;
-  const sk = safe.keys_create_preload_test_coins("10")[1].sk;
 
-    //safe_authd_client.install("~/.safe/authd");
-  await safe_authd_client.start();
+  afterAll( async () => {
+    await safe_authd_client.unsubscribe(`https://localhost:${randomPort}`);
+    await safe_authd_client.stop();
+
+  })
 
   test('Create account', () => {
-    safe_authd_client.create_acc(sk, passphrase, password);
+    expect( () =>  safe_authd_client.create_acc(sk, passphrase, password) ).not.toThrow() ;
   });
 
   test('Log out', () => {
-    safe_authd_client.log_out();
+    expect( () => safe_authd_client.log_out() ).not.toThrow() ;
   });
 
   test('Log in', () => {
-    safe_authd_client.log_in(passphrase, password);
+    expect( () => safe_authd_client.log_in( passphrase, password) ).not.toThrow() ;
   });
 
   test('Status', () => {
@@ -38,18 +44,27 @@ describe('Authd Client API', async () => {
     assert.equal(status.num_notif_subs, 0);
   });
 
-  test('Subscribe', (done) => {
-    const appId = "Jest.test.app.id";
-    const randomPort = 33001 + Math.floor(Math.random() * Math.floor(1000));
-    safe_authd_client.subscribe(`https://localhost:${randomPort}`, appId, (auppId, reqId) => {
-      console.log("New auth req received:", appId);
-      console.log("Allowing safe-nodejs TEST app:", reqId);
-      let allow_out = safe_authd_client.allow(parseInt(reqId));
-      console.log("Allowed? ", allow_out);
-      done();
-    });
+  // test('Subscribe', async () => {
+  //   let x = new Promise ( async (resolve, reject) => {
+  //     const appId = "Jest.test.app.id";
+  //     const randomPort = 33001 + Math.floor(Math.random() * Math.floor(1000));
+  //     safe_authd_client.subscribe(`https://localhost:${randomPort}`, appId, (auppId, reqId) => {
+  //       console.log("New auth req received:", appId);
+  //       console.log("Allowing safe-nodejs TEST app:", reqId);
+  //       let allow_out = safe_authd_client.allow(parseInt(reqId));
+  //       console.log("Allowed? ", allow_out);
+  //       resolve('fin');
+  //     });
+  
+  //     let credentials = safe.auth_app(appId, "safe-nodejs Jest Test", "Maidsafe.net Ltd.");
+  //     safe.connect(appId, credentials);
 
-    let credentials = safe.auth_app(appId, "safe-nodejs Jest Test", "Maidsafe.net Ltd.");
-    safe.connect(appId, credentials);
-  });
+  //     await delay(30000);
+  //     reject();
+
+  //   } );
+
+  //   await x;
+  //   expect( x ).toEqual('fin');
+  // })
 });
