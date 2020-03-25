@@ -82,5 +82,5 @@ jobs:
       - run : safe vault run-baby-fleming
       - name: Mini-Network Tests
         run: |
-          yarn build
+          yarn build-debug
           yarn test-auth
