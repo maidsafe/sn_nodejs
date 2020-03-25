@@ -8,6 +8,7 @@ on: ["push"]
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   SAFE_CLI_VERSION: "0.10.1"
+  SAFE_VAULT_VERSION: "0.22.0"
 
 jobs:
   builds:
