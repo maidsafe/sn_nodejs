@@ -9,8 +9,7 @@
   "scripts": {
     "bump": "git fetch upstream --tags && standard-version -a",
     "postinstall": "node scripts/postinstall.js",
-    "build": "neon build --release",
-    "build-debug": "neon build",
+    "build": "neon build --release & exit 0",
     "build-mock": "cross-env RUSTFLAGS=\"--cfg feature=\\\"scl-mock\\\"\" yarn build",
     "download-node-abi": "node-pre-gyp install --fallback-to-build=false || neon build --release",
     "package": "node-pre-gyp package",
@@ -20,9 +19,9 @@
     "neon-build-electron": "cross-env npm_config_target=8.1.1 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
     "neon-build-electron7": "cross-env npm_config_target=7.1.14 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
     "test-api": "yarn test --testPathIgnorePatterns auth",
-    "test-auth": "yarn test auth",
+    "test-auth": "safe auth stop || true && yarn jest auth",
     "test-with-mock": "yarn build-mock && yarn test --testPathIgnorePatterns auth",
-    "test-with-vault": "yarn build && yarn test --testPathIgnorePatterns auth",
+    "test-with-vault": "yarn build && yarn test",
     "test": "jest"
   },
   "repository": {
@@ -50,7 +49,7 @@
   },
   "dependencies": {
     "add": "^2.0.6",
-    "neon-cli": "^0.3.1",
+    "neon-cli": "^0.4.0",
     "node-pre-gyp": "amilajack/node-pre-gyp",
     "node-pre-gyp-github": "^1.4.3",
     "standard-version": "7.0.0",
