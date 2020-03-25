@@ -1,9 +1,9 @@
 name: Build on tag
 
-on: ["push"]
-  # create:
-  #   tags:
-  #     - v*
+on:
+  create:
+    tags:
+      - v*
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -50,7 +50,7 @@ jobs:
       - name: Build for node ${{ matrix.node }}
         run: |
           yarn package
-          NODE_PRE_GYP_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} yarn publish-gh-draft || exit 0
+          NODE_PRE_GYP_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} yarn publish-gh-draft
       - run: ls build
       - run: ls build/Release || true
       - run: ls build/stage || true
