@@ -80,9 +80,8 @@ jobs:
         run: |
           yarn build-mock
           yarn test-api
-      - run : safe vault run-baby-fleming
-      - name: Mini-Network Tests
-        # true needed for windows?
+      - name: Mini-Network Setup
+        run : safe vault run-baby-fleming
       - name: Build For Vault
         run: yarn build
       - name: Run Auth Tests
