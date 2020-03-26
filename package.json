@@ -9,7 +9,7 @@
   "scripts": {
     "bump": "git fetch upstream --tags && standard-version -a",
     "postinstall": "node scripts/postinstall.js",
-    "build": "neon build --release & exit 0",
+    "build": "neon build --release",
     "build-mock": "cross-env RUSTFLAGS=\"--cfg feature=\\\"scl-mock\\\"\" yarn build",
     "download-node-abi": "node-pre-gyp install --fallback-to-build=false || neon build --release",
     "package": "node-pre-gyp package",
