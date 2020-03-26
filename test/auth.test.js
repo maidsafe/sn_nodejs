@@ -2,6 +2,13 @@ const assert = require('assert');
 const { SafeAuthdClient } = require('../lib/index');
 const { Safe } = require('../lib/index');
 
+jest.setTimeout(120000);
+const WAIT_TIME = 1000;
+const delay = async ( time ) =>
+    new Promise(
+        ( resolve ) => setTimeout( resolve, time )
+    );
+
 
 describe('Authd Client API', () => {
   let safe_authd_client = new SafeAuthdClient(); // use default port number
@@ -13,15 +20,24 @@ describe('Authd Client API', () => {
   
   beforeAll( async () => {
     safe_authd_client.start();
+    await delay(WAIT_TIME);
     passphrase = `random-passphrase-${Math.floor(Math.random() * Math.floor(1000))}`;
     password = `random-password-${Math.floor(Math.random() * Math.floor(1000))}`;
     sk = safe.keys_create_preload_test_coins("10")[1].sk;
+    await delay(WAIT_TIME);
   })
 
 
+
+  afterEach( async () => {
+    await delay(WAIT_TIME);
+  })
+
   afterAll( async () => {
     await safe_authd_client.unsubscribe(`https://localhost:${randomPort}`);
+    await delay(WAIT_TIME);
     await safe_authd_client.stop();
+    await delay(WAIT_TIME);
 
   })
 
