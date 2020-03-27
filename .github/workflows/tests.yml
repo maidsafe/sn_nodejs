@@ -82,12 +82,12 @@ jobs:
           $HOME/.safe/vault/safe_vault -V
           safe --version
 
-      - name: Check Safe Versions
-        if: matrix.os == 'windows-latest'
-        run : |
-          $HOME/.safe/authd/safe-authd.exe -V
-          $HOME/.safe/vault/safe_vault.exe -V
-          safe --version
+      # - name: Check Safe Versions
+      #   if: matrix.os == 'windows-latest'
+      #   run : |
+      #     $HOME/.safe/authd/safe-authd.exe -V
+      #     $HOME/.safe/vault/safe_vault.exe -V
+      #     safe --version
 
       - run : yarn
       - name: Mock Tests
