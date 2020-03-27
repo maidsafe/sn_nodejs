@@ -81,6 +81,7 @@ jobs:
           $HOME/.safe/authd/safe-authd -V
           $HOME/.safe/vault/safe_vault -V
           safe --version
+          cat native/Cargo.toml
 
       # - name: Check Safe Versions
       #   if: matrix.os == 'windows-latest'
@@ -92,12 +93,15 @@ jobs:
       - run : yarn
       - name: Mock Tests
         run: |
+          yarn neon clean
           yarn build-mock
           yarn test-api
       - name: Mini-Network Setup
         run : safe vault run-baby-fleming
       - name: Build For Vault
-        run: yarn build
+        run: | 
+          yarn neon clean
+          yarn build
       - name: Run Auth Tests
         run: RUST_LOG=debug yarn test-auth
       - name: Authd Logs

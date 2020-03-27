@@ -1,6 +1,6 @@
 [package]
 name = "safe-nodejs"
-version = "0.10.0"
+version = "0.11.0"
 authors = ["Josh Wilson <joshuef@gmail.com>", "Gabriel Viganotti <gabrielviganotti@gmail.com>"]
 license = "MIT OR BSD-3-Clause"
 build = "build.rs"
