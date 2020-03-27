@@ -74,6 +74,12 @@ jobs:
         run: |
           safe auth install
           chmod +x $HOME/.safe/authd/safe-authd
+      
+      - name: Check Safe Versions
+        run : |
+          $HOME/.safe/authd/safe-authd -V
+          $HOME/.safe/vault/safe_vault -V
+          safe --version
 
       - run : yarn
       - name: Mock Tests
