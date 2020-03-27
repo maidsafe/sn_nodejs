@@ -81,6 +81,7 @@ jobs:
           $HOME/.safe/authd/safe-authd -V
           $HOME/.safe/vault/safe_vault -V
           safe --version
+          cat native/Cargo.toml
 
       # - name: Check Safe Versions
       #   if: matrix.os == 'windows-latest'
