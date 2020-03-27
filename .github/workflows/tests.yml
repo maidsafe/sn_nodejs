@@ -29,17 +29,17 @@ jobs:
       - name: Download Safe Vault Ubuntu
         if: matrix.os == 'ubuntu-latest'
         run:  wget "https://github.com/maidsafe/safe_vault/releases/download/${{env.SAFE_VAULT_VERSION}}/safe_vault-${{env.SAFE_VAULT_VERSION}}-x86_64-unknown-linux-musl.tar.gz" -O ./vault.tar.gz;
-    
+
       - name: Download Safe Vault Mac
         if: matrix.os == 'macos-latest'
         run: wget "https://github.com/maidsafe/safe_vault/releases/download/${{env.SAFE_VAULT_VERSION}}/safe_vault-${{env.SAFE_VAULT_VERSION}}-x86_64-apple-darwin.tar.gz" -O ./vault.tar.gz;
-    
+
       - name: Download Safe Vault Win
         if: matrix.os == 'windows-latest'
         run: |
           choco install wget
           wget "https://github.com/maidsafe/safe_vault/releases/download/${{env.SAFE_VAULT_VERSION}}/safe_vault-${{env.SAFE_VAULT_VERSION}}-x86_64-pc-windows-msvc.tar.gz" -O ./vault.tar.gz;
-    
+
       - name: Place Safe Vault
         run:  |
           ls .
@@ -50,11 +50,11 @@ jobs:
       - name: Download Safe CLI Linux
         if: matrix.os == 'ubuntu-latest'
         run: wget "https://github.com/maidsafe/safe-api/releases/download/${{env.SAFE_CLI_VERSION}}/safe-cli-${{env.SAFE_CLI_VERSION}}-x86_64-unknown-linux-gnu.tar.gz" -O ./safe.tar.gz;
-      
+
       - name: Download Safe CLI Mac
         if: matrix.os == 'macos-latest'
         run: wget "https://github.com/maidsafe/safe-api/releases/download/${{env.SAFE_CLI_VERSION}}/safe-cli-${{env.SAFE_CLI_VERSION}}-x86_64-apple-darwin.tar.gz" -O ./safe.tar.gz;
-      
+
       - name: Download Safe CLI Windows
         if: matrix.os == 'windows-latest'
         run: wget "https://github.com/maidsafe/safe-api/releases/download/${{env.SAFE_CLI_VERSION}}/safe-cli-${{env.SAFE_CLI_VERSION}}-x86_64-pc-windows-msvc.tar.gz" -O ./safe.tar.gz;
@@ -74,7 +74,7 @@ jobs:
         run: |
           safe auth install
           chmod +x $HOME/.safe/authd/safe-authd
-      
+
       - name: Check Safe Versions
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         run : |
@@ -99,14 +99,15 @@ jobs:
       - name: Mini-Network Setup
         run : safe vault run-baby-fleming
       - name: Build For Vault
-        run: | 
+        run: |
           yarn neon clean
           yarn build
       - name: Run Auth Tests
-        run: RUST_LOG=debug yarn test-auth
+        env:
+          RUST_LOG: debug
+        run: yarn test-auth
       - name: Authd Logs
         run: |
           cat $HOME/.safe/authd/logs/safe-authd.out
           cat $HOME/.safe/authd/logs/safe-authd.err
         if: failure()
-
