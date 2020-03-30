@@ -24,6 +24,11 @@
     "test-with-vault": "yarn build && yarn test",
     "test": "jest"
   },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/maidsafe/safe-nodejs.git"
@@ -56,7 +61,10 @@
     "yarn": "^1.17.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
     "cross-env": "^6.0.0",
+    "husky": "^4.2.3",
     "jest": "^24.9.0"
   }
 }
