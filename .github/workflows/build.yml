@@ -11,6 +11,7 @@ env:
   SAFE_VAULT_VERSION: "0.23.0"
   ELECTRON_LATEST: "8.1.1"
   ELECTRON_ONE_BACK: "7.1.14"
+  NODE_PRE_GYP_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
 
 jobs:
   builds:
@@ -49,13 +50,15 @@ jobs:
           yarn global add neon-cli
       - name: set package version as env
         run: echo ::set-env name=PACKAGE_VERSION::$(jq .version ./package.json)
+      
       - name: Build for node ${{ matrix.node }}
         run: |
           yarn package
-          NODE_PRE_GYP_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} yarn publish-gh-draft
+          yarn publish-gh-draft
       - run: ls build
       - run: ls build/Release || true
       - run: ls build/stage || true
+
       - name: Archive Node Build
         uses: actions/upload-artifact@master
         with:
@@ -64,40 +67,45 @@ jobs:
 
       - name: Build Electron Latest
         if: matrix.node == '12'
+        env:
         run: |
             rm -rf build || true
             yarn cross-env npm_config_target=${{ env.ELECTRON_LATEST }} npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release
             rm -rf native/target
             yarn node-pre-gyp package --runtime=electron --target=${{ env.ELECTRON_LATEST }} --dist-url=https://electronjs.org/headers
-            NODE_PRE_GYP_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} yarn publish-gh-draft || exit 0
+            yarn publish-gh-draft || exit 0
       - run: ls build || true
       - run: ls build/Release || true
       - run: ls build/stage || true
       
       - name: Build Electron Latest -1 
-        if: matrix.node == '12'
+        if: matrix.node == '12'          
         run: |
             rm -rf build || true
             yarn cross-env npm_config_target=${{ env.ELECTRON_ONE_BACK }} npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release
             rm -rf native/target
             yarn node-pre-gyp package --runtime=electron --target=${{ env.ELECTRON_ONE_BACK }} --dist-url=https://electronjs.org/headers
-            NODE_PRE_GYP_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} yarn publish-gh-draft || exit 0
+            yarn publish-gh-draft || exit 0
       - run: ls build || true
       - run: ls build/Release || true
       - run: ls build/stage || true
 
       - name: Set tag as env
+        if: matrix.os == 'ubuntu-latest'
         run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
 
       - name: lets check tag
+        if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: echo ${{ env.RELEASE_VERSION }}
 
       - name: Generate Changelog
         shell: bash
+        if: matrix.os == 'ubuntu-latest'
         run: awk '/^## /{c++;p=1;next} p;{if(c==2){exit}}' CHANGELOG.md > ${{ github.workflow }}-CHANGELOG.txt
 
       - name: Release generation
+        if: matrix.os == 'ubuntu-latest'
         uses: Xotl/cool-github-releases@ef50014218e6139d534f725f69aabe3728ea9b2e
         with:
           mode: update
