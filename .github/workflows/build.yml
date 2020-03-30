@@ -9,6 +9,8 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   SAFE_CLI_VERSION: "0.11.0"
   SAFE_VAULT_VERSION: "0.23.0"
+  ELECTRON_LATEST: "8.1.1"
+  ELECTRON_ONE_BACK: "7.1.14"
 
 jobs:
   builds:
@@ -18,7 +20,7 @@ jobs:
       matrix:
         node: ["10", "12"]
         os: [ubuntu-latest, windows-latest, macos-latest]
-        electron: ["7.1.14", "8.1.1"]
+        # electron: ["7.1.14", "8.1.1"]
     steps:
       - name: Linux install jq
         run: sudo apt-get install jq
@@ -60,13 +62,25 @@ jobs:
           name: ${{ matrix.os }}-${{ matrix.node }}
           path: ./build/Release/index.node
 
-      - name: Build Electron
+      - name: Build Electron Latest
         if: matrix.node == '12'
         run: |
             rm -rf build || true
-            yarn cross-env npm_config_target=${{ matrix.electron }} npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release
+            yarn cross-env npm_config_target=${{ env.ELECTRON_LATEST }} npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release
             rm -rf native/target
-            yarn node-pre-gyp package --runtime=electron --target=${{ matrix.electron }} --dist-url=https://electronjs.org/headers
+            yarn node-pre-gyp package --runtime=electron --target=${{ env.ELECTRON_LATEST }} --dist-url=https://electronjs.org/headers
+            NODE_PRE_GYP_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} yarn publish-gh-draft || exit 0
+      - run: ls build || true
+      - run: ls build/Release || true
+      - run: ls build/stage || true
+      
+      - name: Build Electron Latest -1 
+        if: matrix.node == '12'
+        run: |
+            rm -rf build || true
+            yarn cross-env npm_config_target=${{ env.ELECTRON_ONE_BACK }} npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release
+            rm -rf native/target
+            yarn node-pre-gyp package --runtime=electron --target=${{ env.ELECTRON_ONE_BACK }} --dist-url=https://electronjs.org/headers
             NODE_PRE_GYP_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} yarn publish-gh-draft || exit 0
       - run: ls build || true
       - run: ls build/Release || true
