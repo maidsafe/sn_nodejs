@@ -7,7 +7,6 @@
   "contributors": "Gabriel Viganotti <gabrielviganotti@gmail.com>",
   "license": "(MIT OR BSD-3-Clause)",
   "scripts": {
-    "bump": "git fetch upstream --tags && standard-version -a",
     "postinstall": "node scripts/postinstall.js",
     "build": "neon build --release",
     "build-mock": "cross-env RUSTFLAGS=\"--cfg feature=\\\"scl-mock\\\"\" yarn build",
@@ -45,12 +44,6 @@
     "package_name": "{node_abi}-{platform}-{arch}.tar.gz",
     "module_path": "./native",
     "pkg_path": "."
-  },
-  "standard-version": {
-    "skip": {
-      "tag": true,
-      "commit": true
-    }
   },
   "dependencies": {
     "add": "^2.0.6",
