@@ -34,8 +34,9 @@ jobs:
 
       - name: Push tag
         env:
-          github_token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
-        run: git push $REPO --tags
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+        run: git push $REPO master --tags
+        run: git remote set-url --push origin $REPO
 
   
   
