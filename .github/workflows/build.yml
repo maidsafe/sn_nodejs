@@ -67,7 +67,6 @@ jobs:
 
       - name: Build Electron Latest
         if: matrix.node == '12'
-        env:
         run: |
             rm -rf build || true
             yarn cross-env npm_config_target=${{ env.ELECTRON_LATEST }} npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release
