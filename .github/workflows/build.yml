@@ -85,9 +85,24 @@ jobs:
       - run: ls build || true
       - run: ls build/Release || true
       - run: ls build/stage || true
-      # - name: Archive Electron
-      #   uses: actions/upload-artifact@master
-      #   with:
-      #     name: ${{ matrix.os }}-Electron-${{ matrix.electron }}
-      #     path: ./build/Release/index.node
-     
+
+      - name: Set tag as env
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+
+      - name: lets check tag
+        shell: bash
+        run: echo ${{ env.RELEASE_VERSION }}
+
+      - name: Generate Changelog
+        shell: bash
+        run: awk '/^## /{c++;p=1;next} p;{if(c==2){exit}}' CHANGELOG.md > ${{ github.workflow }}-CHANGELOG.txt
+
+      - name: Release generation
+        uses: Xotl/cool-github-releases@ef50014218e6139d534f725f69aabe3728ea9b2e
+        with:
+          mode: update
+          body_mrkdwn: cat ${{ github.workflow }}-CHANGELOG.txt
+          isPrerelease: contains(github.ref, "alpha") || contains(github.ref, "beta")
+          # assets: ${{ env.APPLICATION }}-${{ env.RELEASE_VERSION }}-mac-x64.dmg;${{ env.APPLICATION }}-${{ env.RELEASE_VERSION }}-linux-x64.AppImage|application/vnd.appimage;${{ env.APPLICATION }}-${{ env.RELEASE_VERSION }}-win-x64.exe;
+          github_token: ${{ github.token }}
+          tag_name: ${{ env.RELEASE_VERSION }}
