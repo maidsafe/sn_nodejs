@@ -8,6 +8,7 @@ on:
 
 env:
   NODE_ENV: 'development'
+  REPO: "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
 
 jobs:
   bump:
@@ -21,16 +22,20 @@ jobs:
         run: yarn 
       - name: Setup git
         run: |
+          git remote add github "$REPO"
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
       - name: Bump Version
         run: yarn standard-version -a 
-      - uses: ad-m/github-push-action@fe38f0a751bf9149f0270cc1fe20bf9156854365
-        with:
+      - name: Push changes to master
+        env:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tags: false
-      # Separate push for tags to not trigger rerun of release on master push
-      - uses: ad-m/github-push-action@fe38f0a751bf9149f0270cc1fe20bf9156854365
-        with:
+        run: git push $REPO
+
+      - name: Push tag
+        env:
           github_token: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
-          tags: true
+        run: git push $REPO --tags
+
+  
+  
