@@ -1,0 +1,29 @@
+name: Version Bump and Tag
+
+on:
+  # Trigger the workflow on push only for the master branch
+  push:
+    branches:
+      - master
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+  NODE_ENV: 'development'
+
+jobs:
+  builds:
+    name: Version Bump and Tag
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - name: Yarn Install
+        run: yarn 
+      - name: Bump Version
+        run: yarn standard-version -a 
+    - uses: ad-m/github-push-action@fe38f0a751bf9149f0270cc1fe20bf9156854365
+      with:
+        github_token: ${{ env.GITHUB_TOKEN }}
+        tags: true
