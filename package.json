@@ -50,7 +50,6 @@
     "neon-cli": "^0.4.0",
     "node-pre-gyp": "amilajack/node-pre-gyp",
     "node-pre-gyp-github": "^1.4.3",
-    "standard-version": "7.0.0",
     "yarn": "^1.17.3"
   },
   "devDependencies": {
