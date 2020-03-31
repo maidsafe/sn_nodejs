@@ -48,15 +48,15 @@
   "dependencies": {
     "add": "^2.0.6",
     "neon-cli": "^0.4.0",
-    "node-pre-gyp": "amilajack/node-pre-gyp",
+    "node-pre-gyp": "amilajack/node-pre-gyp#neon-compat",
     "node-pre-gyp-github": "^1.4.3",
     "yarn": "^1.17.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
-    "cross-env": "^6.0.0",
+    "cross-env": "^7.0.2",
     "husky": "^4.2.3",
-    "jest": "^24.9.0"
+    "jest": "^25.2.4"
   }
 }
