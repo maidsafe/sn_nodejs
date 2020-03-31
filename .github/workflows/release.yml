@@ -8,11 +8,13 @@ on:
 
 env:
   NODE_ENV: 'development'
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
+  COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
 jobs:
   bump:
     runs-on: ubuntu-latest
+    if: "!startsWith(env.COMMIT_MESSAGE, 'chore(release):')"
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
@@ -25,12 +27,7 @@ jobs:
           git config --local user.name "GitHub Action"
       - name: Bump Version
         run: npx standard-version -a 
-      - name: Push changes to master
-        run: git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:master
-
-      - name: Push tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN}}
+      - name: Push changes & tags to master
         run: git push "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:master --tags
 
   
