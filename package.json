@@ -14,7 +14,7 @@
     "package": "node-pre-gyp package",
     "package-electron": "yarn node-pre-gyp package --runtime=electron --target=8.1.1 --dist-url=https://electronjs.org/headers",
     "package-electron7": "yarn node-pre-gyp package --runtime=electron --target=7.1.14 --dist-url=https://electronjs.org/headers",
-    "publish-gh-draft": "node-pre-gyp-github publish",
+    "publish-gh-draft": "node-pre-gyp-github publish --release",
     "neon-build-electron": "cross-env npm_config_target=8.1.1 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
     "neon-build-electron7": "cross-env npm_config_target=7.1.14 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
     "test-api": "yarn test --testPathIgnorePatterns auth",
