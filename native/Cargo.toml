@@ -12,21 +12,15 @@ name = "safe_nodejs"
 crate-type = ["cdylib"]
 
 [build-dependencies]
-#neon-build = "~0.3.2"
-neon-build = { git = "https://github.com/geovie/neon", branch = "feature/threadsafe_callback" }
+neon-build = "~0.4.0"
 
 [dependencies]
 log = "~0.4.8"
 env_logger = "~0.7.1"
 safe-api = { git = "https://github.com/bochaco/safe-api.git", branch = "feat-private-seq", features = ["app", "authd_client"] }
-#neon = "~0.3.2"
-neon = { git = "https://github.com/geovie/neon", branch = "feature/threadsafe_callback" }
-#neon-serde = "~0.3.0"
-neon-serde = { git = "https://github.com/bochaco/neon-serde", branch = "neon-threadsafe_callback" }
+neon = { version = "~0.4.0", features = ["event-handler-api"] }
+neon-serde = "~0.4.0"
 async-std = "1.6.0"
-
-[patch.crates-io]
-neon-runtime = { git = "https://github.com/geovie/neon", branch = "feature/threadsafe_callback" }
 
 [features]
 mock-network = ["safe-api/mock-network"]
