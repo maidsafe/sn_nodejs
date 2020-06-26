@@ -6,7 +6,7 @@ describe('Files API', () => {
   let safe = new_safe();
 
   test('Create a FilesContainer and fetch it', () => {
-    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
+    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false, false);
     let processedFiles = filesContainer[1];
     let filesMap = filesContainer[2];
     assert.equal(Object.keys(processedFiles).length, 2);
@@ -16,11 +16,11 @@ describe('Files API', () => {
     assert.equal(fetched.FilesContainer.files_map['/test.txt'].link, filesMap['/test.txt'].link);
 
     let fetchedFile = safe.fetch(`${filesContainer[0]}/test.txt`);
-    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublishedImmutableData.data)).startsWith("hello test.txt!"));
+    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublicImmutableData.data)).startsWith("hello test.txt!"));
   });
 
   test('Get a FilesContainer', () => {
-    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
+    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false, false);
     let filesMap = filesContainer[2];
 
     let filesContainerData = safe.files_container_get(filesContainer[0]);
@@ -29,10 +29,10 @@ describe('Files API', () => {
   });
 
   test('Sync a FilesContainer', () => {
-    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
+    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false, false);
     let filesMap = filesContainer[2];
 
-    let filesContainerData = safe.files_container_sync("test/testfolder/test.txt", `${filesContainer[0]}/new-files.js`, false, false, false, false);
+    let filesContainerData = safe.files_container_sync("test/testfolder/test.txt", `${filesContainer[0]}/new-files.js`, false, false, false, false, false);
     let newFilesMap = filesContainerData[2];
     assert.equal(Object.keys(newFilesMap).length, 3);
 
@@ -41,7 +41,7 @@ describe('Files API', () => {
   });
 
   test('Add a file to FilesContainer from Buffer and get it', () => {
-    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
+    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false, false);
     let filesMap = filesContainer[2];
 
     let rawBytes = Buffer.from("bytes-of-file");
@@ -53,11 +53,11 @@ describe('Files API', () => {
     assert.equal(filesContainerData[1]['/from-raw.txt'].link, newFilesMap['/from-raw.txt'].link);
 
     let fetchedFile = safe.fetch(newFilesMap['/from-raw.txt'].link);
-    assert.equal(rawBytes.toString(), String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublishedImmutableData.data)));
+    assert.equal(rawBytes.toString(), String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublicImmutableData.data)));
   });
 
   test('Add a file to FilesContainer from Uint8Array and get it', () => {
-    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
+    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false, false);
     let filesMap = filesContainer[2];
 
     let rawBytes = Uint8Array.from([62, 79, 74, 65, 73]);
@@ -69,11 +69,11 @@ describe('Files API', () => {
     assert.equal(filesContainerData[1]['/from-raw.txt'].link, newFilesMap['/from-raw.txt'].link);
 
     let fetchedFile = safe.fetch(newFilesMap['/from-raw.txt'].link);
-    assert.equal(rawBytes.toString(), new Uint8Array(fetchedFile.PublishedImmutableData.data).toString());
+    assert.equal(rawBytes.toString(), new Uint8Array(fetchedFile.PublicImmutableData.data).toString());
   });
 
   test('Remove a file from a FilesContainer', () => {
-    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
+    let filesContainer = safe.files_container_create("test/testfolder/", "", false, false, false);
     let filesMap = filesContainer[2];
     assert.equal(Object.keys(filesMap).length, 2);
     let file_removed = `${filesContainer[0]}/test.txt`;
@@ -92,7 +92,7 @@ describe('Files API', () => {
     }
   });
 
-  test('Put a PublishedImmutableData from Buffer and get it', () => {
+  test('Put a PublicImmutableData from Buffer and get it', () => {
     let rawBytes = Buffer.from("bytes-of-file");
     let immdUrl = safe.files_put_published_immutable(rawBytes, null, false);
 
@@ -100,7 +100,7 @@ describe('Files API', () => {
     assert.equal(rawBytes.toString(), String.fromCharCode.apply(null, new Uint8Array(fetchedFile)));
   });
 
-  test('Put a PublishedImmutableData from Uint8Array and get it', () => {
+  test('Put a PublicImmutableData from Uint8Array and get it', () => {
     let rawBytes = Uint8Array.from([62, 79, 74, 65, 73]);
     let immdUrl = safe.files_put_published_immutable(rawBytes, null, false);
 

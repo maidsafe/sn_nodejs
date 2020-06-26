@@ -12,12 +12,12 @@ const delay = async ( time ) =>
 
 describe('Authd Client API', () => {
   let safe_authd_client = new SafeAuthdClient(); // use default port number
-  
+
   let safe = new Safe();
   let passphrase;
   let password;
   let sk;
-  
+
   beforeAll( async () => {
     safe_authd_client.start();
     await delay(WAIT_TIME);
@@ -71,7 +71,7 @@ describe('Authd Client API', () => {
   //       console.log("Allowed? ", allow_out);
   //       resolve('fin');
   //     });
-  
+
   //     let credentials = safe.auth_app(appId, "safe-nodejs Jest Test", "Maidsafe.net Ltd.");
   //     safe.connect(appId, credentials);
 
