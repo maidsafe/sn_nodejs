@@ -17,21 +17,19 @@ const SAFE_CONTENT_TYPE: &[SafeContentType] = &[
 
 const SAFE_DATA_TYPE: &[SafeDataType] = &[
     SafeDataType::SafeKey,                        // 0x00
-    SafeDataType::PublishedImmutableData,         // 0x01
-    SafeDataType::UnpublishedImmutableData,       // 0x02
-    SafeDataType::SeqMutableData,                 // 0x03
-    SafeDataType::UnseqMutableData,               // 0x04
-    SafeDataType::PublishedSeqAppendOnlyData,     // 0x05
-    SafeDataType::PublishedUnseqAppendOnlyData,   // 0x06
-    SafeDataType::UnpublishedSeqAppendOnlyData,   // 0x07
-    SafeDataType::UnpublishedUnseqAppendOnlyData, // 0x08
+    SafeDataType::PublicImmutableData,            // 0x01
+    SafeDataType::PrivateImmutableData,           // 0x02
+    SafeDataType::PublicSequence,                 // 0x03
+    SafeDataType::PrivateSequence,                // 0x04
+    SafeDataType::SeqMutableData,                 // 0x05
+    SafeDataType::UnseqMutableData,               // 0x06
 ];
 
 declare_types! {
     /// JS class wrapping XorUrlEncoder struct
     pub class JsXorUrlEncoder for XorUrlEncoder {
         // Initialise a new XorUrlEncoder instance
-        // Binding for: pub fn new(xorname: XorName, type_tag: u64, data_type: SafeDataType, content_type: SafeContentType, path: Option<&str>, sub_names: Option<Vec<String>>, content_version: Option<u64>) -> Self
+        // Binding for: pub fn new(xorname: XorName, nrs_name: Option<&str>, type_tag: u64, data_type: SafeDataType, content_type: SafeContentType, path: Option<&str>, sub_names: Option<Vec<String>>, query_string: Option<&str>, fragment: Option<&str>, content_version: Option<u64>) -> Self
         init(mut cx) {
             let v0: Handle<JsValue> = cx.argument(0)?;
             let buffer: Handle<JsBuffer>;
@@ -48,28 +46,27 @@ declare_types! {
             let mut xorname = XorName::default();
             xorname.0.copy_from_slice(&xorname_slice);
 
-            let type_tag = cx.argument::<JsNumber>(1)?.value() as u64;
+            let nrs_name = get_opt_str_to_js_undefined(&mut cx, 1)?;
 
-            let data_type_index = cx.argument::<JsNumber>(2)?.value();
+            let type_tag = cx.argument::<JsNumber>(2)?.value() as u64;
+
+            let data_type_index = cx.argument::<JsNumber>(3)?.value();
             let data_type = SAFE_DATA_TYPE[data_type_index as usize].clone();
 
-            let v3: Handle<JsValue> = cx.argument(3)?;
+            let v3: Handle<JsValue> = cx.argument(4)?;
             let content_type = if v3.is_a::<JsNumber>() {
-                let content_type_index = cx.argument::<JsNumber>(3)?.value();
+                let content_type_index = cx.argument::<JsNumber>(4)?.value();
                 SAFE_CONTENT_TYPE[content_type_index as usize].clone()
             } else if v3.is_a::<JsString>() {
-                let media_type_str = cx.argument::<JsString>(3)?.value();
+                let media_type_str = cx.argument::<JsString>(4)?.value();
                 SafeContentType::MediaType(media_type_str.to_string())
             } else {
                 panic!("MediaType argument contains an invalid value");
             };
 
-            let path = match cx.argument_opt(4) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let path = get_opt_str_to_js_undefined(&mut cx, 5)?;
 
-            let js_arr_handle: Handle<JsArray> = cx.argument(5)?;
+            let js_arr_handle: Handle<JsArray> = cx.argument(6)?;
             // Convert a JsArray to a Rust Vec
             let vec: Vec<Handle<JsValue>> = js_arr_handle.to_vec(&mut cx)?;
             // Interate over the Rust Vec and return a new Vec of Vec<JsNumber>
@@ -90,13 +87,29 @@ declare_types! {
                 Some(sub_names_vec)
             };
 
-            let content_version = match cx.argument_opt(6) {
+            let query_string = get_opt_str_to_js_undefined(&mut cx, 7)?;
+
+            let fragment = get_opt_str_to_js_undefined(&mut cx, 8)?;
+
+            let content_version = match cx.argument_opt(9) {
                 Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u64),
                 None => None
             };
 
             debug!("Creating XorUrlEncoder instance");
-            let xorurl_encoder = XorUrlEncoder::new(xorname, type_tag, data_type, content_type, path.as_deref(), sub_names, content_version).unwrap_or_else(|err| { panic!(format!("Failed to instantiate XorUrlEncoder: {:?}", err)) } );
+            let xorurl_encoder = XorUrlEncoder::new(
+                xorname,
+                nrs_name.as_deref(),
+                type_tag,
+                data_type,
+                content_type,
+                path.as_deref(),
+                sub_names,
+                query_string.as_deref(),
+                fragment.as_deref(),
+                content_version
+            ).unwrap_or_else(|err| { panic!(format!("Failed to instantiate XorUrlEncoder: {:?}", err)) } );
+
             Ok(xorurl_encoder)
         }
 
@@ -198,7 +211,7 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.sub_names()
+                user.sub_names_vec().to_vec()
             };
 
             let js_array = JsArray::new(&mut cx, data.len() as u32);
@@ -253,7 +266,7 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.to_base(xorurl_base).unwrap_or_else(|err| { panic!(format!("Failed to encode with base {}: {:?}", base, err)) } )
+                user.to_base(xorurl_base)
             };
             Ok(cx.string(&data).upcast())
         }
@@ -312,7 +325,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                let _ = user.connect(&app_id, credentials.as_deref()).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
+                let _ = async_std::task::block_on(user.connect(&app_id, credentials.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
                 debug!("Successfully connected to the Network!");
             }
             Ok(cx.undefined().upcast())
@@ -390,20 +403,21 @@ declare_types! {
         //**** FilesContainer ****//
 
         // Upload files/folder into a new FilesContainer returning its XOR-URL
-        // Binding for: pub async fn files_container_create(&mut self, location: Option<&str>, dest: Option<&str>, recursive: bool, dry_run: bool) -> safe_api::Result<(XorUrl, ProcessedFiles, FilesMap)>
+        // Binding for: pub async fn files_container_create(&mut self, location: Option<&str>, dest: Option<&str>, recursive: bool, follow_links: bool, dry_run: bool) -> safe_api::Result<(XorUrl, ProcessedFiles, FilesMap)>
         method files_container_create(mut cx) {
             let location = get_optional_string(&mut cx, 0)?;
             let dest = get_optional_string(&mut cx, 1)?;
 
             let recursive = cx.argument::<JsBoolean>(2)?.value();
-            let dry_run = cx.argument::<JsBoolean>(3)?.value();
-            debug!("Creating FilesContainer: {:?} - {:?} - {} - {}", location, dest, recursive, dry_run);
+            let follow_links = cx.argument::<JsBoolean>(3)?.value();
+            let dry_run = cx.argument::<JsBoolean>(4)?.value();
+            debug!("Creating FilesContainer: {:?} - {:?} - {} - {} - {}", location, dest, recursive, follow_links, dry_run);
 
             let data = {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_container_create(location.as_deref(), dest.as_deref(), recursive, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create FilesContainer: {:?}", err)) } )
+                async_std::task::block_on(user.files_container_create(location.as_deref(), dest.as_deref(), recursive, follow_links, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create FilesContainer: {:?}", err)) } )
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -411,21 +425,22 @@ declare_types! {
         }
 
         // Sync up files/folder with an existing FilesContainer
-        // Binding for: pub async fn files_container_sync(&mut self, location: &str, url: &str, recursive: bool, delete: bool, update_nrs: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
+        // Binding for: pub async fn files_container_sync(&mut self, location: &str, url: &str, recursive: bool, follow_links: bool, delete: bool, update_nrs: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
         method files_container_sync(mut cx) {
             let location = cx.argument::<JsString>(0)?.value();
             let url = cx.argument::<JsString>(1)?.value();
             let recursive = cx.argument::<JsBoolean>(2)?.value();
-            let delete = cx.argument::<JsBoolean>(3)?.value();
-            let update_nrs = cx.argument::<JsBoolean>(4)?.value();
-            let dry_run = cx.argument::<JsBoolean>(5)?.value();
-            debug!("Sync-ing FilesContainer: {} - {} - {} - {} - {} - {}", location, url, recursive, delete, update_nrs, dry_run);
+            let follow_links = cx.argument::<JsBoolean>(3)?.value();
+            let delete = cx.argument::<JsBoolean>(4)?.value();
+            let update_nrs = cx.argument::<JsBoolean>(5)?.value();
+            let dry_run = cx.argument::<JsBoolean>(6)?.value();
+            debug!("Sync-ing FilesContainer: {} - {} - {} - {} - {} - {} - {}", location, url, recursive, follow_links, delete, update_nrs, dry_run);
 
             let data = {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_container_sync(&location, &url, recursive, delete, update_nrs, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to sync up FilesContainer: {:?}", err)) } )
+                async_std::task::block_on(user.files_container_sync(&location, &url, recursive, follow_links, delete, update_nrs, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to sync up FilesContainer: {:?}", err)) } )
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -450,20 +465,21 @@ declare_types! {
         }
 
         // Add file to an existing FilesContainer
-        // Binding for: pub async fn files_container_add(&mut self, source_file: &str, url: &str, force: bool, update_nrs: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
+        // Binding for: pub async fn files_container_add(&mut self, source_file: &str, url: &str, force: bool, update_nrs: bool, follow_links: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
         method files_container_add(mut cx) {
             let source_file = cx.argument::<JsString>(0)?.value();
             let url = cx.argument::<JsString>(1)?.value();
             let force = cx.argument::<JsBoolean>(2)?.value();
             let update_nrs = cx.argument::<JsBoolean>(3)?.value();
-            let dry_run = cx.argument::<JsBoolean>(4)?.value();
-            debug!("Adding to FilesContainer: {} - {} - {} - {} - {}", source_file, url, force, update_nrs, dry_run);
+            let follow_links = cx.argument::<JsBoolean>(4)?.value();
+            let dry_run = cx.argument::<JsBoolean>(5)?.value();
+            debug!("Adding to FilesContainer: {} - {} - {} - {} - {} - {}", source_file, url, force, update_nrs, follow_links, dry_run);
 
             let data = {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_container_add(&source_file, &url, force, update_nrs, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to add file to FilesContainer: {:?}", err)) } )
+                async_std::task::block_on(user.files_container_add(&source_file, &url, force, update_nrs, follow_links, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to add file to FilesContainer: {:?}", err)) } )
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -547,7 +563,7 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_put_published_immutable(&data, media_type.as_deref(), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
+                async_std::task::block_on(user.files_put_public_immutable(&data, media_type.as_deref(), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
             };
 
             Ok(cx.string(&url).upcast())
@@ -563,7 +579,7 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.files_get_published_immutable(&url, None)).unwrap_or_else(|err| { panic!(format!("Failed to fetch PublishedImmutableData: {:?}", err)) } )
+                async_std::task::block_on(user.files_get_public_immutable(&url, None)).unwrap_or_else(|err| { panic!(format!("Failed to fetch PublishedImmutableData: {:?}", err)) } )
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -649,38 +665,6 @@ declare_types! {
             let js_value = neon_serde::to_value(&mut cx, &data)?;
             Ok(js_value)
         }
-
-        // Parses a safe:// URL and returns all the info in a XorUrlEncoder instance.
-        // Binding for: pub fn parse_url(url: &str) -> safe_api::Result<XorUrlEncoder>
-        /*method parse_url(mut cx) {
-            let url = cx.argument::<JsString>(0)?.value();
-            debug!("Parsing a safe:// URL: {}", url);
-            async_std::task::block_on(let _xorurl_encoder = Safe::parse_url(&url)).unwrap_or_else(|err| { panic!(format!("Failed to parse a safe:// URL: {:?}", err)) } );
-            //let xorurl_encoder_js = JsXorUrlEncoder::new();
-
-            //let xorurl_encoder_js = JsXorUrlEncoder::new(&mut cx, xorurl_encoder.xorname())?;
-            //Ok(xorurl_encoder_js.upcast())
-            Ok(cx.boolean(true).upcast())
-        }*/
-
-        // Parses a safe:// URL and returns all the info in a XorUrlEncoder instance.
-        // It also returns a flag indicating if it the URL has to be resolved as NRS-URL
-        // Binding for: pub async fn parse_and_resolve_url(&self, url: &str) -> safe_api::Result<(XorUrlEncoder, bool)>
-        /*method parse_and_resolve_url(mut cx) {
-            let url = cx.argument::<JsString>(0)?.value();
-            debug!("Parsing and resolving a safe:// URL: {}", url);
-            let _data = {
-                let this = cx.this();
-                let guard = cx.lock();
-                let user = this.borrow(&guard);
-                async_std::task::block_on(user.parse_and_resolve_url(&url)).unwrap_or_else(|err| { panic!(format!("Failed to parse/resolve a safe:// URL: {:?}", err)) } )
-            };
-
-            // TODO: create XorUrlEncoder class binding to return it from here
-            //let js_value = neon_serde::to_value(&mut cx, &data)?;
-            Ok(cx.boolean(true).upcast())
-        }*/
-
 
         //**** Keys ****///
 
@@ -924,51 +908,10 @@ declare_types! {
             Ok(safe_authd_client)
         }
 
-        // Install the Authenticator daemon
-        // Binding for: pub fn install(&self, authd_path: Option<&str>) -> safe_api::Result<()>
-        method install(mut cx) {
-            let authd_path = match cx.argument_opt(0) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
-            debug!("Installing authd from {:?} ...", authd_path);
-
-            {
-                let this = cx.this();
-                let guard = cx.lock();
-                let user = this.borrow(&guard);
-                user.install(authd_path.as_deref()).unwrap_or_else(|err| { panic!(format!("Failed to install authd from '{:?}': {:?}", authd_path, err)) } )
-            };
-
-            Ok(cx.undefined().upcast())
-        }
-
-        // Uninstall the Authenticator daemon
-        // Binding for: pub fn uninstall(&self, authd_path: Option<&str>) -> safe_api::Result<()>
-        method uninstall(mut cx) {
-            let authd_path = match cx.argument_opt(0) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
-            debug!("Uninstalling authd from {:?} ...", authd_path);
-
-            {
-                let this = cx.this();
-                let guard = cx.lock();
-                let user = this.borrow(&guard);
-                user.uninstall(authd_path.as_deref()).unwrap_or_else(|err| { panic!(format!("Failed to uninstall authd from '{:?}': {:?}", authd_path, err)) } )
-            };
-
-            Ok(cx.undefined().upcast())
-        }
-
         // Start the Authenticator daemon
         // Binding for: pub fn start(&self, authd_path: Option<&str>) -> safe_api::Result<()>
         method start(mut cx) {
-            let authd_path = match cx.argument_opt(0) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let authd_path = get_optional_string(&mut cx, 0)?;
             debug!("Starting authd from {:?} ...", authd_path);
 
             {
@@ -984,10 +927,7 @@ declare_types! {
         // Stop the Authenticator daemon
         // Binding for: pub fn stop(&self, authd_path: Option<&str>) -> safe_api::Result<()>
         method stop(mut cx) {
-            let authd_path = match cx.argument_opt(0) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let authd_path = get_optional_string(&mut cx, 0)?;
             debug!("Stopping authd from {:?} ...", authd_path);
 
             {
@@ -1003,10 +943,7 @@ declare_types! {
         // Restart the Authenticator daemon
         // Binding for: pub fn restart(&self, authd_path: Option<&str>) -> safe_api::Result<()>
         method restart(mut cx) {
-            let authd_path = match cx.argument_opt(0) {
-                Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
-                None => None
-            };
+            let authd_path = get_optional_string(&mut cx, 0)?;
             debug!("Restarting authd from {:?} ...", authd_path);
 
             {
@@ -1228,8 +1165,28 @@ declare_types! {
     }
 }
 
-fn get_optional_string(
-    cx: &mut CallContext<JsSafe>,
+fn get_opt_str_to_js_undefined(
+    cx: &mut CallContext<JsUndefined>,
+    arg_index: i32,
+) -> Result<Option<String>, neon::result::Throw> {
+    let optional_value = match cx.argument_opt(arg_index) {
+        Some(arg) => {
+            if arg.is_a::<JsNull>() {
+                None
+            } else {
+                match arg.downcast::<JsString>() {
+                    Ok(a) => Some(a.value()),
+                    Err(err) => panic!(err.to_string()),
+                }
+            }
+        }
+        None => None,
+    };
+    Ok(optional_value)
+}
+
+fn get_optional_string<T: neon::object::Class>(
+    cx: &mut CallContext<T>,
     arg_index: i32,
 ) -> Result<Option<String>, neon::result::Throw> {
     let optional_value = match cx.argument_opt(arg_index) {

@@ -3,14 +3,14 @@ const { new_safe } = require('./helpers.js');
 
 describe('NRS API', () => {
   let safe = new_safe();
-  let filesContainer = safe.files_container_create("test/testfolder/", "", false, false);
+  let filesContainer = safe.files_container_create("test/testfolder/", "", false, false, false);
   let filesContainerXorUrl = filesContainer[0];
   let filesMap = filesContainer[2];
 
   test('Create an NRS name', () => {
     let random = Math.floor(Math.random() * Math.floor(1000));
     let nrsName = `safe://pubname-${random}`;
-    let nrsMapData = safe.nrs_map_container_create(nrsName, `${filesContainerXorUrl}?v=0`, true, false, false);
+    let nrsMapData = safe.nrs_map_container_create(nrsName, `${filesContainerXorUrl}?v=0`, true, false, false, false);
 
     assert.equal(Object.keys(nrsMapData[1]).length, 1);
 
@@ -29,7 +29,7 @@ describe('NRS API', () => {
     let fetchedTxt = safe.fetch(nrsName);
     assert.equal(fetchedTxt.FilesContainer.files_map['/test.txt'].link, filesMap['/test.txt'].link);
     let fetchedMd = safe.fetch(nrsSubName);
-    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedMd.PublishedImmutableData.data)).startsWith("hello test.md!"));
+    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedMd.PublicImmutableData.data)).startsWith("hello test.md!"));
   });
 
   test('Remove a subname from an NRS name', () => {
