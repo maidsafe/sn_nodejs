@@ -1107,11 +1107,15 @@ declare_types! {
             let endpoint_url = cx.argument::<JsString>(0)?.value();
             let app_id = cx.argument::<JsString>(1)?.value();
             let js_callback = cx.argument::<JsFunction>(2)?;
-            let cb = EventHandler::new(js_callback);
+            let this = cx.this();
+            let cb = EventHandler::new(&cx, this, js_callback);
 
             let allow_auth_cb = move |auth_req: AuthReq| -> Option<bool> {
                 cb.schedule(move |cx| {
-                    let cb_args: Vec<Handle<JsString>> = vec![cx.string(auth_req.app_id), cx.string(auth_req.req_id.to_string())];
+                    let cb_args: Vec<Handle<JsString>> = vec![
+                        cx.string(auth_req.app_id),
+                        cx.string(auth_req.req_id.to_string())
+                    ];
                     cb_args
                 });
                 // Since we cannot obtain a return value from the JS callback out of the schedule,
