@@ -714,6 +714,106 @@ declare_types! {
             Ok(js_value)
         }
 
+        //**** Sequence ****///
+
+        // Store a Sequence
+        // Binding for: pub async fn sequence_create(&mut self, data: &[u8], name: Option<XorName>, type_tag: u64, private: bool) -> Result<XorUrl>
+        method sequence_create(mut cx) {
+            let v: Handle<JsValue> = cx.argument(0)?;
+            let buffer: Handle<JsBuffer>;
+            let data = if v.is_a::<JsBuffer>() || v.is_a::<JsArrayBuffer>() {
+                buffer = cx.argument(0)?;
+                cx.borrow(&buffer, |data| data.as_slice::<u8>())
+            } else {
+                panic!("A Buffer or ArrayBuffer is expected as first argument");
+            };
+
+            let name = match cx.argument_opt(1) {
+                Some(arg) => {
+                    if arg.is_a::<JsNull>() {
+                        None
+                    } else {
+                        let buffer: Handle<JsBuffer>;
+                        let xorname_slice = if arg.is_a::<JsBuffer>() || arg.is_a::<JsArrayBuffer>() {
+                            buffer = cx.argument(1)?;
+                            cx.borrow(&buffer, |data| data.as_slice::<u8>())
+                        } else {
+                            panic!("A Buffer or ArrayBuffer is expected as second argument");
+                        };
+                        let mut xorname = XorName::default();
+                        xorname.0.copy_from_slice(&xorname_slice);
+                        Some(xorname)
+                    }
+                }
+                None => None,
+            };
+
+            let type_tag = cx.argument::<JsNumber>(2)?.value() as u64;
+            let dry_run = cx.argument::<JsBoolean>(3)?.value();
+
+            debug!("Storing Sequence at: {:?} - {} - {}", name, type_tag, dry_run);
+
+            let url = {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.sequence_create(&data, name, type_tag, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to store Sequence: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
+            };
+
+            Ok(cx.string(&url).upcast())
+        }
+
+        // Get a Sequence
+        // Binding for: pub async fn sequence_get(&self, url: &str) -> Result<(u64, Vec<u8>)>
+        method sequence_get(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+            debug!("Fetching Sequence from: {}", url);
+
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.sequence_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to fetch Sequence: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
+            };
+
+            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            Ok(js_value)
+        }
+
+        // Append to a Sequence
+        // Binding for: pub async fn sequence_append(&mut self, url: &str, data: &[u8]) -> Result<()>
+        method sequence_append(mut cx) {
+            let url = cx.argument::<JsString>(0)?.value();
+
+            let v: Handle<JsValue> = cx.argument(1)?;
+            let buffer: Handle<JsBuffer>;
+            let data = if v.is_a::<JsBuffer>() || v.is_a::<JsArrayBuffer>() {
+                buffer = cx.argument(1)?;
+                cx.borrow(&buffer, |data| data.as_slice::<u8>())
+            } else {
+                panic!("A Buffer or ArrayBuffer is expected as first argument");
+            };
+
+            debug!("Appending to Sequence at: {}", url);
+
+            {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.sequence_append(&url, &data)).unwrap_or_else(|err| { panic!(format!("Failed to append to Sequence: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+            };
+
+            Ok(cx.undefined().upcast())
+        }
+
         //**** Keys ****///
 
         // Generate a key pair without creating and/or storing a SafeKey on the network
