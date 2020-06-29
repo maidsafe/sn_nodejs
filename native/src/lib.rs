@@ -569,9 +569,9 @@ declare_types! {
             Ok(js_value)
         }
 
-        // Pub PublishedImmutableData
-        // Binding for: pub async fn files_put_published_immutable(&mut self, data: &[u8], media_type: Option<&str>, dry_run: bool) -> safe_api::Result<XorUrl>
-        method files_put_published_immutable(mut cx) {
+        // Pub PublicImmutableData
+        // Binding for: pub async fn files_put_public_immutable(&mut self, data: &[u8], media_type: Option<&str>, dry_run: bool) -> safe_api::Result<XorUrl>
+        method files_put_public_immutable(mut cx) {
             let v: Handle<JsValue> = cx.argument(0)?;
             let buffer: Handle<JsBuffer>;
             let array_buffer: Handle<JsArrayBuffer>;
@@ -587,14 +587,14 @@ declare_types! {
 
             let media_type = get_optional_string(&mut cx, 1)?;
             let dry_run = cx.argument::<JsBoolean>(2)?.value();
-            debug!("Putting PublishedImmutableData: {:?}", data);
+            debug!("Putting PublicImmutableData: {:?}", data);
 
             let url = {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                let data = rt.block_on(user.files_put_public_immutable(&data, media_type.as_deref(), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } );
+                let data = rt.block_on(user.files_put_public_immutable(&data, media_type.as_deref(), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublicImmutableData: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 data
             };
@@ -602,18 +602,18 @@ declare_types! {
             Ok(cx.string(&url).upcast())
         }
 
-        // Get a PublishedImmutableData
-        // Binding for: pub async fn files_get_published_immutable(&self, url: &str) -> safe_api::Result<Vec<u8>>
-        method files_get_published_immutable(mut cx) {
+        // Get a PublicImmutableData
+        // Binding for: pub async fn files_get_public_immutable(&self, url: &str) -> safe_api::Result<Vec<u8>>
+        method files_get_public_immutable(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            debug!("Fetching PublishedImmutableData from: {}", url);
+            debug!("Fetching PublicImmutableData from: {}", url);
 
             let data = {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
                 let mut rt = Runtime::new().unwrap();
-                let data = rt.block_on(user.files_get_public_immutable(&url, None)).unwrap_or_else(|err| { panic!(format!("Failed to fetch PublishedImmutableData: {:?}", err)) } );
+                let data = rt.block_on(user.files_get_public_immutable(&url, None)).unwrap_or_else(|err| { panic!(format!("Failed to fetch PublicImmutableData: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 data
             };
