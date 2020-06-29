@@ -15,12 +15,12 @@ crate-type = ["cdylib"]
 neon-build = "~0.4.0"
 
 [dependencies]
-log = "~0.4.8"
 env_logger = "~0.7.1"
-safe-api = { git = "https://github.com/bochaco/safe-api.git", branch = "feat-private-seq", features = ["app", "authd_client"] }
+log = "~0.4.8"
 neon = { version = "~0.4.0", features = ["event-handler-api"] }
 neon-serde = "~0.4.0"
-async-std = "1.6.0"
+safe-api = { git = "https://github.com/bochaco/safe-api.git", branch = "feat-private-seq", features = ["app", "authd_client"] }
+tokio = { version = "~0.2.21", features = ["rt-core"] }
 
 [features]
 mock-network = ["safe-api/mock-network"]

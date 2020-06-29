@@ -6,7 +6,8 @@ use safe_api::{
     xorurl::{XorUrlBase, XorUrlEncoder},
     AuthReq, Safe, SafeAuthdClient, XorName,
 };
-use std::str::FromStr;
+use std::{str::FromStr, time::Duration};
+use tokio::runtime::Runtime;
 
 const SAFE_CONTENT_TYPE: &[SafeContentType] = &[
     SafeContentType::Raw,             // 0x00
@@ -16,13 +17,13 @@ const SAFE_CONTENT_TYPE: &[SafeContentType] = &[
 ];
 
 const SAFE_DATA_TYPE: &[SafeDataType] = &[
-    SafeDataType::SafeKey,                        // 0x00
-    SafeDataType::PublicImmutableData,            // 0x01
-    SafeDataType::PrivateImmutableData,           // 0x02
-    SafeDataType::PublicSequence,                 // 0x03
-    SafeDataType::PrivateSequence,                // 0x04
-    SafeDataType::SeqMutableData,                 // 0x05
-    SafeDataType::UnseqMutableData,               // 0x06
+    SafeDataType::SafeKey,              // 0x00
+    SafeDataType::PublicImmutableData,  // 0x01
+    SafeDataType::PrivateImmutableData, // 0x02
+    SafeDataType::PublicSequence,       // 0x03
+    SafeDataType::PrivateSequence,      // 0x04
+    SafeDataType::SeqMutableData,       // 0x05
+    SafeDataType::UnseqMutableData,     // 0x06
 ];
 
 declare_types! {
@@ -310,7 +311,9 @@ declare_types! {
             let app_vendor = cx.argument::<JsString>(2)?.value();
             let port = get_optional_string(&mut cx, 3)?;
             debug!("Sending application authorisation request...");
-            let auth_credentials = async_std::task::block_on(Safe::auth_app(&app_id, &app_name, &app_vendor, port.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } );
+            let mut rt = Runtime::new().unwrap();
+            let auth_credentials = rt.block_on(Safe::auth_app(&app_id, &app_name, &app_vendor, port.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } );
+            rt.shutdown_timeout(Duration::from_millis(1));
             debug!("Application successfully authorised!");
             Ok(cx.string(&auth_credentials).upcast())
         }
@@ -325,9 +328,12 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                let _ = async_std::task::block_on(user.connect(&app_id, credentials.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.connect(&app_id, credentials.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
                 debug!("Successfully connected to the Network!");
             }
+            debug!("ALL GOOD Successfully connected to the Network!");
             Ok(cx.undefined().upcast())
         }
 
@@ -376,7 +382,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.fetch(&url, range)).unwrap_or_else(|err| { panic!(format!("Failed to fetch content from '{}': {:?}", url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.fetch(&url, range)).unwrap_or_else(|err| { panic!(format!("Failed to fetch content from '{}': {:?}", url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -393,7 +402,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.inspect(&url)).unwrap_or_else(|err| { panic!(format!("Failed to inspect '{}': {:?}", url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.inspect(&url)).unwrap_or_else(|err| { panic!(format!("Failed to inspect '{}': {:?}", url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -417,7 +429,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_container_create(location.as_deref(), dest.as_deref(), recursive, follow_links, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create FilesContainer: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.files_container_create(location.as_deref(), dest.as_deref(), recursive, follow_links, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create FilesContainer: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -440,7 +455,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_container_sync(&location, &url, recursive, follow_links, delete, update_nrs, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to sync up FilesContainer: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.files_container_sync(&location, &url, recursive, follow_links, delete, update_nrs, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to sync up FilesContainer: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -457,7 +475,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.files_container_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to fetch FilesContainer: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.files_container_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to fetch FilesContainer: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -479,7 +500,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_container_add(&source_file, &url, force, update_nrs, follow_links, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to add file to FilesContainer: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.files_container_add(&source_file, &url, force, update_nrs, follow_links, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to add file to FilesContainer: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -512,7 +536,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_container_add_from_raw(&data, &url, force, update_nrs, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to add file form raw bytes to FilesContainer: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.files_container_add_from_raw(&data, &url, force, update_nrs, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to add file form raw bytes to FilesContainer: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -532,7 +559,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_container_remove_path(&url, recursive, update_nrs, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to remove file/path from FilesContainer: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.files_container_remove_path(&url, recursive, update_nrs, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to remove file/path from FilesContainer: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -563,7 +593,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.files_put_public_immutable(&data, media_type.as_deref(), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.files_put_public_immutable(&data, media_type.as_deref(), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublishedImmutableData: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             Ok(cx.string(&url).upcast())
@@ -579,7 +612,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.files_get_public_immutable(&url, None)).unwrap_or_else(|err| { panic!(format!("Failed to fetch PublishedImmutableData: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.files_get_public_immutable(&url, None)).unwrap_or_else(|err| { panic!(format!("Failed to fetch PublishedImmutableData: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -603,7 +639,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.nrs_map_container_create(&name, &link, default, hard_link, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create NRS Map Container: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.nrs_map_container_create(&name, &link, default, hard_link, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create NRS Map Container: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -624,7 +663,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.nrs_map_container_add(&name, &link, default, hard_link, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create NRS Map Container: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.nrs_map_container_add(&name, &link, default, hard_link, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to create NRS Map Container: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -642,7 +684,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.nrs_map_container_remove(&name, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to remove an NRS Map Container: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.nrs_map_container_remove(&name, dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to remove an NRS Map Container: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -659,7 +704,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.nrs_map_container_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to fetch an NRS Map Container: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.nrs_map_container_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to fetch an NRS Map Container: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -695,7 +743,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.keys_create(from.as_deref(), preload_amount.as_deref(), pk.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.keys_create(from.as_deref(), preload_amount.as_deref(), pk.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -712,7 +763,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.keys_create_preload_test_coins(&preload_amount)).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey with test coins: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.keys_create_preload_test_coins(&preload_amount)).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey with test coins: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -729,7 +783,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.keys_balance_from_sk(&sk)).unwrap_or_else(|err| { panic!(format!("Failed query the balance from SafeKey: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.keys_balance_from_sk(&sk)).unwrap_or_else(|err| { panic!(format!("Failed query the balance from SafeKey: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             Ok(cx.string(data).upcast())
@@ -746,7 +803,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.keys_balance_from_url(&url, &sk)).unwrap_or_else(|err| { panic!(format!("Failed to check balance from the SafeKey URL '{}': {:?}", url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.keys_balance_from_url(&url, &sk)).unwrap_or_else(|err| { panic!(format!("Failed to check balance from the SafeKey URL '{}': {:?}", url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             Ok(cx.string(data).upcast())
@@ -763,7 +823,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.validate_sk_for_url(&sk, &url)).unwrap_or_else(|err| { panic!(format!("Failed to vaildate the secret key for the SafeKey URL '{}': {:?}", url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.validate_sk_for_url(&sk, &url)).unwrap_or_else(|err| { panic!(format!("Failed to vaildate the secret key for the SafeKey URL '{}': {:?}", url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             Ok(cx.string(data).upcast())
@@ -782,7 +845,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.keys_transfer(&amount, from_sk.as_deref(), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from SafeKey: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.keys_transfer(&amount, from_sk.as_deref(), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from SafeKey: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             Ok(cx.number(data as f64).upcast())
@@ -799,7 +865,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.wallet_create()).unwrap_or_else(|err| { panic!(format!("Failed to create Wallet: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.wallet_create()).unwrap_or_else(|err| { panic!(format!("Failed to create Wallet: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             Ok(cx.string(data).upcast())
@@ -818,7 +887,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.wallet_insert(&url, name.as_deref(), default, &sk)).unwrap_or_else(|err| { panic!(format!("Failed to insert in Wallet: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.wallet_insert(&url, name.as_deref(), default, &sk)).unwrap_or_else(|err| { panic!(format!("Failed to insert in Wallet: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             Ok(cx.string(data).upcast())
@@ -834,7 +906,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.wallet_balance(&url)).unwrap_or_else(|err| { panic!(format!("Failed to check balance of Wallet at '{}': {:?}", url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.wallet_balance(&url)).unwrap_or_else(|err| { panic!(format!("Failed to check balance of Wallet at '{}': {:?}", url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             Ok(cx.string(data).upcast())
@@ -849,7 +924,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.wallet_get_default_balance(&url)).unwrap_or_else(|err| { panic!(format!("Failed to get default spendable balance from Wallet at '{}': {:?}", url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.wallet_get_default_balance(&url)).unwrap_or_else(|err| { panic!(format!("Failed to get default spendable balance from Wallet at '{}': {:?}", url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -871,7 +949,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.wallet_transfer(&amount, from_url.as_deref(), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from Wallet at: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.wallet_transfer(&amount, from_url.as_deref(), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from Wallet at: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             Ok(cx.number(data as f64).upcast())
@@ -886,7 +967,10 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.wallet_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to get Wallet from '{}': {:?}", url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.wallet_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to get Wallet from '{}': {:?}", url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -964,7 +1048,10 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.status()).unwrap_or_else(|err| { panic!(format!("Failed to retrieve authd status report: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.status()).unwrap_or_else(|err| { panic!(format!("Failed to retrieve authd status report: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -982,7 +1069,9 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.log_in(&secret, &password)).unwrap_or_else(|err| { panic!(format!("Failed to log in: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.log_in(&secret, &password)).unwrap_or_else(|err| { panic!(format!("Failed to log in: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             Ok(cx.undefined().upcast())
@@ -997,7 +1086,9 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.log_out()).unwrap_or_else(|err| { panic!(format!("Failed to log out: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.log_out()).unwrap_or_else(|err| { panic!(format!("Failed to log out: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             Ok(cx.undefined().upcast())
@@ -1015,7 +1106,9 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.create_acc(&sk, &secret, &password)).unwrap_or_else(|err| { panic!(format!("Failed to create SAFE account: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.create_acc(&sk, &secret, &password)).unwrap_or_else(|err| { panic!(format!("Failed to create SAFE account: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             Ok(cx.undefined().upcast())
@@ -1030,7 +1123,9 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.authed_apps()).unwrap_or_else(|err| { panic!(format!("Failed to retrieve list of authorised apps: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.authed_apps()).unwrap_or_else(|err| { panic!(format!("Failed to retrieve list of authorised apps: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -1047,7 +1142,9 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.revoke_app(&app_id)).unwrap_or_else(|err| { panic!(format!("Failed to revoke app ('{}'): {:?}", app_id, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.revoke_app(&app_id)).unwrap_or_else(|err| { panic!(format!("Failed to revoke app ('{}'): {:?}", app_id, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             Ok(cx.undefined().upcast())
@@ -1062,7 +1159,9 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.auth_reqs()).unwrap_or_else(|err| { panic!(format!("Failed to retrieve list of pending authorisation requests: {:?}", err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.auth_reqs()).unwrap_or_else(|err| { panic!(format!("Failed to retrieve list of pending authorisation requests: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data)?;
@@ -1079,7 +1178,9 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.allow(req_id)).unwrap_or_else(|err| { panic!(format!("Failed to allow authorisation request ('{}'): {:?}", req_id, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.allow(req_id)).unwrap_or_else(|err| { panic!(format!("Failed to allow authorisation request ('{}'): {:?}", req_id, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             Ok(cx.undefined().upcast())
@@ -1095,7 +1196,9 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.deny(req_id)).unwrap_or_else(|err| { panic!(format!("Failed to allow authorisation request ('{}'): {:?}", req_id, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.deny(req_id)).unwrap_or_else(|err| { panic!(format!("Failed to allow authorisation request ('{}'): {:?}", req_id, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             Ok(cx.undefined().upcast())
@@ -1129,7 +1232,9 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.subscribe(&endpoint_url, &app_id, allow_auth_cb)).unwrap_or_else(|err| { panic!(format!("Failed to subscribe ('{}'): {:?}", endpoint_url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.subscribe(&endpoint_url, &app_id, allow_auth_cb)).unwrap_or_else(|err| { panic!(format!("Failed to subscribe ('{}'): {:?}", endpoint_url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             Ok(cx.undefined().upcast())
@@ -1145,7 +1250,9 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                async_std::task::block_on(user.subscribe_url(&endpoint_url)).unwrap_or_else(|err| { panic!(format!("Failed to subscribe URL ('{}'): {:?}", endpoint_url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.subscribe_url(&endpoint_url)).unwrap_or_else(|err| { panic!(format!("Failed to subscribe URL ('{}'): {:?}", endpoint_url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             Ok(cx.undefined().upcast())
@@ -1161,7 +1268,9 @@ declare_types! {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
-                async_std::task::block_on(user.unsubscribe(&endpoint_url)).unwrap_or_else(|err| { panic!(format!("Failed to unsubscribe URL ('{}'): {:?}", endpoint_url, err)) } )
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.unsubscribe(&endpoint_url)).unwrap_or_else(|err| { panic!(format!("Failed to unsubscribe URL ('{}'): {:?}", endpoint_url, err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
             };
 
             Ok(cx.undefined().upcast())
