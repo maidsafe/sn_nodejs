@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.11.7](https://github.com/maidsafe/safe-nodejs/compare/v0.11.6...v0.11.7) (2020-07-16)
+
+
+### Features
+
+* **api:** expose Sequence API bindings ([4b31c9b](https://github.com/maidsafe/safe-nodejs/commit/4b31c9bf1e17c454d75a680a4ad63ef4ce7ba7c3))
+* **lib:** adapt binding code to latest safe-api ([64bff4e](https://github.com/maidsafe/safe-nodejs/commit/64bff4eb604fcf7c257c39b114833a9a03bccd27))
+
 ### [0.11.6](https://github.com/maidsafe/safe-nodejs/compare/v0.11.5...v0.11.6) (2020-06-26)
 
 ### [0.11.5](https://github.com/maidsafe/safe-nodejs/compare/v0.11.4...v0.11.5) (2020-04-16)
