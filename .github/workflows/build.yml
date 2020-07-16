@@ -7,11 +7,11 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  SAFE_CLI_VERSION: "0.11.0"
-  SAFE_VAULT_VERSION: "0.23.0"
-  ELECTRON_LATEST: "8.1.1"
-  ELECTRON_ONE_BACK: "7.1.14"
-  NODE_PRE_GYP_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+  SAFE_CLI_VERSION: "0.15.0"
+  SAFE_VAULT_VERSION: "0.25.1"
+  ELECTRON_LATEST: "8.4.0"
+  ELECTRON_ONE_BACK: "7.3.2"
+  NODE_PRE_GYP_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   builds:
@@ -21,12 +21,12 @@ jobs:
       matrix:
         node: ["10", "12"]
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # electron: ["7.1.14", "8.1.1"]
+        # electron: ["7.3.2", "8.4.0"]
     steps:
       - name: Linux install jq
         run: sudo apt-get install jq
         if: matrix.os == 'ubuntu-latest'
-     
+
       - name: Mac install jq
         run: brew install jq
         if: matrix.os == 'macos-latest'
@@ -45,12 +45,12 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: Yarn Install
-        run: | 
+        run: |
           yarn
           yarn global add neon-cli
       - name: set package version as env
         run: echo ::set-env name=PACKAGE_VERSION::$(jq .version ./package.json)
-      
+
       - name: Build for node ${{ matrix.node }}
         run: |
           yarn package
@@ -73,7 +73,7 @@ jobs:
       - name: Build Electron Latest
         if: matrix.node == '12'
         run: yarn cross-env npm_config_target=${{ env.ELECTRON_LATEST }} npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release
-     
+
       - name: Remove target
         if: matrix.os == 'windows-latest'
         run: npx trash-cli native/target
@@ -81,7 +81,7 @@ jobs:
       - name: Remove target
         if: matrix.os != 'windows-latest'
         run: rm -rf native/target || true
-        
+
       - name: Package Electron Latest
         if: matrix.node == '12'
         run: |
@@ -95,11 +95,11 @@ jobs:
       - name: Remove build
         if: matrix.os != 'windows-latest'
         run: rm -rf build || true
-      
-      - name: Build Electron Latest -1 
-        if: matrix.node == '12'          
+
+      - name: Build Electron Latest -1
+        if: matrix.node == '12'
         run: yarn cross-env npm_config_target=${{ env.ELECTRON_ONE_BACK }} npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release
-      
+
       - name: Remove target
         if: matrix.os == 'windows-latest'
         run: npx trash-cli native/target
@@ -108,8 +108,8 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: rm -rf native/target || true
 
-      - name: Package Electron Latest -1 
-        if: matrix.node == '12' 
+      - name: Package Electron Latest -1
+        if: matrix.node == '12'
         run: |
             yarn node-pre-gyp package --runtime=electron --target=${{ env.ELECTRON_ONE_BACK }} --dist-url=https://electronjs.org/headers
             yarn publish-gh-draft || exit 0

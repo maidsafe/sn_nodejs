@@ -9,8 +9,8 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  SAFE_CLI_VERSION: "0.14.0"
-  SAFE_VAULT_VERSION: "0.24.0"
+  SAFE_CLI_VERSION: "0.15.0"
+  SAFE_VAULT_VERSION: "0.25.1"
 
 jobs:
   tests:
