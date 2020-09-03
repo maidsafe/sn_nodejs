@@ -1,6 +1,6 @@
 {
   "name": "sn_nodejs",
-  "version": "0.11.7",
+  "version": "0.11.8",
   "description": "NodeJS binding for SAFE API",
   "main": "lib/index.js",
   "author": "Josh Wilson <joshuef@gmail.com>",
