@@ -1,5 +1,5 @@
 [package]
-name = "safe-nodejs"
+name = "sn_nodejs"
 version = "0.11.0"
 authors = ["Josh Wilson <joshuef@gmail.com>", "Gabriel Viganotti <gabrielviganotti@gmail.com>"]
 license = "MIT OR BSD-3-Clause"
@@ -8,7 +8,7 @@ exclude = ["artifacts.json", "index.node"]
 edition = "2018"
 
 [lib]
-name = "safe_nodejs"
+name = "sn_nodejs"
 crate-type = ["cdylib"]
 
 [build-dependencies]
