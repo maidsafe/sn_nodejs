@@ -2182,19 +2182,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "safe-nodejs"
-version = "0.11.0"
-dependencies = [
- "env_logger 0.7.1",
- "log",
- "neon",
- "neon-build",
- "neon-serde",
- "safe-api",
- "tokio",
-]
-
-[[package]]
 name = "safe_app"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2455,6 +2442,19 @@ dependencies = [
  "socket2",
  "wepoll-sys-stjepang",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "sn_nodejs"
+version = "0.11.0"
+dependencies = [
+ "env_logger 0.7.1",
+ "log",
+ "neon",
+ "neon-build",
+ "neon-serde",
+ "safe-api",
+ "tokio",
 ]
 
 [[package]]

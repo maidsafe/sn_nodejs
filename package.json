@@ -1,5 +1,5 @@
 {
-  "name": "safe-nodejs",
+  "name": "sn_nodejs",
   "version": "0.11.7",
   "description": "NodeJS binding for SAFE API",
   "main": "lib/index.js",
@@ -30,7 +30,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/maidsafe/safe-nodejs.git"
+    "url": "git+https://github.com/maidsafe/sn_nodejs.git"
   },
   "files": [
     "native/index.node",
@@ -39,7 +39,7 @@
   ],
   "binary": {
     "module_name": "index",
-    "host": "https://github.com/maidsafe/safe-nodejs/releases/download/",
+    "host": "https://github.com/maidsafe/sn_nodejs/releases/download/",
     "remote_path": "v{version}",
     "package_name": "{node_abi}-{platform}-{arch}.tar.gz",
     "module_path": "./native",

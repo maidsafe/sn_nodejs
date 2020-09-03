@@ -1,7 +1,7 @@
-# safe-nodejs
+# sn_nodejs
 
 ## Overview
-
+NodeJS binding for SAFE API
 
 | [MaidSafe website](https://maidsafe.net) | [SAFE Dev Forum](https://forum.safedev.org) | [SAFE Network Forum](https://safenetforum.org) |
 |:-------:|:-------:|:-------:|

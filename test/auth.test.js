@@ -66,13 +66,13 @@ describe('Authd Client API', () => {
   //     const randomPort = 33001 + Math.floor(Math.random() * Math.floor(1000));
   //     safe_authd_client.subscribe(`https://localhost:${randomPort}`, appId, (auppId, reqId) => {
   //       console.log("New auth req received:", appId);
-  //       console.log("Allowing safe-nodejs TEST app:", reqId);
+  //       console.log("Allowing sn_nodejs TEST app:", reqId);
   //       let allow_out = safe_authd_client.allow(parseInt(reqId));
   //       console.log("Allowed? ", allow_out);
   //       resolve('fin');
   //     });
 
-  //     let credentials = safe.auth_app(appId, "safe-nodejs Jest Test", "Maidsafe.net Ltd.");
+  //     let credentials = safe.auth_app(appId, "sn_nodejs Jest Test", "Maidsafe.net Ltd.");
   //     safe.connect(appId, credentials);
 
   //     await delay(30000);
