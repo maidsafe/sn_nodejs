@@ -19,8 +19,8 @@ env_logger = "~0.7.1"
 log = "~0.4.8"
 neon = { version = "~0.4.0", features = ["event-handler-api"] }
 neon-serde = "~0.4.0"
-safe-api = { version = "0.15.0", features = ["app", "authd_client"] }
+sn_api = { package = "safe-api", version = "0.15.0", features = ["app", "authd_client"] }
 tokio = { version = "~0.2.21", features = ["rt-core"] }
 
 [features]
-scl-mock = ["safe-api/scl-mock"]
+scl-mock = ["sn_api/scl-mock"]

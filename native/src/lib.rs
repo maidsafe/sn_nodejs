@@ -1,7 +1,7 @@
 use env_logger;
 use log::debug;
 use neon::prelude::*;
-use safe_api::{
+use sn_api::{
     fetch::{SafeContentType, SafeDataType},
     xorurl::{XorUrlBase, XorUrlEncoder},
     AuthReq, Safe, SafeAuthdClient, XorName,
@@ -248,7 +248,7 @@ declare_types! {
             Ok(cx.undefined().upcast())
         }
 
-        // Binding for: pub fn to_string(&self) -> safe_api::Result<String>
+        // Binding for: pub fn to_string(&self) -> sn_api::Result<String>
         method to_string(mut cx) {
             let data = {
                 let this = cx.this();
@@ -259,7 +259,7 @@ declare_types! {
             Ok(cx.string(&data).upcast())
         }
 
-        // Binding for: pub fn to_base(&self, base: &str) -> safe_api::Result<String>
+        // Binding for: pub fn to_base(&self, base: &str) -> sn_api::Result<String>
         method to_base(mut cx) {
             let base = cx.argument::<JsString>(0)?.value();
             let xorurl_base = XorUrlBase::from_str(&base).unwrap_or_else(|err| { panic!(format!("Failed to parse base {}: {:?}", base, err)) } );
@@ -304,7 +304,7 @@ declare_types! {
 
         // Generate an authorisation request string and send it to a SAFE Authenticator.
         // Ir returns the credentials necessary to connect to the network, encoded in a single string.
-        // Binding for: pub async fn auth_app(&mut self, app_id: &str, app_name: &str, app_vendor: &str, port: Option<&str>) -> safe_api::Result<String>
+        // Binding for: pub async fn auth_app(&mut self, app_id: &str, app_name: &str, app_vendor: &str, port: Option<&str>) -> sn_api::Result<String>
         method auth_app(mut cx) {
             let app_id = cx.argument::<JsString>(0)?.value();
             let app_name = cx.argument::<JsString>(1)?.value();
@@ -319,7 +319,7 @@ declare_types! {
         }
 
         // Connect to the SAFE Network using the provided app id and auth credentials
-        // Binding for: pub fn connect(&mut self, app_id: &str, auth_credentials: Option<&str>) -> safe_api::Result<()>
+        // Binding for: pub fn connect(&mut self, app_id: &str, auth_credentials: Option<&str>) -> sn_api::Result<()>
         method connect(mut cx) {
             let app_id = cx.argument::<JsString>(0)?.value();
             let credentials = get_optional_string(&mut cx, 1)?;
@@ -338,7 +338,7 @@ declare_types! {
         }
 
         // Retrieve data from a safe:// URL
-        // Binding for: pub async fn fetch(&self, url: &str, range: Range) -> safe_api::Result<SafeData>
+        // Binding for: pub async fn fetch(&self, url: &str, range: Range) -> sn_api::Result<SafeData>
         method fetch(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             let range = match cx.argument_opt(1) {
@@ -393,7 +393,7 @@ declare_types! {
         }
 
         // Inspect URL without retrieving the actual targeted data
-        // Binding for: pub async fn inspect(&self, url: &str) -> safe_api::Result<SafeData>
+        // Binding for: pub async fn inspect(&self, url: &str) -> sn_api::Result<SafeData>
         method inspect(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Inspecting '{}' ...", url);
@@ -415,7 +415,7 @@ declare_types! {
         //**** FilesContainer ****//
 
         // Upload files/folder into a new FilesContainer returning its XOR-URL
-        // Binding for: pub async fn files_container_create(&mut self, location: Option<&str>, dest: Option<&str>, recursive: bool, follow_links: bool, dry_run: bool) -> safe_api::Result<(XorUrl, ProcessedFiles, FilesMap)>
+        // Binding for: pub async fn files_container_create(&mut self, location: Option<&str>, dest: Option<&str>, recursive: bool, follow_links: bool, dry_run: bool) -> sn_api::Result<(XorUrl, ProcessedFiles, FilesMap)>
         method files_container_create(mut cx) {
             let location = get_optional_string(&mut cx, 0)?;
             let dest = get_optional_string(&mut cx, 1)?;
@@ -440,7 +440,7 @@ declare_types! {
         }
 
         // Sync up files/folder with an existing FilesContainer
-        // Binding for: pub async fn files_container_sync(&mut self, location: &str, url: &str, recursive: bool, follow_links: bool, delete: bool, update_nrs: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
+        // Binding for: pub async fn files_container_sync(&mut self, location: &str, url: &str, recursive: bool, follow_links: bool, delete: bool, update_nrs: bool, dry_run: bool) -> sn_api::Result<(u64, ProcessedFiles, FilesMap)>
         method files_container_sync(mut cx) {
             let location = cx.argument::<JsString>(0)?.value();
             let url = cx.argument::<JsString>(1)?.value();
@@ -466,7 +466,7 @@ declare_types! {
         }
 
         // Fetch an existing FilesContainer
-        // Binding for: pub async fn files_container_get(&self, url: &str) -> safe_api::Result<(u64, FilesMap)>
+        // Binding for: pub async fn files_container_get(&self, url: &str) -> sn_api::Result<(u64, FilesMap)>
         method files_container_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching FilesContainer from: {}", url);
@@ -486,7 +486,7 @@ declare_types! {
         }
 
         // Add file to an existing FilesContainer
-        // Binding for: pub async fn files_container_add(&mut self, source_file: &str, url: &str, force: bool, update_nrs: bool, follow_links: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
+        // Binding for: pub async fn files_container_add(&mut self, source_file: &str, url: &str, force: bool, update_nrs: bool, follow_links: bool, dry_run: bool) -> sn_api::Result<(u64, ProcessedFiles, FilesMap)>
         method files_container_add(mut cx) {
             let source_file = cx.argument::<JsString>(0)?.value();
             let url = cx.argument::<JsString>(1)?.value();
@@ -511,7 +511,7 @@ declare_types! {
         }
 
         // Add file from raw bytes to an existing FilesContainer
-        // Binding for: pub async fn files_container_add_from_raw(&mut self, data: &[u8], url: &str, force: bool, update_nrs: bool, dry_run: bool) -> safe_api::Result<(u64, ProcessedFiles, FilesMap)>
+        // Binding for: pub async fn files_container_add_from_raw(&mut self, data: &[u8], url: &str, force: bool, update_nrs: bool, dry_run: bool) -> sn_api::Result<(u64, ProcessedFiles, FilesMap)>
         method files_container_add_from_raw(mut cx) {
             let v: Handle<JsValue> = cx.argument(0)?;
             let buffer: Handle<JsBuffer>;
@@ -570,7 +570,7 @@ declare_types! {
         }
 
         // Pub PublicImmutableData
-        // Binding for: pub async fn files_put_public_immutable(&mut self, data: &[u8], media_type: Option<&str>, dry_run: bool) -> safe_api::Result<XorUrl>
+        // Binding for: pub async fn files_put_public_immutable(&mut self, data: &[u8], media_type: Option<&str>, dry_run: bool) -> sn_api::Result<XorUrl>
         method files_put_public_immutable(mut cx) {
             let v: Handle<JsValue> = cx.argument(0)?;
             let buffer: Handle<JsBuffer>;
@@ -603,7 +603,7 @@ declare_types! {
         }
 
         // Get a PublicImmutableData
-        // Binding for: pub async fn files_get_public_immutable(&self, url: &str) -> safe_api::Result<Vec<u8>>
+        // Binding for: pub async fn files_get_public_immutable(&self, url: &str) -> sn_api::Result<Vec<u8>>
         method files_get_public_immutable(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching PublicImmutableData from: {}", url);
@@ -626,7 +626,7 @@ declare_types! {
         //**** NRS ****//
 
         // NRS Map Container create
-        // Binding for: pub async fn nrs_map_container_create(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> safe_api::Result<(XorUrl, ProcessedEntries, NrsMap)>
+        // Binding for: pub async fn nrs_map_container_create(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> sn_api::Result<(XorUrl, ProcessedEntries, NrsMap)>
         method nrs_map_container_create(mut cx) {
             let name = cx.argument::<JsString>(0)?.value();
             let link = cx.argument::<JsString>(1)?.value();
@@ -650,7 +650,7 @@ declare_types! {
         }
 
         // Add/update a subname to an existing NRS Map Container
-        // Binding for: pub async fn nrs_map_container_add(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> safe_api::Result<(u64, XorUrl, ProcessedEntries, NrsMap)>
+        // Binding for: pub async fn nrs_map_container_add(&mut self, name: &str, link: &str, default: bool, hard_link: bool, dry_run: bool) -> sn_api::Result<(u64, XorUrl, ProcessedEntries, NrsMap)>
         method nrs_map_container_add(mut cx) {
             let name = cx.argument::<JsString>(0)?.value();
             let link = cx.argument::<JsString>(1)?.value();
@@ -674,7 +674,7 @@ declare_types! {
         }
 
         // Remove an NRS Map Container
-        // Binding for: pub async fn nrs_map_container_remove(&mut self, name: &str, dry_run: bool) -> safe_api::Result<(u64, XorUrl, ProcessedEntries, NrsMap)>
+        // Binding for: pub async fn nrs_map_container_remove(&mut self, name: &str, dry_run: bool) -> sn_api::Result<(u64, XorUrl, ProcessedEntries, NrsMap)>
         method nrs_map_container_remove(mut cx) {
             let name = cx.argument::<JsString>(0)?.value();
             let dry_run = cx.argument::<JsBoolean>(1)?.value();
@@ -695,7 +695,7 @@ declare_types! {
         }
 
         // Fetch an NRS Map Container
-        // Binding for: pub async fn nrs_map_container_get(&self, url: &str) -> safe_api::Result<(u64, NrsMap)>
+        // Binding for: pub async fn nrs_map_container_get(&self, url: &str) -> sn_api::Result<(u64, NrsMap)>
         method nrs_map_container_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching NRS Map Container from: {}", url);
@@ -817,7 +817,7 @@ declare_types! {
         //**** Keys ****///
 
         // Generate a key pair without creating and/or storing a SafeKey on the network
-        // Binding for: pub fn keypair(&self) -> safe_api::Result<BlsKeyPair>
+        // Binding for: pub fn keypair(&self) -> sn_api::Result<BlsKeyPair>
         method keypair(mut cx) {
             debug!("Generating random key pair");
             let data = {
@@ -832,7 +832,7 @@ declare_types! {
         }
 
         // Create a SafeKey on the network and return its XOR-URL.
-        // Binding for: pub async fn keys_create(&mut self, from: Option<&str>, preload_amount: Option<&str>, pk: Option<&str>) -> safe_api::Result<(XorUrl, Option<BlsKeyPair>)>
+        // Binding for: pub async fn keys_create(&mut self, from: Option<&str>, preload_amount: Option<&str>, pk: Option<&str>) -> sn_api::Result<(XorUrl, Option<BlsKeyPair>)>
         method keys_create(mut cx) {
             let from = get_optional_string(&mut cx, 0)?;
             let preload_amount = get_optional_string(&mut cx, 1)?;
@@ -854,7 +854,7 @@ declare_types! {
         }
 
         // Create a SafeKey on the network, allocates testcoins onto it, and return the SafeKey's XOR-URL
-        // Binding for: pub async fn keys_create_preload_test_coins(&mut self, preload_amount: &str) -> safe_api::Result<(XorUrl, Option<BlsKeyPair>)>
+        // Binding for: pub async fn keys_create_preload_test_coins(&mut self, preload_amount: &str) -> sn_api::Result<(XorUrl, Option<BlsKeyPair>)>
         method keys_create_preload_test_coins(mut cx) {
             let preload_amount = cx.argument::<JsString>(0)?.value();
             debug!("Creating SafeKey with ('{}') test-coins", preload_amount);
@@ -874,7 +874,7 @@ declare_types! {
         }
 
         // Check SafeKey's balance from the network from a given SecretKey string
-        // Binding for: pub async fn keys_balance_from_sk(&self, sk: &str) -> safe_api::Result<String>
+        // Binding for: pub async fn keys_balance_from_sk(&self, sk: &str) -> sn_api::Result<String>
         method keys_balance_from_sk(mut cx) {
             let sk = cx.argument::<JsString>(0)?.value();
             debug!("Checking SafeKey balance...");
@@ -893,7 +893,7 @@ declare_types! {
         }
 
         // Check SafeKey's balance from the network from a given XOR/NRS-URL and secret key string.
-        // Binding for: pub async fn keys_balance_from_url(&self, url: &str, sk: &str) -> safe_api::Result<String>
+        // Binding for: pub async fn keys_balance_from_url(&self, url: &str, sk: &str) -> sn_api::Result<String>
         method keys_balance_from_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             let sk = cx.argument::<JsString>(1)?.value();
@@ -913,7 +913,7 @@ declare_types! {
         }
 
         // Check that the XOR/NRS-URL corresponds to the public key derived from the provided secret key
-        // Binding for: pub async fn validate_sk_for_url(&self, sk: &str, url: &str) -> safe_api::Result<String>
+        // Binding for: pub async fn validate_sk_for_url(&self, sk: &str, url: &str) -> sn_api::Result<String>
         method validate_sk_for_url(mut cx) {
             let sk = cx.argument::<JsString>(0)?.value();
             let url = cx.argument::<JsString>(1)?.value();
@@ -933,7 +933,7 @@ declare_types! {
         }
 
         // Transfer safecoins from one SafeKey to another, or to a Wallet
-        // Binding for: pub async fn keys_transfer(&mut self, amount: &str, from_sk: Option<&str>, to_url: &str, tx_id: Option<u64>) -> safe_api::Result<u64>
+        // Binding for: pub async fn keys_transfer(&mut self, amount: &str, from_sk: Option<&str>, to_url: &str, tx_id: Option<u64>) -> sn_api::Result<u64>
         method keys_transfer(mut cx) {
             let amount = cx.argument::<JsString>(0)?.value();
             let from_sk = get_optional_string(&mut cx, 1)?;
@@ -958,7 +958,7 @@ declare_types! {
         //**** Wallet ****//
 
         // Create an empty Wallet and return its XOR-URL
-        // Binding for: pub async fn wallet_create(&mut self) -> safe_api::Result<XorUrl>
+        // Binding for: pub async fn wallet_create(&mut self) -> sn_api::Result<XorUrl>
         method wallet_create(mut cx) {
             debug!("Creating a Wallet...");
             let data = {
@@ -975,7 +975,7 @@ declare_types! {
         }
 
         // Add a SafeKey to a Wallet to make it spendable, and returns the friendly name set for it
-        // Binding for: pub async fn wallet_insert(&mut self, url: &str, name: Option<&str>, default: bool, sk: &str) -> safe_api::Result<String>
+        // Binding for: pub async fn wallet_insert(&mut self, url: &str, name: Option<&str>, default: bool, sk: &str) -> sn_api::Result<String>
         method wallet_insert(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             let name = get_optional_string(&mut cx, 1)?;
@@ -997,7 +997,7 @@ declare_types! {
         }
 
         // Check the total balance of a Wallet found at a given XOR-URL
-        // Binding for: pub async fn wallet_balance(&mut self, url: &str) -> safe_api::Result<String>
+        // Binding for: pub async fn wallet_balance(&mut self, url: &str) -> sn_api::Result<String>
         method wallet_balance(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Checking balance of a Wallet at '{}'", url);
@@ -1015,7 +1015,7 @@ declare_types! {
             Ok(cx.string(data).upcast())
         }
 
-        // Binding for: pub async fn wallet_get_default_balance(&self, url: &str) -> safe_api::Result<(WalletSpendableBalance, u64)>
+        // Binding for: pub async fn wallet_get_default_balance(&self, url: &str) -> sn_api::Result<(WalletSpendableBalance, u64)>
         method wallet_get_default_balance(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching default spendable balance from Wallet at '{:?}'", url);
@@ -1034,7 +1034,7 @@ declare_types! {
             Ok(js_value)
         }
 
-        // Binding for: pub async fn wallet_transfer(&mut self, amount: &str, from_url: Option<&str>, to_url: &str, tx_id: Option<u64>) -> safe_api::Result<u64>
+        // Binding for: pub async fn wallet_transfer(&mut self, amount: &str, from_url: Option<&str>, to_url: &str, tx_id: Option<u64>) -> sn_api::Result<u64>
         method wallet_transfer(mut cx) {
             let amount = cx.argument::<JsString>(0)?.value();
             let from_url = get_optional_string(&mut cx, 1)?;
@@ -1058,7 +1058,7 @@ declare_types! {
             Ok(cx.number(data as f64).upcast())
         }
 
-        // Binding for: pub async fn wallet_get(&self, url: &str) -> safe_api::Result<WalletSpendableBalances>
+        // Binding for: pub async fn wallet_get(&self, url: &str) -> sn_api::Result<WalletSpendableBalances>
         method wallet_get(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
             debug!("Fetching Wallet from '{:?}'", url);
@@ -1087,13 +1087,13 @@ declare_types! {
                 None => None
             };
             debug!("Creating SafeAuthdClient API instance with port number: '{:?}'", port);
-            let safe_authd_client = SafeAuthdClient::new(port);
+            let sn_authd_client = SafeAuthdClient::new(port);
 
-            Ok(safe_authd_client)
+            Ok(sn_authd_client)
         }
 
         // Start the Authenticator daemon
-        // Binding for: pub fn start(&self, authd_path: Option<&str>) -> safe_api::Result<()>
+        // Binding for: pub fn start(&self, authd_path: Option<&str>) -> sn_api::Result<()>
         method start(mut cx) {
             let authd_path = get_optional_string(&mut cx, 0)?;
             debug!("Starting authd from {:?} ...", authd_path);
@@ -1109,7 +1109,7 @@ declare_types! {
         }
 
         // Stop the Authenticator daemon
-        // Binding for: pub fn stop(&self, authd_path: Option<&str>) -> safe_api::Result<()>
+        // Binding for: pub fn stop(&self, authd_path: Option<&str>) -> sn_api::Result<()>
         method stop(mut cx) {
             let authd_path = get_optional_string(&mut cx, 0)?;
             debug!("Stopping authd from {:?} ...", authd_path);
@@ -1125,7 +1125,7 @@ declare_types! {
         }
 
         // Restart the Authenticator daemon
-        // Binding for: pub fn restart(&self, authd_path: Option<&str>) -> safe_api::Result<()>
+        // Binding for: pub fn restart(&self, authd_path: Option<&str>) -> sn_api::Result<()>
         method restart(mut cx) {
             let authd_path = get_optional_string(&mut cx, 0)?;
             debug!("Restarting authd from {:?} ...", authd_path);
@@ -1141,7 +1141,7 @@ declare_types! {
         }
 
         // Send a request to remote authd endpoint to retrieve an status report
-        // Binding for: pub async fn status(&self) -> safe_api::Result<AuthdStatus>
+        // Binding for: pub async fn status(&self) -> sn_api::Result<AuthdStatus>
         method status(mut cx) {
             debug!("Retrieving authd status report...");
             let data = {
@@ -1159,7 +1159,7 @@ declare_types! {
         }
 
         // Send a login action request to remote authd endpoint
-        // Binding for: pub async fn log_in(&mut self, secret: &str, password: &str) -> safe_api::Result<()>
+        // Binding for: pub async fn log_in(&mut self, secret: &str, password: &str) -> sn_api::Result<()>
         method log_in(mut cx) {
             let secret = cx.argument::<JsString>(0)?.value();
             let password = cx.argument::<JsString>(1)?.value();
@@ -1178,7 +1178,7 @@ declare_types! {
         }
 
         // Sends a logout action request to the SAFE Authenticator
-        // Binding for: pub async fn log_out(&mut self) -> safe_api::Result<()>
+        // Binding for: pub async fn log_out(&mut self) -> sn_api::Result<()>
         method log_out(mut cx) {
             debug!("Logging out...");
 
@@ -1195,7 +1195,7 @@ declare_types! {
         }
 
         // Sends an account creation request to the SAFE Authenticator
-        // Binding for: pub async fn create_acc(&self, sk: &str, secret: &str, password: &str) -> safe_api::Result<()>
+        // Binding for: pub async fn create_acc(&self, sk: &str, secret: &str, password: &str) -> sn_api::Result<()>
         method create_acc(mut cx) {
             let sk = cx.argument::<JsString>(0)?.value();
             let secret = cx.argument::<JsString>(1)?.value();
@@ -1215,7 +1215,7 @@ declare_types! {
         }
 
         // Get the list of applications authorised from remote authd
-        // Binding for: pub async fn authed_apps(&self) -> safe_api::Result<AuthedAppsList>
+        // Binding for: pub async fn authed_apps(&self) -> sn_api::Result<AuthedAppsList>
         method authed_apps(mut cx) {
             debug!("Retrieving list of authorised apps...");
 
@@ -1233,7 +1233,7 @@ declare_types! {
         }
 
         // Revoke all permissions from an application
-        // Binding for: pub async fn revoke_app(&self, app_id: &str) -> safe_api::Result<()>
+        // Binding for: pub async fn revoke_app(&self, app_id: &str) -> sn_api::Result<()>
         method revoke_app(mut cx) {
             let app_id = cx.argument::<JsString>(0)?.value();
             debug!("Revoking app with ID: {}", app_id);
@@ -1251,7 +1251,7 @@ declare_types! {
         }
 
         // Get the list of pending authorisation requests from remote authd
-        // Binding for: pub async fn auth_reqs(&self) -> safe_api::Result<PendingAuthReqs>
+        // Binding for: pub async fn auth_reqs(&self) -> sn_api::Result<PendingAuthReqs>
         method auth_reqs(mut cx) {
             debug!("Retrieving list of pending authorisation requests...");
 
@@ -1269,7 +1269,7 @@ declare_types! {
         }
 
         // Allow an authorisation request
-        // Binding for: pub async fn allow(&self, req_id: SafeAuthReqId) -> safe_api::Result<()>
+        // Binding for: pub async fn allow(&self, req_id: SafeAuthReqId) -> sn_api::Result<()>
         method allow(mut cx) {
             let req_id = cx.argument::<JsNumber>(0)?.value() as u32;
             debug!("Allowing authorisation request with ID: {}", req_id);
@@ -1287,7 +1287,7 @@ declare_types! {
         }
 
         // Deny an authorisation request
-        // Binding for: pub async fn deny(&self, req_id: SafeAuthReqId) -> safe_api::Result<()>
+        // Binding for: pub async fn deny(&self, req_id: SafeAuthReqId) -> sn_api::Result<()>
         method deny(mut cx) {
             let req_id = cx.argument::<JsNumber>(0)?.value() as u32;
             debug!("Denying authorisation request with ID: {}", req_id);
@@ -1305,7 +1305,7 @@ declare_types! {
         }
 
         // Subscribe a callback to receive notifications to allow/deny authorisation requests
-        // Binding for: pub async fn subscribe(&mut self, endpoint_url: &str, app_id: &str, allow_cb: &'static AuthAllowPrompt) -> safe_api::Result<()>
+        // Binding for: pub async fn subscribe(&mut self, endpoint_url: &str, app_id: &str, allow_cb: &'static AuthAllowPrompt) -> sn_api::Result<()>
         method subscribe(mut cx) {
             let endpoint_url = cx.argument::<JsString>(0)?.value();
             let app_id = cx.argument::<JsString>(1)?.value();
@@ -1341,7 +1341,7 @@ declare_types! {
         }
 
         // Subscribe an endpoint URL where notifications to allow/deny authorisation requests shall be sent
-        // Binding for: pub async fn subscribe_url(&self, endpoint_url: &str) -> safe_api::Result<()>
+        // Binding for: pub async fn subscribe_url(&self, endpoint_url: &str) -> sn_api::Result<()>
         method subscribe_url(mut cx) {
             let endpoint_url = cx.argument::<JsString>(0)?.value();
             debug!("Subscribing URL for auth req notifs...");
@@ -1359,7 +1359,7 @@ declare_types! {
         }
 
         // Unsubscribe from notifications to allow/deny authorisation requests
-        // Binding for: pub async fn unsubscribe(&self, endpoint_url: &str) -> safe_api::Result<()>
+        // Binding for: pub async fn unsubscribe(&self, endpoint_url: &str) -> sn_api::Result<()>
         method unsubscribe(mut cx) {
             let endpoint_url = cx.argument::<JsString>(0)?.value();
             debug!("Unsubscribing URL from auth req notifs...");
