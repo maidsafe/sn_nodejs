@@ -9,7 +9,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  SAFE_CLI_VERSION: "0.15.0"
+  SN_CLI_VERSION: "0.15.0"
   SAFE_VAULT_VERSION: "0.25.1"
 
 jobs:
@@ -54,36 +54,36 @@ jobs:
 
       - name: Download Safe CLI Linux
         if: matrix.os == 'ubuntu-latest'
-        run: wget "https://github.com/maidsafe/safe-api/releases/download/${{env.SAFE_CLI_VERSION}}/safe-cli-${{env.SAFE_CLI_VERSION}}-x86_64-unknown-linux-gnu.tar.gz" -O ./safe.tar.gz;
+        run: wget "https://github.com/maidsafe/sn_api/releases/download/${{env.SN_CLI_VERSION}}/sn_cli-${{env.SN_CLI_VERSION}}-x86_64-unknown-linux-gnu.tar.gz" -O ./safe.tar.gz;
 
       - name: Download Safe CLI Mac
         if: matrix.os == 'macos-latest'
-        run: wget "https://github.com/maidsafe/safe-api/releases/download/${{env.SAFE_CLI_VERSION}}/safe-cli-${{env.SAFE_CLI_VERSION}}-x86_64-apple-darwin.tar.gz" -O ./safe.tar.gz;
+        run: wget "https://github.com/maidsafe/sn_api/releases/download/${{env.SN_CLI_VERSION}}/sn_cli-${{env.SN_CLI_VERSION}}-x86_64-apple-darwin.tar.gz" -O ./safe.tar.gz;
 
       - name: Download Safe CLI Windows
         if: matrix.os == 'windows-latest'
-        run: wget "https://github.com/maidsafe/safe-api/releases/download/${{env.SAFE_CLI_VERSION}}/safe-cli-${{env.SAFE_CLI_VERSION}}-x86_64-pc-windows-msvc.tar.gz" -O ./safe.tar.gz;
+        run: wget "https://github.com/maidsafe/sn_api/releases/download/${{env.SN_CLI_VERSION}}/sn_cli-${{env.SN_CLI_VERSION}}-x86_64-pc-windows-msvc.tar.gz" -O ./safe.tar.gz;
 
       - name: Place Safe CLI
         run:  |
           ls .
-          mkdir -p $HOME/.safe/safe-cli
+          mkdir -p $HOME/.safe/sn_cli
           mkdir -p $HOME/.safe/authd
-          tar -xvzf ./safe.tar.gz -C $HOME/.safe/safe-cli/
-          echo "::add-path::$HOME/.safe/safe-cli"
+          tar -xvzf ./safe.tar.gz -C $HOME/.safe/sn_cli/
+          echo "::add-path::$HOME/.safe/sn_cli"
           echo "::add-path::$HOME/.safe/authd"
-          chmod +x $HOME/.safe/safe-cli/safe
+          chmod +x $HOME/.safe/sn_cli/safe
 
 
       - name: Install Safe AuthD
         run: |
           safe auth install
-          chmod +x $HOME/.safe/authd/safe-authd
+          chmod +x $HOME/.safe/authd/sn_authd
 
       - name: Check Safe Versions
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         run : |
-          $HOME/.safe/authd/safe-authd -V
+          $HOME/.safe/authd/sn_authd -V
           $HOME/.safe/vault/safe_vault -V
           safe --version
           cat native/Cargo.toml
@@ -91,7 +91,7 @@ jobs:
       # - name: Check Safe Versions
       #   if: matrix.os == 'windows-latest'
       #   run : |
-      #     $HOME/.safe/authd/safe-authd.exe -V
+      #     $HOME/.safe/authd/sn_authd.exe -V
       #     $HOME/.safe/vault/safe_vault.exe -V
       #     safe --version
 
@@ -113,6 +113,6 @@ jobs:
         run: yarn test-auth
       - name: Authd Logs
         run: |
-          cat $HOME/.safe/authd/logs/safe-authd.out
-          cat $HOME/.safe/authd/logs/safe-authd.err
+          cat $HOME/.safe/authd/logs/sn_authd.out
+          cat $HOME/.safe/authd/logs/sn_authd.err
         if: failure()
