@@ -20,7 +20,7 @@
     "test-api": "yarn test --testPathIgnorePatterns auth",
     "test-auth": "safe auth stop || true && yarn jest auth",
     "test-with-mock": "yarn build-mock && yarn test --testPathIgnorePatterns auth",
-    "test-with-vault": "yarn build && yarn test",
+    "test-with-node": "yarn build && yarn test",
     "test": "jest"
   },
   "husky": {

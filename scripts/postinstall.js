@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 
-if (process.env.SAFE_NODEJS_DEV) {
+if (process.env.SN_NODEJS_DEV) {
     console.log('Skipped downloading node abi');
 } else {
 	const useTravisWaitEnhanced = process.env.USE_TRAVIS_WAIT_ENHANCED;
