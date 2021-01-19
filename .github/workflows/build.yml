@@ -114,9 +114,6 @@ jobs:
             yarn node-pre-gyp package --runtime=electron --target=${{ env.ELECTRON_ONE_BACK }} --dist-url=https://electronjs.org/headers
             yarn publish-gh-draft || exit 0
 
-
-
-
   publish:
     name: Publish Release
     needs: builds
