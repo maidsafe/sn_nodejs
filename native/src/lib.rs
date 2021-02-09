@@ -18,13 +18,13 @@ const SAFE_CONTENT_TYPE: &[SafeContentType] = &[
 ];
 
 const SAFE_DATA_TYPE: &[SafeDataType] = &[
-    SafeDataType::SafeKey,              // 0x00
-    SafeDataType::PublicImmutableData,  // 0x01
-    SafeDataType::PrivateImmutableData, // 0x02
-    SafeDataType::PublicSequence,       // 0x03
-    SafeDataType::PrivateSequence,      // 0x04
-    SafeDataType::SeqMutableData,       // 0x05
-    SafeDataType::UnseqMutableData,     // 0x06
+    SafeDataType::SafeKey,         // 0x00
+    SafeDataType::PublicBlob,      // 0x01
+    SafeDataType::PrivateBlob,     // 0x02
+    SafeDataType::PublicSequence,  // 0x03
+    SafeDataType::PrivateSequence, // 0x04
+    SafeDataType::SeqMap,          // 0x05
+    SafeDataType::UnseqMap,        // 0x06
 ];
 
 declare_types! {
@@ -287,7 +287,8 @@ declare_types! {
                 None => None
             };
             debug!("Creating Safe API instance with xorurl base: '{:?}'", xorurl_base);
-            let safe = Safe::new(xorurl_base);
+            // TODO: Pass through timeout duration.
+            let safe = Safe::new(xorurl_base, std::time::Duration::from_secs(120));
 
             Ok(safe)
         }
@@ -316,21 +317,30 @@ declare_types! {
             let auth_credentials = rt.block_on(Safe::auth_app(&app_id, &app_name, &app_vendor, port.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to authorise application: {:?}", err)) } );
             rt.shutdown_timeout(Duration::from_millis(1));
             debug!("Application successfully authorised!");
-            Ok(cx.string(&auth_credentials).upcast())
+
+            let auth_credentials = neon_serde::to_value(&mut cx, &auth_credentials).map_err(|_| Throw)?;
+            Ok(auth_credentials)
         }
 
         // Connect to the SAFE Network using the provided app id and auth credentials
         // Binding for: pub fn connect(&mut self, app_id: &str, auth_credentials: Option<&str>) -> sn_api::Result<()>
         method connect(mut cx) {
-            let app_id = cx.argument::<JsString>(0)?.value();
-            let credentials = get_optional_string(&mut cx, 1)?;
-
+            // let app_id = cx.argument::<JsString>(0)?.value();
+            // let credentials = get_optional_string(&mut cx, 1)?;
+            let credentials = match cx.argument_opt(0) {
+                Some(arg) => {
+                    let val: sn_api::Keypair  = neon_serde::from_value(&mut cx, arg).map_err(|_| Throw)?;
+                    Some(val)
+                },
+                None => None,
+            };
             {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                rt.block_on(user.connect(&app_id, credentials.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
+                // TODO: Pass through bootstrap config.
+                rt.block_on(user.connect(credentials, None)).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 debug!("Successfully connected to the Network!");
             }
@@ -380,9 +390,9 @@ declare_types! {
             debug!("Fetching from {} with range {:?}", url, range);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
                 let data = rt.block_on(user.fetch(&url, range)).unwrap_or_else(|err| { panic!(format!("Failed to fetch content from '{}': {:?}", url, err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
@@ -400,9 +410,9 @@ declare_types! {
             debug!("Inspecting '{}' ...", url);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
                 let data = rt.block_on(user.inspect(&url)).unwrap_or_else(|err| { panic!(format!("Failed to inspect '{}': {:?}", url, err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
@@ -473,9 +483,9 @@ declare_types! {
             debug!("Fetching FilesContainer from: {}", url);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
                 let data = rt.block_on(user.files_container_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to fetch FilesContainer: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
@@ -570,9 +580,9 @@ declare_types! {
             Ok(js_value)
         }
 
-        // Pub PublicImmutableData
-        // Binding for: pub async fn files_put_public_immutable(&mut self, data: &[u8], media_type: Option<&str>, dry_run: bool) -> sn_api::Result<XorUrl>
-        method files_put_public_immutable(mut cx) {
+        // Pub PublicBlob
+        // Binding for: pub async fn files_store_public_blob(&mut self, data: &[u8], media_type: Option<&str>, dry_run: bool) -> sn_api::Result<XorUrl>
+        method files_store_public_blob(mut cx) {
             let v: Handle<JsValue> = cx.argument(0)?;
             let buffer: Handle<JsBuffer>;
             let array_buffer: Handle<JsArrayBuffer>;
@@ -588,14 +598,14 @@ declare_types! {
 
             let media_type = get_optional_string(&mut cx, 1)?;
             let dry_run = cx.argument::<JsBoolean>(2)?.value();
-            debug!("Putting PublicImmutableData: {:?}", data);
+            debug!("Putting PublicBlob: {:?}", data);
 
             let url = {
                 let mut this = cx.this();
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                let data = rt.block_on(user.files_put_public_immutable(&data, media_type.as_deref(), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublicImmutableData: {:?}", err)) } );
+                let data = rt.block_on(user.files_store_public_blob(&data, media_type.as_deref(), dry_run)).unwrap_or_else(|err| { panic!(format!("Failed to put PublicBlob: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 data
             };
@@ -603,18 +613,18 @@ declare_types! {
             Ok(cx.string(&url).upcast())
         }
 
-        // Get a PublicImmutableData
-        // Binding for: pub async fn files_get_public_immutable(&self, url: &str) -> sn_api::Result<Vec<u8>>
-        method files_get_public_immutable(mut cx) {
+        // Get a PublicBlob
+        // Binding for: pub async fn files_get_public_blob(&self, url: &str) -> sn_api::Result<Vec<u8>>
+        method files_get_public_blob(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            debug!("Fetching PublicImmutableData from: {}", url);
+            debug!("Fetching PublicBlob from: {}", url);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                let data = rt.block_on(user.files_get_public_immutable(&url, None)).unwrap_or_else(|err| { panic!(format!("Failed to fetch PublicImmutableData: {:?}", err)) } );
+                let data = rt.block_on(user.files_get_public_blob(&url, None)).unwrap_or_else(|err| { panic!(format!("Failed to fetch PublicBlob: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 data
             };
@@ -702,9 +712,9 @@ declare_types! {
             debug!("Fetching NRS Map Container from: {}", url);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
                 let data = rt.block_on(user.nrs_map_container_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to fetch an NRS Map Container: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
@@ -774,9 +784,9 @@ declare_types! {
             debug!("Fetching Sequence from: {}", url);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
                 let data = rt.block_on(user.sequence_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to fetch Sequence: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
@@ -788,8 +798,8 @@ declare_types! {
         }
 
         // Append to a Sequence
-        // Binding for: pub async fn sequence_append(&mut self, url: &str, data: &[u8]) -> Result<()>
-        method sequence_append(mut cx) {
+        // Binding for: pub async fn append_to_sequence(&mut self, url: &str, data: &[u8]) -> Result<()>
+        method append_to_sequence(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
 
             let v: Handle<JsValue> = cx.argument(1)?;
@@ -808,7 +818,7 @@ declare_types! {
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                rt.block_on(user.sequence_append(&url, &data)).unwrap_or_else(|err| { panic!(format!("Failed to append to Sequence: {:?}", err)) } );
+                rt.block_on(user.append_to_sequence(&url, &data)).unwrap_or_else(|err| { panic!(format!("Failed to append to Sequence: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
             };
 
@@ -825,7 +835,7 @@ declare_types! {
                 let this = cx.this();
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
-                user.keypair().unwrap_or_else(|err| { panic!(format!("Failed to generate a key pair: {:?}", err)) } )
+                user.keypair()
             };
 
             let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
@@ -833,11 +843,10 @@ declare_types! {
         }
 
         // Create a SafeKey on the network and return its XOR-URL.
-        // Binding for: pub async fn keys_create(&mut self, from: Option<&str>, preload_amount: Option<&str>, pk: Option<&str>) -> sn_api::Result<(XorUrl, Option<BlsKeyPair>)>
-        method keys_create(mut cx) {
-            let from = get_optional_string(&mut cx, 0)?;
-            let preload_amount = get_optional_string(&mut cx, 1)?;
-            let pk = get_optional_string(&mut cx, 2)?;
+        // Binding for: pub async fn keys_create_and_preload_from_sk_string(&mut self, from: Option<&str>, preload_amount: Option<&str>) -> sn_api::Result<(XorUrl, Option<BlsKeyPair>)>
+        method keys_create_and_preload_from_sk_string(mut cx) {
+            let from = cx.argument::<JsString>(0)?.value();
+            let preload_amount = cx.argument::<JsString>(1)?.value();
             debug!("Creating a SafeKey preloaded with '{:?}' coins", preload_amount);
 
             let data = {
@@ -845,7 +854,7 @@ declare_types! {
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                let data = rt.block_on(user.keys_create(from.as_deref(), preload_amount.as_deref(), pk.as_deref())).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey: {:?}", err)) } );
+                let data = rt.block_on(user.keys_create_and_preload_from_sk_string(&from, &preload_amount)).unwrap_or_else(|err| { panic!(format!("Failed to create a SafeKey: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 data
             };
@@ -877,7 +886,8 @@ declare_types! {
         // Check SafeKey's balance from the network from a given SecretKey string
         // Binding for: pub async fn keys_balance_from_sk(&self, sk: &str) -> sn_api::Result<String>
         method keys_balance_from_sk(mut cx) {
-            let sk = cx.argument::<JsString>(0)?.value();
+            let sk = cx.argument::<JsValue>(0)?;
+            let sk: sn_api::SecretKey  = neon_serde::from_value(&mut cx, sk).map_err(|_| Throw)?;
             debug!("Checking SafeKey balance...");
 
             let data = {
@@ -885,7 +895,7 @@ declare_types! {
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
                 let mut rt = Runtime::new().unwrap();
-                let data = rt.block_on(user.keys_balance_from_sk(&sk)).unwrap_or_else(|err| { panic!(format!("Failed query the balance from SafeKey: {:?}", err)) } );
+                let data = rt.block_on(user.keys_balance_from_sk(sk)).unwrap_or_else(|err| { panic!(format!("Failed query the balance from SafeKey: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 data
             };
@@ -897,15 +907,16 @@ declare_types! {
         // Binding for: pub async fn keys_balance_from_url(&self, url: &str, sk: &str) -> sn_api::Result<String>
         method keys_balance_from_url(mut cx) {
             let url = cx.argument::<JsString>(0)?.value();
-            let sk = cx.argument::<JsString>(1)?.value();
+            let sk = cx.argument::<JsValue>(1)?;
+            let sk: sn_api::SecretKey  = neon_serde::from_value(&mut cx, sk).map_err(|_| Throw)?;
             debug!("Checking SafeKey balance from URL '{:?}'", url);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                let data = rt.block_on(user.keys_balance_from_url(&url, &sk)).unwrap_or_else(|err| { panic!(format!("Failed to check balance from the SafeKey URL '{}': {:?}", url, err)) } );
+                let data = rt.block_on(user.keys_balance_from_url(&url, sk)).unwrap_or_else(|err| { panic!(format!("Failed to check balance from the SafeKey URL '{}': {:?}", url, err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 data
             };
@@ -916,14 +927,15 @@ declare_types! {
         // Check that the XOR/NRS-URL corresponds to the public key derived from the provided secret key
         // Binding for: pub async fn validate_sk_for_url(&self, sk: &str, url: &str) -> sn_api::Result<String>
         method validate_sk_for_url(mut cx) {
-            let sk = cx.argument::<JsString>(0)?.value();
+            let sk = cx.argument::<JsValue>(0)?;
+            let sk: sn_api::SecretKey  = neon_serde::from_value(&mut cx, sk).map_err(|_| Throw)?;
             let url = cx.argument::<JsString>(1)?.value();
             debug!("Validating secret key for URL '{:?}'", url);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
                 let data = rt.block_on(user.validate_sk_for_url(&sk, &url)).unwrap_or_else(|err| { panic!(format!("Failed to vaildate the secret key for the SafeKey URL '{}': {:?}", url, err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
@@ -934,12 +946,11 @@ declare_types! {
         }
 
         // Transfer safecoins from one SafeKey to another, or to a Wallet
-        // Binding for: pub async fn keys_transfer(&mut self, amount: &str, from_sk: Option<&str>, to_url: &str, tx_id: Option<u64>) -> sn_api::Result<u64>
+        // Binding for: pub async fn keys_transfer(&mut self, amount: &str, from_sk: Option<&str>, to_url: &str) -> sn_api::Result<u64>
         method keys_transfer(mut cx) {
             let amount = cx.argument::<JsString>(0)?.value();
             let from_sk = get_optional_string(&mut cx, 1)?;
             let to_url = cx.argument::<JsString>(2)?.value();
-            let tx_id = get_optional_number(&mut cx, 3).map(|r| r.map(|v| v as u64))?;
             debug!("Transferring '{}' from SafeKey", amount);
 
             let data = {
@@ -947,7 +958,7 @@ declare_types! {
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                let data = rt.block_on(user.keys_transfer(&amount, from_sk.as_deref(), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from SafeKey: {:?}", err)) } );
+                let data = rt.block_on(user.keys_transfer(&amount, from_sk.as_deref(), &to_url)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from SafeKey: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 data
             };
@@ -1022,9 +1033,9 @@ declare_types! {
             debug!("Fetching default spendable balance from Wallet at '{:?}'", url);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
                 let data = rt.block_on(user.wallet_get_default_balance(&url)).unwrap_or_else(|err| { panic!(format!("Failed to get default spendable balance from Wallet at '{}': {:?}", url, err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
@@ -1035,15 +1046,11 @@ declare_types! {
             Ok(js_value)
         }
 
-        // Binding for: pub async fn wallet_transfer(&mut self, amount: &str, from_url: Option<&str>, to_url: &str, tx_id: Option<u64>) -> sn_api::Result<u64>
+        // Binding for: pub async fn wallet_transfer(&mut self, amount: &str, from_url: Option<&str>, to_url: &str) -> sn_api::Result<u64>
         method wallet_transfer(mut cx) {
             let amount = cx.argument::<JsString>(0)?.value();
-            let from_url = get_optional_string(&mut cx, 1)?;
+            let from_url = cx.argument::<JsString>(1)?.value();
             let to_url = cx.argument::<JsString>(2)?.value();
-            let tx_id = match cx.argument_opt(3) {
-                Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u64),
-                None => None
-            };
             debug!("Transferring '{}' from Wallet at '{:?}'", amount, from_url);
 
             let data = {
@@ -1051,7 +1058,7 @@ declare_types! {
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                let data = rt.block_on(user.wallet_transfer(&amount, from_url.as_deref(), &to_url, tx_id)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from Wallet at: {:?}", err)) } );
+                let data = rt.block_on(user.wallet_transfer(&amount, &from_url, &to_url)).unwrap_or_else(|err| { panic!(format!("Failed to transfer from Wallet at: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
                 data
             };
@@ -1065,9 +1072,9 @@ declare_types! {
             debug!("Fetching Wallet from '{:?}'", url);
 
             let data = {
-                let this = cx.this();
+                let mut this = cx.this();
                 let guard = cx.lock();
-                let user = this.borrow(&guard);
+                let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
                 let data = rt.block_on(user.wallet_get(&url)).unwrap_or_else(|err| { panic!(format!("Failed to get Wallet from '{}': {:?}", url, err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
@@ -1160,8 +1167,8 @@ declare_types! {
         }
 
         // Send a login action request to remote authd endpoint
-        // Binding for: pub async fn log_in(&mut self, secret: &str, password: &str) -> sn_api::Result<()>
-        method log_in(mut cx) {
+        // Binding for: pub async fn unlock(&mut self, secret: &str, password: &str) -> sn_api::Result<()>
+        method unlock(mut cx) {
             let secret = cx.argument::<JsString>(0)?.value();
             let password = cx.argument::<JsString>(1)?.value();
             debug!("Logging in...");
@@ -1171,7 +1178,7 @@ declare_types! {
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                rt.block_on(user.log_in(&secret, &password)).unwrap_or_else(|err| { panic!(format!("Failed to log in: {:?}", err)) } );
+                rt.block_on(user.unlock(&secret, &password)).unwrap_or_else(|err| { panic!(format!("Failed to log in: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
             };
 
@@ -1179,8 +1186,8 @@ declare_types! {
         }
 
         // Sends a logout action request to the SAFE Authenticator
-        // Binding for: pub async fn log_out(&mut self) -> sn_api::Result<()>
-        method log_out(mut cx) {
+        // Binding for: pub async fn lock(&mut self) -> sn_api::Result<()>
+        method lock(mut cx) {
             debug!("Logging out...");
 
             {
@@ -1188,7 +1195,7 @@ declare_types! {
                 let guard = cx.lock();
                 let mut user = this.borrow_mut(&guard);
                 let mut rt = Runtime::new().unwrap();
-                rt.block_on(user.log_out()).unwrap_or_else(|err| { panic!(format!("Failed to log out: {:?}", err)) } );
+                rt.block_on(user.lock()).unwrap_or_else(|err| { panic!(format!("Failed to log out: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
             };
 
@@ -1196,11 +1203,10 @@ declare_types! {
         }
 
         // Sends an account creation request to the SAFE Authenticator
-        // Binding for: pub async fn create_acc(&self, sk: &str, secret: &str, password: &str) -> sn_api::Result<()>
-        method create_acc(mut cx) {
-            let sk = cx.argument::<JsString>(0)?.value();
-            let secret = cx.argument::<JsString>(1)?.value();
-            let password = cx.argument::<JsString>(2)?.value();
+        // Binding for: pub async fn create(&self, sk: &str, secret: &str, password: &str) -> sn_api::Result<()>
+        method create(mut cx) {
+            let secret = cx.argument::<JsString>(0)?.value();
+            let password = cx.argument::<JsString>(1)?.value();
             debug!("Creating a SAFE account...");
 
             {
@@ -1208,7 +1214,7 @@ declare_types! {
                 let guard = cx.lock();
                 let user = this.borrow(&guard);
                 let mut rt = Runtime::new().unwrap();
-                rt.block_on(user.create_acc(&sk, &secret, &password)).unwrap_or_else(|err| { panic!(format!("Failed to create SAFE account: {:?}", err)) } );
+                rt.block_on(user.create(&secret, &password)).unwrap_or_else(|err| { panic!(format!("Failed to create SAFE account: {:?}", err)) } );
                 rt.shutdown_timeout(Duration::from_millis(1));
             };
 

@@ -43,7 +43,7 @@ describe('Sequence API', () => {
     let seqUrl = safe.sequence_create(rawBytes, null, 11000, false);
 
     let appenddedBytes = Uint8Array.from([70, 80, 90, 100]);
-    safe.sequence_append(seqUrl, appenddedBytes);
+    safe.append_to_sequence(seqUrl, appenddedBytes);
 
     fetchedSeq = safe.sequence_get(seqUrl);
     let fetchedVersion = fetchedSeq[0];

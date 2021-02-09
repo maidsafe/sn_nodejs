@@ -42,15 +42,15 @@ describe('Authd Client API', () => {
   })
 
   test('Create account', () => {
-    expect( () =>  sn_authd_client.create_acc(sk, passphrase, password) ).not.toThrow() ;
+    expect( () =>  sn_authd_client.create(passphrase, password) ).not.toThrow() ;
   });
 
   test('Log out', () => {
-    expect( () => sn_authd_client.log_out() ).not.toThrow() ;
+    expect( () => sn_authd_client.lock() ).not.toThrow() ;
   });
 
   test('Log in', () => {
-    expect( () => sn_authd_client.log_in( passphrase, password) ).not.toThrow() ;
+    expect( () => sn_authd_client.unlock( passphrase, password) ).not.toThrow() ;
   });
 
   test('Status', () => {

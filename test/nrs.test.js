@@ -29,7 +29,7 @@ describe('NRS API', () => {
     let fetchedTxt = safe.fetch(nrsName);
     assert.equal(fetchedTxt.FilesContainer.files_map['/test.txt'].link, filesMap['/test.txt'].link);
     let fetchedMd = safe.fetch(nrsSubName);
-    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedMd.PublicImmutableData.data)).startsWith("hello test.md!"));
+    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedMd.PublicBlob.data)).startsWith("hello test.md!"));
   });
 
   test('Remove a subname from an NRS name', () => {

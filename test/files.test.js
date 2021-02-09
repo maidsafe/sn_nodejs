@@ -16,7 +16,7 @@ describe('Files API', () => {
     assert.equal(fetched.FilesContainer.files_map['/test.txt'].link, filesMap['/test.txt'].link);
 
     let fetchedFile = safe.fetch(`${filesContainer[0]}/test.txt`);
-    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublicImmutableData.data)).startsWith("hello test.txt!"));
+    assert(String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublicBlob.data)).startsWith("hello test.txt!"));
   });
 
   test('Get a FilesContainer', () => {
@@ -53,7 +53,7 @@ describe('Files API', () => {
     assert.equal(filesContainerData[1]['/from-raw.txt'].link, newFilesMap['/from-raw.txt'].link);
 
     let fetchedFile = safe.fetch(newFilesMap['/from-raw.txt'].link);
-    assert.equal(rawBytes.toString(), String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublicImmutableData.data)));
+    assert.equal(rawBytes.toString(), String.fromCharCode.apply(null, new Uint8Array(fetchedFile.PublicBlob.data)));
   });
 
   test('Add a file to FilesContainer from Uint8Array and get it', () => {
@@ -69,7 +69,7 @@ describe('Files API', () => {
     assert.equal(filesContainerData[1]['/from-raw.txt'].link, newFilesMap['/from-raw.txt'].link);
 
     let fetchedFile = safe.fetch(newFilesMap['/from-raw.txt'].link);
-    assert.equal(rawBytes.toString(), new Uint8Array(fetchedFile.PublicImmutableData.data).toString());
+    assert.equal(rawBytes.toString(), new Uint8Array(fetchedFile.PublicBlob.data).toString());
   });
 
   test('Remove a file from a FilesContainer', () => {
@@ -92,19 +92,19 @@ describe('Files API', () => {
     }
   });
 
-  test('Put a PublicImmutableData from Buffer and get it', () => {
+  test('Put a PublicBlob from Buffer and get it', () => {
     let rawBytes = Buffer.from("bytes-of-file");
-    let immdUrl = safe.files_put_public_immutable(rawBytes, null, false);
+    let immdUrl = safe.files_store_public_blob(rawBytes, null, false);
 
-    fetchedFile = safe.files_get_public_immutable(immdUrl);
+    fetchedFile = safe.files_get_public_blob(immdUrl);
     assert.equal(rawBytes.toString(), String.fromCharCode.apply(null, new Uint8Array(fetchedFile)));
   });
 
-  test('Put a PublicImmutableData from Uint8Array and get it', () => {
+  test('Put a PublicBlob from Uint8Array and get it', () => {
     let rawBytes = Uint8Array.from([62, 79, 74, 65, 73]);
-    let immdUrl = safe.files_put_public_immutable(rawBytes, null, false);
+    let immdUrl = safe.files_store_public_blob(rawBytes, null, false);
 
-    fetchedFile = safe.files_get_public_immutable(immdUrl);
+    fetchedFile = safe.files_get_public_blob(immdUrl);
     assert.equal(rawBytes.toString(), new Uint8Array(fetchedFile).toString());
   });
 });

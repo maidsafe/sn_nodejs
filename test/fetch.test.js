@@ -31,33 +31,33 @@ describe('fetch/inspect APIs', function() {
     assert.deepEqual(data.FilesContainer.files_map['/test.txt'], filesMap['/test.txt']);
   });
 
-  test('fetch PublicImmutableData', () => {
+  test('fetch PublicBlob', () => {
     let filesContainer = safe.files_container_create("test/testfolder/test.txt", "", false, false, false);
     let filesContainerXorUrl = filesContainer[0];
 
     let data = safe.fetch(`safe://${filesContainerXorUrl}/test.txt`);
 
-    assert.equal(data.PublicImmutableData.media_type, 'text/plain');
-    assert(String.fromCharCode.apply(null, new Uint8Array(data.PublicImmutableData.data)).startsWith("hello test.txt!"));
+    assert.equal(data.PublicBlob.media_type, 'text/plain');
+    assert(String.fromCharCode.apply(null, new Uint8Array(data.PublicBlob.data)).startsWith("hello test.txt!"));
   });
 
-  test('fetch PublicImmutableData range', () => {
+  test('fetch PublicBlob range', () => {
     let filesContainer = safe.files_container_create("test/testfolder/test.txt", "", false, false, false);
     let filesContainerXorUrl = filesContainer[0];
 
     let data = safe.fetch(`safe://${filesContainerXorUrl}/test.txt`, {start: 2, end: 5});
 
-    assert.equal(String.fromCharCode.apply(null, new Uint8Array(data.PublicImmutableData.data)), "llo");
+    assert.equal(String.fromCharCode.apply(null, new Uint8Array(data.PublicBlob.data)), "llo");
   });
 
-  test('inspect PublicImmutableData', () => {
+  test('inspect PublicBlob', () => {
     let filesContainer = safe.files_container_create("test/testfolder/test.txt", "", false, false, false);
     let filesContainerXorUrl = filesContainer[0];
 
     let fetched = safe.fetch(`safe://${filesContainerXorUrl}/test.txt`);
 
-    let data = safe.inspect(fetched.PublicImmutableData.xorurl)[0];
-    assert.equal(data.PublicImmutableData.media_type, 'text/plain');
-    assert.equal(data.PublicImmutableData.data, "");
+    let data = safe.inspect(fetched.PublicBlob.xorurl)[0];
+    assert.equal(data.PublicBlob.media_type, 'text/plain');
+    assert.equal(data.PublicBlob.data, "");
   });
 });

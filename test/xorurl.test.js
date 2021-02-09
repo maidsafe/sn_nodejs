@@ -37,9 +37,9 @@ describe('XorUrlEncoder API', () => {
     let random = Math.floor(Math.random() * Math.floor(1000));
     let xorname = Uint8Array.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1]);
     let subNames = ['sub1', 'sub2'];
-    let xorUrlEncoder = new XorUrlEncoder(xorname, null, 10000, SafeDataType.PublicImmutableData,
+    let xorUrlEncoder = new XorUrlEncoder(xorname, null, 10000, SafeDataType.PublicBlob,
                                           "text/html", "/folder", subNames, null, null, 5);
-    assert.equal(xorUrlEncoder.data_type(), SafeDataType.PublicImmutableData);
+    assert.equal(xorUrlEncoder.data_type(), SafeDataType.PublicBlob);
     assert.equal(xorUrlEncoder.content_type(), "text/html");
   });
 });
