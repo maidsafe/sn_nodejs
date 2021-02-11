@@ -21,3 +21,5 @@ neon = { version = "~0.7.0", features = ["event-handler-api"] }
 neon-serde = {git="https://github.com/lucasfernog/neon-serde", branch="refactor/update-neon-0.7"}
 sn_api = { version = "0.18.0", features = ["app", "authd_client"] }
 tokio = { version = "~0.2.21", features = ["rt-core"] }
+rand = "~0.7.3"
+rand_core = "~0.5.1"

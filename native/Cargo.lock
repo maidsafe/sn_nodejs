@@ -2322,6 +2322,8 @@ dependencies = [
  "neon",
  "neon-build",
  "neon-serde",
+ "rand",
+ "rand_core",
  "sn_api",
  "tokio",
 ]

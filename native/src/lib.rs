@@ -6,6 +6,7 @@ use sn_api::{
     fetch::{SafeContentType, SafeDataType},
     xorurl::{XorUrlBase, XorUrlEncoder},
     AuthReq, Safe, SafeAuthdClient, XorName,
+    Keypair, SecretKey
 };
 use std::{str::FromStr, time::Duration};
 use tokio::runtime::Runtime;
@@ -320,6 +321,26 @@ declare_types! {
 
             let auth_credentials = neon_serde::to_value(&mut cx, &auth_credentials).map_err(|_| Throw)?;
             Ok(auth_credentials)
+        }
+
+        method connect2(mut cx) {
+            let kp = {
+                let kp = cx.argument::<JsKeyPair>(0)?;
+                cx.borrow(&kp, |kp| kp.clone())
+            };
+
+            debug!("{:?}", kp);
+
+            {
+                let mut this = cx.this();
+                let guard = cx.lock();
+                let mut user = this.borrow_mut(&guard);
+                let mut rt = Runtime::new().unwrap();
+                rt.block_on(user.connect(Some(kp), None)).unwrap_or_else(|err| { panic!(format!("Failed to connect: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+            }
+
+            Ok(cx.undefined().upcast())
         }
 
         // Connect to the SAFE Network using the provided app id and auth credentials
@@ -883,6 +904,26 @@ declare_types! {
             Ok(js_value)
         }
 
+        method keys_balance_from_sk2(mut cx) {
+            let kp = {
+                let kp = cx.argument::<JsKeyPair>(0)?;
+                cx.borrow(&kp, |kp| kp.clone())
+            };
+            let sk = kp.secret_key().unwrap();
+
+            let data = {
+                let this = cx.this();
+                let guard = cx.lock();
+                let user = this.borrow(&guard);
+                let mut rt = Runtime::new().unwrap();
+                let data = rt.block_on(user.keys_balance_from_sk(sk)).unwrap_or_else(|err| { panic!(format!("Failed query the balance from SafeKey: {:?}", err)) } );
+                rt.shutdown_timeout(Duration::from_millis(1));
+                data
+            };
+
+            Ok(cx.string(data).upcast())
+        }
+
         // Check SafeKey's balance from the network from a given SecretKey string
         // Binding for: pub async fn keys_balance_from_sk(&self, sk: &str) -> sn_api::Result<String>
         method keys_balance_from_sk(mut cx) {
@@ -1083,6 +1124,32 @@ declare_types! {
 
             let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
+        }
+    }
+
+    pub class JsKeyPair for Keypair {
+        init(mut _cx) {
+            use rand::rngs::OsRng;
+            let mut rng = OsRng;
+            Ok(Keypair::new_ed25519(&mut rng))
+        }
+
+        method secret_key(mut cx) {
+            let kp = cx.argument::<JsKeyPair>(0)?;
+            let sk = JsSecretKey::new(&mut cx, vec![kp])?;
+            Ok(sk.upcast())
+        }
+    }
+
+    pub class JsSecretKey for SecretKey {
+        init(mut cx) {
+            let kp = {
+                let kp = cx.argument::<JsKeyPair>(0)?;
+                let kp = cx.borrow(&kp, |kp| kp.clone());
+                kp.secret_key().unwrap()
+            };
+
+            Ok(kp)
         }
     }
 
@@ -1450,6 +1517,8 @@ register_module!(mut m, {
     m.export_class::<JsSafe>("Safe")?;
     m.export_class::<JsXorUrlEncoder>("XorUrlEncoder")?;
     m.export_class::<JsSafeAuthdClient>("SafeAuthdClient")?;
+    m.export_class::<JsKeyPair>("KeyPair")?;
+    m.export_class::<JsSecretKey>("SecretKey")?;
 
     let safe_data_type = JsObject::new(&mut m);
     for (i, data_type) in SAFE_DATA_TYPE.iter().enumerate() {
