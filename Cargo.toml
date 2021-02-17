@@ -1,0 +1,23 @@
+[package]
+edition = "2018"
+name = "sn_api-nodejs"
+version = "0.0.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+#napi = "1"
+napi = { version = "1", features = ["tokio_rt"]}
+napi-derive = "1"
+
+sn_api = { git = "https://github.com/maidsafe/sn_api.git" }
+tokio = { version = "1", features = ["full"] }
+tokio-compat-02 = "0.2.0"
+
+[build-dependencies]
+napi-build = "1"
+
+[profile.release]
+lto = true
