@@ -114,12 +114,6 @@ jobs:
       #     $HOME/.safe/node/sn_node.exe -V
       #     safe --version
 
-      - run : yarn
-      - name: Mock Tests
-        run: |
-          yarn neon clean
-          yarn build-mock
-          yarn test-api
       - name: Mini-Network Setup
         run : safe node run-baby-fleming
       - name: Build For Node
