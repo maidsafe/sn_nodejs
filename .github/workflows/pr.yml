@@ -113,7 +113,7 @@ jobs:
       #     $HOME/.safe/authd/sn_authd.exe -V
       #     $HOME/.safe/node/sn_node.exe -V
       #     safe --version
-
+      - run: yarn
       - name: Mini-Network Setup
         run : safe node run-baby-fleming
       - name: Build For Node
