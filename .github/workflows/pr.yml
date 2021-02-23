@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         # os: [ubuntu-latest]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
@@ -39,12 +39,6 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: wget "https://sn-node.s3.eu-west-2.amazonaws.com/sn_node-${{env.SN_NODE_VERSION}}-x86_64-apple-darwin.tar.gz" -O ./node.tar.gz;
 
-      - name: Download Safe Node Win
-        if: matrix.os == 'windows-latest'
-        run: |
-          choco install wget
-          wget "https://sn-node.s3.eu-west-2.amazonaws.com/sn_node-${{env.SN_NODE_VERSION}}-x86_64-pc-windows-msvc.tar.gz" -O ./node.tar.gz;
-
       - name: Place Safe Node
         run:  |
           ls .
@@ -59,10 +53,6 @@ jobs:
       - name: Download Safe CLI Mac
         if: matrix.os == 'macos-latest'
         run: wget "https://sn-api.s3.eu-west-2.amazonaws.com/sn_cli-${{env.SN_CLI_VERSION}}-x86_64-apple-darwin.tar.gz" -O ./safe.tar.gz;
-
-      - name: Download Safe CLI Windows
-        if: matrix.os == 'windows-latest'
-        run: wget "https://sn-api.s3.eu-west-2.amazonaws.com/sn_cli-${{env.SN_CLI_VERSION}}-x86_64-pc-windows-msvc.tar.gz" -O ./safe.tar.gz;
 
       - name: Place Safe CLI
         run:  |
@@ -82,10 +72,6 @@ jobs:
       - name: Download Safe authd Mac
         if: matrix.os == 'macos-latest'
         run: wget "https://sn-api.s3.eu-west-2.amazonaws.com/sn_authd-${{env.SN_AUTHD_VERSION}}-x86_64-apple-darwin.tar.gz" -O ./authd.tar.gz;
-
-      - name: Download Safe authd Windows
-        if: matrix.os == 'windows-latest'
-        run: wget "https://sn-api.s3.eu-west-2.amazonaws.com/sn_authd-${{env.SN_AUTHD_VERSION}}-x86_64-pc-windows-msvc.tar.gz" -O ./authd.tar.gz;
 
       - name: Place Safe authd
         run:  |
@@ -107,12 +93,6 @@ jobs:
           safe --version
           cat native/Cargo.toml
 
-      # - name: Check Safe Versions
-      #   if: matrix.os == 'windows-latest'
-      #   run : |
-      #     $HOME/.safe/authd/sn_authd.exe -V
-      #     $HOME/.safe/node/sn_node.exe -V
-      #     safe --version
       - run: yarn
       - name: Mini-Network Setup
         run : safe node run-baby-fleming
