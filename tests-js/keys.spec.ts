@@ -1,4 +1,4 @@
-const { Safe, Keypair } = require('sn_api');
+import { Safe, Keypair } from '../sn_api';
 
 describe('keys', () => {
     const safe = new Safe();

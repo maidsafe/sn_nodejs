@@ -4,7 +4,7 @@
     "name": "sn_api"
   },
   "main": "sn_api.node",
-  "types": "sn_api.d.ts",
+  "types": "./sn_api.d.ts",
   "devDependencies": {
     "@napi-rs/cli": "^1.0.0",
     "jest": "^26.6.3",
