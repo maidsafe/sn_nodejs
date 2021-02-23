@@ -1,12 +1,8 @@
-import { Safe, Keypair } from '../sn_api';
+import safe from './util';
+
+import { Safe, Keypair } from 'sn_api';
 
 describe('keys', () => {
-    const safe = new Safe();
-
-    beforeAll(async () => {
-        await safe.connect(undefined, undefined, ['127.0.0.1:12000']);
-    });
-
     test('keypair instantiation has correct type', async () => {
         const kp = Keypair.new_ed25519();
         expect(kp.constructor).toBe(Keypair);

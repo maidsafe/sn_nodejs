@@ -13,7 +13,7 @@ pub mod secret_key;
 
 #[js_function(1)]
 pub fn create_preload_test_coins(ctx: CallContext) -> Result<JsObject> {
-    let preload_amount = ctx.get::<JsString>(0)?.into_utf8()?.into_owned()?;
+    let preload_amount: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
 
     let this: JsObject = ctx.this_unchecked();
     let safe: &Arc<RwLock<Safe>> = ctx.env.unwrap(&this)?;

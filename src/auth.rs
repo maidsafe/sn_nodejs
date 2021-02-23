@@ -2,7 +2,7 @@ use napi::*;
 use napi_derive::js_function;
 
 use sn_api::{Keypair, Safe};
-use std::{net::SocketAddr, str::FromStr, sync::Arc};
+use std::{collections::HashSet, net::SocketAddr, path::PathBuf, sync::Arc};
 use tokio::sync::RwLock;
 use tokio_compat_02::FutureExt;
 
@@ -10,6 +10,7 @@ use crate::util;
 
 #[js_function(3)]
 pub fn connect(ctx: CallContext) -> Result<JsObject> {
+    // let kp: Option<Keypair> = ctx.env.from_js_value(ctx.get::<JsObject>(0)?)?;
     let kp: Option<JsObject> = util::get_value_opt(&ctx, ValueType::Object, 0)?;
     let kp = match kp {
         Some(kp) => {
@@ -18,24 +19,9 @@ pub fn connect(ctx: CallContext) -> Result<JsObject> {
         }
         None => None,
     };
-
-    let path = util::get_string_opt(&ctx, 1)?.map(|v| std::path::PathBuf::from(v));
-    let addr = util::get_array_opt(&ctx, 2)?;
-    let addr = match addr {
-        Some(arr) => {
-            let mut hs = std::collections::HashSet::new();
-
-            for i in 0..arr.get_array_length()? {
-                let s = arr.get_element::<JsString>(i)?.into_utf8()?.into_owned()?;
-                let a =
-                    SocketAddr::from_str(&s).map_err(|e| Error::from_reason(format!("{:?}", e)))?;
-                hs.insert(a);
-            }
-
-            Some(hs)
-        }
-        None => None,
-    };
+    // let path = util::get_string_opt(&ctx, 1)?.map(|v| std::path::PathBuf::from(v));
+    let path: Option<PathBuf> = ctx.env.from_js_value(ctx.get::<JsString>(1)?)?;
+    let addr: Option<HashSet<SocketAddr>> = ctx.env.from_js_value(ctx.get::<JsObject>(2)?)?;
 
     let this: JsObject = ctx.this_unchecked();
     let safe: &Arc<RwLock<Safe>> = ctx.env.unwrap(&this)?;

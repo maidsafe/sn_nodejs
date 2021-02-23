@@ -5,7 +5,7 @@ use sn_api::Safe;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use crate::{auth, keys};
+use crate::{auth, keys, files};
 
 #[js_function(0)]
 fn constructor(ctx: CallContext) -> Result<JsUndefined> {
@@ -28,6 +28,7 @@ pub fn define_class(env: &Env) -> Result<JsFunction> {
             Property::new(&env, "keys_create_preload_test_coins")?
                 .with_method(keys::create_preload_test_coins),
             Property::new(&env, "keys_balance_from_sk")?.with_method(keys::balance_from_sk),
+            Property::new(&env, "files_container_create")?.with_method(files::container_create),
         ],
     )
 }

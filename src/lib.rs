@@ -2,9 +2,9 @@ use napi::*;
 use napi_derive::module_exports;
 
 mod auth;
+mod files;
 mod keys;
 mod safe;
-
 mod util;
 
 #[module_exports]

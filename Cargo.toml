@@ -9,7 +9,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 #napi = "1"
-napi = { version = "1", features = ["tokio_rt", "napi6"]}
+napi = { version = "1", features = ["tokio_rt", "napi6", "serde-json"]}
 napi-derive = "1"
 
 #sn_api = { git = "https://github.com/maidsafe/sn_api.git" }

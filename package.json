@@ -20,7 +20,7 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testEnvironment": "node",
+    "testEnvironment": "./tests-js/environment-safe",
     "testTimeout": 500000
   }
 }

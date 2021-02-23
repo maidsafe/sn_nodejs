@@ -1225,6 +1225,8 @@ dependencies = [
  "napi-build",
  "napi-sys",
  "once_cell",
+ "serde",
+ "serde_json",
  "tokio 1.2.0",
  "winapi 0.3.9",
 ]

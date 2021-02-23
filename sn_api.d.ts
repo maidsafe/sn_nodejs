@@ -1,9 +1,23 @@
 export class Safe {
     constructor();
 
-    connect(a?: Keypair, b?: String, c?: String[]): Promise<void>;
+    connect(app_keypair?: Keypair, config_path?: String, bootstrap_config?: String[]): Promise<void>;
+
     keys_create_preload_test_coins(a: String): Promise<[String, Keypair]>;
     keys_balance_from_sk(a: SecretKey): Promise<String>;
+
+    files_container_create(location: undefined|String, dest: undefined|String, recursive: boolean, follow_links: boolean, dry_run: boolean): Promise<[String, ProcessedFiles, FilesMap]>;
+}
+
+// Returned by files_container_create().
+interface ProcessedFiles {
+    [path: string]: [String, String];
+}
+interface FilesMap {
+    [path: string]: FilesMapDetails;
+}
+interface FilesMapDetails {
+    [property: string]: string;
 }
 
 export class Keypair {
