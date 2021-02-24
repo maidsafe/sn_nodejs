@@ -1,12 +1,10 @@
 use napi::*;
 use napi_derive::js_function;
 
-use sn_api::{Safe, SecretKey};
-use std::sync::Arc;
-use tokio::sync::RwLock;
+use sn_api::{SecretKey};
 use tokio_compat_02::FutureExt;
 
-use crate::util::*;
+use crate::{safe, util};
 
 pub mod keypair;
 pub mod secret_key;
@@ -15,9 +13,7 @@ pub mod secret_key;
 pub fn create_preload_test_coins(ctx: CallContext) -> Result<JsObject> {
     let preload_amount: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
 
-    let this: JsObject = ctx.this_unchecked();
-    let safe: &Arc<RwLock<Safe>> = ctx.env.unwrap(&this)?;
-    let safe = Arc::clone(&safe);
+    let safe = safe::unwrap_arc(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -29,7 +25,7 @@ pub fn create_preload_test_coins(ctx: CallContext) -> Result<JsObject> {
         },
         |&mut env, (s, kp)| {
             let s = env.create_string(&s)?;
-            let mut kp_js = get_constructor(&env, "Keypair")?.new(&[] as &[JsNull])?;
+            let mut kp_js = util::get_constructor(&env, "Keypair")?.new(&[] as &[JsNull])?;
             env.wrap(&mut kp_js, kp)?;
 
             // Convert tuple into array of two elements.
@@ -46,19 +42,16 @@ pub fn balance_from_sk(ctx: CallContext) -> Result<JsObject> {
     let sk = ctx.get::<JsObject>(0)?;
     let sk: &SecretKey = ctx.env.unwrap(&sk)?;
 
-    // TODO: Fix dirty hack to get owned value (preferably by cloning).
+    // TODO: Fix dirty hack to get owned value (preferably by cloning) (upstream).
     let sk: Vec<u8> = bincode::serialize(&sk).unwrap();
     let sk: SecretKey = bincode::deserialize(&sk[..]).unwrap();
 
-    let this: JsObject = ctx.this_unchecked();
-    let safe: &Arc<RwLock<Safe>> = ctx.env.unwrap(&this)?;
-    let safe = Arc::clone(&safe);
+    let safe = safe::unwrap_arc(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
-            safe.read()
-                .await
-                .keys_balance_from_sk(sk)
+            let lock = safe.read().await;
+            lock.keys_balance_from_sk(sk)
                 .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))

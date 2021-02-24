@@ -25,8 +25,7 @@ fn new_ed25519(ctx: CallContext) -> Result<JsObject> {
 
 #[js_function(0)]
 fn secret_key(ctx: CallContext) -> Result<JsObject> {
-    let this: JsObject = ctx.this_unchecked();
-    let kp: &Keypair = ctx.env.unwrap(&this)?;
+    let kp: &Keypair = ctx.env.unwrap(&ctx.this()?)?;
 
     let sk = kp.secret_key().map_err(|e| Error::from_reason(format!("{:?}", e)))?;
 

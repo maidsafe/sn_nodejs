@@ -1,10 +1,9 @@
 use napi::*;
 use napi_derive::js_function;
 
-use sn_api::{Safe};
-use std::{sync::Arc};
-use tokio::sync::RwLock;
 use tokio_compat_02::FutureExt;
+
+use crate::safe;
 
 #[js_function(5)]
 pub fn container_create(ctx: CallContext) -> Result<JsObject> {
@@ -14,9 +13,7 @@ pub fn container_create(ctx: CallContext) -> Result<JsObject> {
     let follow_links: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(3)?)?;
     let dry_run: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(4)?)?;
 
-    let this: JsObject = ctx.this_unchecked();
-    let safe: &Arc<RwLock<Safe>> = ctx.env.unwrap(&this)?;
-    let safe = Arc::clone(&safe);
+    let safe = safe::unwrap_arc(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {

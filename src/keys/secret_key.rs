@@ -10,8 +10,7 @@ fn constructor(ctx: CallContext) -> Result<JsUndefined> {
 
 #[js_function(0)]
 fn to_string(ctx: CallContext) -> Result<JsString> {
-    let this: JsObject = ctx.this_unchecked();
-    let sk: &SecretKey = ctx.env.unwrap(&this)?;
+    let sk: &SecretKey = ctx.env.unwrap(&ctx.this()?)?;
 
     ctx.env.create_string_from_std(format!("{:?}", sk))
 }
