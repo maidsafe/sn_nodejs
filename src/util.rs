@@ -15,6 +15,7 @@ pub fn get_constructor(env: &Env, s: &str) -> Result<JsFunction> {
 /// # Errors
 ///
 /// Err on out-of-bounds, String error or wrong argument type.
+#[allow(dead_code)]
 pub fn get_string_opt(ctx: &CallContext, index: usize) -> Result<Option<String>> {
     let val: Option<JsString> = get_value_opt(&ctx, ValueType::String, index)?;
     let val = match val {
@@ -25,6 +26,7 @@ pub fn get_string_opt(ctx: &CallContext, index: usize) -> Result<Option<String>>
     Ok(Some(val.into_utf8()?.into_owned()?))
 }
 
+#[allow(dead_code)]
 pub fn get_array_opt(ctx: &CallContext, index: usize) -> Result<Option<JsObject>> {
     let val: Option<JsObject> = get_value_opt(&ctx, ValueType::Object, index)?;
     let val = match val {

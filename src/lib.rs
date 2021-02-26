@@ -1,17 +1,16 @@
 use napi::*;
 use napi_derive::module_exports;
 
-mod auth;
-mod files;
-mod keys;
+mod keypair;
 mod safe;
+mod secret_key;
 mod util;
 
 #[module_exports]
 pub fn init(mut exports: JsObject, env: Env) -> Result<()> {
     let safe = safe::define_class(&env)?;
-    let keypair = keys::keypair::define_class(&env)?;
-    let secret_key = keys::secret_key::define_class(&env)?;
+    let keypair = keypair::define_class(&env)?;
+    let secret_key = secret_key::define_class(&env)?;
 
     exports.set_named_property("Safe", safe)?;
     exports.set_named_property("Keypair", keypair)?;

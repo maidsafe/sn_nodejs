@@ -6,9 +6,6 @@ use tokio_compat_02::FutureExt;
 
 use crate::{safe, util};
 
-pub mod keypair;
-pub mod secret_key;
-
 #[js_function(1)]
 pub fn create_preload_test_coins(ctx: CallContext) -> Result<JsObject> {
     let preload_amount: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
