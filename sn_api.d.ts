@@ -9,6 +9,7 @@ export class Safe {
     files_container_create(location: undefined | String, dest: undefined | String, recursive: boolean, follow_links: boolean, dry_run: boolean): Promise<[String, ProcessedFiles, FilesMap]>;
 
     nrs_map_container_create(name: String, link: String, def: boolean, hard_link: boolean, dry_run: boolean): Promise<[String, unknown, unknown]>;
+    nrs_map_container_get(xor: String): Promise<[number, unknown]>;
 }
 
 interface Duration {

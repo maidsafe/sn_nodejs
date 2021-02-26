@@ -48,6 +48,7 @@ pub fn define_class(env: &Env) -> Result<JsFunction> {
             Property::new(&env, "keys_balance_from_sk")?.with_method(keys::balance_from_sk),
             Property::new(&env, "files_container_create")?.with_method(files::container_create),
             Property::new(&env, "nrs_map_container_create")?.with_method(nrs::map_container_create),
+            Property::new(&env, "nrs_map_container_get")?.with_method(nrs::map_container_get),
         ],
     )
 }

@@ -33,3 +33,27 @@ pub fn map_container_create(ctx: CallContext) -> Result<JsObject> {
         },
     )
 }
+
+#[js_function(1)]
+pub fn map_container_get(ctx: CallContext) -> Result<JsObject> {
+    let url: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
+
+    let safe = safe::unwrap_arc(&ctx)?;
+
+    ctx.env.execute_tokio_future(
+        async move {
+            let lock = safe.read().await;
+            lock.nrs_map_container_get(&url)
+                .compat()
+                .await
+                .map_err(|e| Error::from_reason(format!("{:?}", e)))
+        },
+        |&mut env, (version, map)| {
+            let mut arr = env.create_array_with_length(2)?;
+            arr.set_element(0, env.to_js_value(&version)?)?;
+            arr.set_element(1, env.to_js_value(&map)?)?;
+
+            Ok(arr)
+        },
+    )
+}
