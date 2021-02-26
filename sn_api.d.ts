@@ -7,6 +7,8 @@ export class Safe {
     keys_balance_from_sk(a: SecretKey): Promise<String>;
 
     files_container_create(location: undefined | String, dest: undefined | String, recursive: boolean, follow_links: boolean, dry_run: boolean): Promise<[String, ProcessedFiles, FilesMap]>;
+
+    nrs_map_container_create(name: String, link: String, def: boolean, hard_link: boolean, dry_run: boolean): Promise<[String, unknown, unknown]>;
 }
 
 interface Duration {
