@@ -53,9 +53,9 @@ pub fn get_value_opt<T: NapiValue>(
 ) -> Result<Option<T>> {
     let val = ctx.get::<JsUnknown>(index)?;
     match val.get_type()? {
-        vt if vt == value_type => return Ok(Some(unsafe { val.cast() })),
-        ValueType::Undefined => return Ok(None),
-        ValueType::Null => return Ok(None),
-        _ => return Err(Error::from_reason("argument has wrong type".to_string())),
+        vt if vt == value_type => Ok(Some(unsafe { val.cast() })),
+        ValueType::Undefined => Ok(None),
+        ValueType::Null => Ok(None),
+        _ => Err(Error::from_reason("argument has wrong type".to_string())),
     }
 }
