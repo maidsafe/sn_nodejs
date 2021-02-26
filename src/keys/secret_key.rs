@@ -19,8 +19,6 @@ pub fn define_class(env: &Env) -> Result<JsFunction> {
     env.define_class(
         "SecretKey",
         constructor,
-        &[
-            Property::new(&env, "toString")?.with_method(to_string)
-        ],
+        &[Property::new(&env, "toString")?.with_method(to_string)],
     )
 }

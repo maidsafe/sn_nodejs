@@ -27,7 +27,9 @@ fn new_ed25519(ctx: CallContext) -> Result<JsObject> {
 fn secret_key(ctx: CallContext) -> Result<JsObject> {
     let kp: &Keypair = ctx.env.unwrap(&ctx.this()?)?;
 
-    let sk = kp.secret_key().map_err(|e| Error::from_reason(format!("{:?}", e)))?;
+    let sk = kp
+        .secret_key()
+        .map_err(|e| Error::from_reason(format!("{:?}", e)))?;
 
     let mut sk_js = util::get_constructor(ctx.env, "SecretKey")?.new(&[] as &[JsNull])?;
     ctx.env.wrap(&mut sk_js, sk)?;

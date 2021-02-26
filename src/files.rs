@@ -18,10 +18,16 @@ pub fn container_create(ctx: CallContext) -> Result<JsObject> {
     ctx.env.execute_tokio_future(
         async move {
             let mut lock = safe.write().await;
-            lock.files_container_create(location.as_deref(), dest.as_deref(), recursive, follow_links, dry_run)
-                .compat()
-                .await
-                .map_err(|e| Error::from_reason(format!("{:?}", e)))
+            lock.files_container_create(
+                location.as_deref(),
+                dest.as_deref(),
+                recursive,
+                follow_links,
+                dry_run,
+            )
+            .compat()
+            .await
+            .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
         |&mut env, (xor, files, map)| {
             let mut arr = env.create_array_with_length(3)?;

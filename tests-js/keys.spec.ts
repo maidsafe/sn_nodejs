@@ -1,6 +1,6 @@
 import safe from './util';
 
-import { Safe, Keypair } from 'sn_api';
+import { Keypair } from 'sn_api';
 
 describe('keys', () => {
     test('keypair instantiation has correct type', async () => {

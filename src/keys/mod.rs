@@ -1,7 +1,7 @@
 use napi::*;
 use napi_derive::js_function;
 
-use sn_api::{SecretKey};
+use sn_api::SecretKey;
 use tokio_compat_02::FutureExt;
 
 use crate::{safe, util};

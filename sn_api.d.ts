@@ -26,6 +26,8 @@ interface FilesMapDetails {
 }
 
 export class Keypair {
+    // Keypair should only be constructed from within the addon.
+    private constructor();
     static new_ed25519(): Keypair;
 
     secret_key(): SecretKey;

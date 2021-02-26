@@ -1,12 +1,11 @@
 use napi::*;
 use napi_derive::js_function;
 
-use sn_api::{Keypair};
+use sn_api::Keypair;
 use std::{collections::HashSet, net::SocketAddr, path::PathBuf};
 use tokio_compat_02::FutureExt;
 
-use crate::safe;
-use crate::util;
+use crate::{safe, util};
 
 #[js_function(3)]
 pub fn connect(ctx: CallContext) -> Result<JsObject> {
