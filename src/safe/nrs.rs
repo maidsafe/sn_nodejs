@@ -46,7 +46,7 @@ pub fn map_container_add(ctx: CallContext) -> Result<JsObject> {
 
     ctx.env.execute_tokio_future(
         async move {
-            let lock = safe.read().await;
+            let mut lock = safe.write().await;
             lock.nrs_map_container_add(&name, &link, default, hard_link, dry_run)
                 .compat()
                 .await

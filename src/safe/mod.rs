@@ -20,7 +20,7 @@ fn constructor(ctx: CallContext) -> Result<JsUndefined> {
         None => None,
     };
 
-    let time: Duration = ctx.env.from_js_value(ctx.get::<JsNumber>(1)?)?;
+    let time: Duration = ctx.env.from_js_value(ctx.get::<JsObject>(1)?)?;
 
     let safe = Safe::new(xor_url_base, time);
     let safe = Arc::new(RwLock::new(safe));
