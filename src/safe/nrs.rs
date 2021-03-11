@@ -1,9 +1,8 @@
 use napi::*;
 use napi_derive::js_function;
 
+use sn_api::Safe;
 use tokio_compat_02::FutureExt;
-
-use crate::safe;
 
 #[js_function(5)]
 pub fn map_container_create(ctx: CallContext) -> Result<JsObject> {
@@ -13,7 +12,7 @@ pub fn map_container_create(ctx: CallContext) -> Result<JsObject> {
     let hard_link: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(3)?)?;
     let dry_run: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(4)?)?;
 
-    let safe = safe::unwrap_arc(&ctx)?;
+    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -42,11 +41,11 @@ pub fn map_container_add(ctx: CallContext) -> Result<JsObject> {
     let hard_link: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(3)?)?;
     let dry_run: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(4)?)?;
 
-    let safe = safe::unwrap_arc(&ctx)?;
+    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
-            let mut lock = safe.write().await;
+            let lock = safe.read().await;
             lock.nrs_map_container_add(&name, &link, default, hard_link, dry_run)
                 .compat()
                 .await
@@ -68,7 +67,7 @@ pub fn map_container_add(ctx: CallContext) -> Result<JsObject> {
 pub fn map_container_get(ctx: CallContext) -> Result<JsObject> {
     let url: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
 
-    let safe = safe::unwrap_arc(&ctx)?;
+    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {

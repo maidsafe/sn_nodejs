@@ -31,12 +31,6 @@ fn constructor(ctx: CallContext) -> Result<JsUndefined> {
     ctx.env.get_undefined()
 }
 
-/// Helper function to clone Arc to wrapped Safe RwLock.
-pub fn unwrap_arc(ctx: &CallContext) -> Result<Arc<RwLock<Safe>>> {
-    let safe: &Arc<RwLock<Safe>> = ctx.env.unwrap(&ctx.this()?)?;
-    Ok(Arc::clone(&safe))
-}
-
 pub fn define_class(env: &Env) -> Result<JsFunction> {
     env.define_class(
         "Safe",

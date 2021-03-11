@@ -47,5 +47,19 @@ export class Keypair {
 }
 export class SecretKey { }
 
+
+export class SafeAuthdClient {
+    constructor(endpoint?: string);
+
+    status(): Promise<AuthdStatus>;
+}
+type AuthdStatus = {
+    safe_unlocked: boolean,
+    num_auth_reqs: number,
+    num_notif_subs: number,
+    authd_version: string,
+}
+
+
 // Map Rust's BTreeMap to an object. Can only have strings as keys.
 type BTreeMap<V> = { [key: string]: V };

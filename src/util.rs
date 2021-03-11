@@ -1,5 +1,14 @@
 use napi::*;
 
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+/// Helper function to clone Arc to RwLock.
+pub fn unwrap_arc<T: 'static>(ctx: &CallContext) -> Result<Arc<RwLock<T>>> {
+    let obj: &Arc<RwLock<T>> = ctx.env.unwrap(&ctx.this()?)?;
+    Ok(Arc::clone(&obj))
+}
+
 /// Retrieve exports from instance data. Should contain constructors.
 pub fn get_constructor(env: &Env, s: &str) -> Result<JsFunction> {
     let exports: &mut Ref<()> = env

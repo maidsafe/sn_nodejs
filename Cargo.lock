@@ -88,9 +88,9 @@ checksum = "afddf7f520a80dbf76e6f50a35bca42a2331ef227a28b3b6dc5c2e2338d114b1"
 
 [[package]]
 name = "async-trait"
-version = "0.1.47"
+version = "0.1.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e098e9c493fdf92832223594d9a164f96bdf17ba81a42aff86f85c76768726a"
+checksum = "36ea56748e10732c49404c153638a15ec3d6211ec5ff35d9bb20e13b93576adf"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -277,9 +277,9 @@ checksum = "e3b5ca7a04898ad4bcd41c90c5285445ff5b791899bb1b0abdd2a2aa791211d7"
 
 [[package]]
 name = "byteorder"
-version = "1.4.2"
+version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae44d1a3d5a19df61dd0c8beb138458ac2a53a7ac09eba97d55592540004306b"
+checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "bytes"
@@ -1192,7 +1192,7 @@ dependencies = [
  "once_cell",
  "serde",
  "serde_json",
- "tokio 1.2.0",
+ "tokio 1.3.0",
  "winapi 0.3.9",
 ]
 
@@ -1485,7 +1485,7 @@ dependencies = [
 [[package]]
 name = "qjsonrpc"
 version = "0.1.2"
-source = "git+https://github.com/b-zee/sn_api.git?branch=pr-aliasing#7c73a9e0fb32295485ab0b6eee7ee9fd36e5fae9"
+source = "git+https://github.com/b-zee/sn_api.git?branch=pr-aliasing#e25404378180e21deb582515fc37fd3c98d32ea8"
 dependencies = [
  "futures",
  "log",
@@ -1920,7 +1920,7 @@ checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 [[package]]
 name = "sn_api"
 version = "0.20.0"
-source = "git+https://github.com/b-zee/sn_api.git?branch=pr-aliasing#7c73a9e0fb32295485ab0b6eee7ee9fd36e5fae9"
+source = "git+https://github.com/b-zee/sn_api.git?branch=pr-aliasing#e25404378180e21deb582515fc37fd3c98d32ea8"
 dependencies = [
  "async-trait",
  "bincode",
@@ -1964,7 +1964,7 @@ dependencies = [
  "napi-derive",
  "rand",
  "sn_api",
- "tokio 1.2.0",
+ "tokio 1.3.0",
  "tokio-compat-02",
 ]
 
@@ -2138,9 +2138,9 @@ checksum = "1e81da0851ada1f3e9d4312c704aa4f8806f0f9d69faaf8df2f3464b4a9437c2"
 
 [[package]]
 name = "syn"
-version = "1.0.62"
+version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "123a78a3596b24fee53a6464ce52d8ecbf62241e6294c7e7fe12086cd161f512"
+checksum = "8fd9bc7ccc2688b3344c2f48b9b546648b25ce0b20fc717ee7fa7981a8ca9717"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2282,9 +2282,9 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.2.0"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8190d04c665ea9e6b6a0dc45523ade572c088d2e6566244c1122671dbf4ae3a"
+checksum = "8d56477f6ed99e10225f38f9f75f872f29b8b8bd8c0b946f63345bb144e9eeda"
 dependencies = [
  "autocfg",
  "bytes 1.0.1",
@@ -2310,7 +2310,7 @@ dependencies = [
  "once_cell",
  "pin-project-lite 0.2.6",
  "tokio 0.2.25",
- "tokio 1.2.0",
+ "tokio 1.3.0",
  "tokio-stream",
 ]
 
@@ -2338,13 +2338,13 @@ dependencies = [
 
 [[package]]
 name = "tokio-stream"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1981ad97df782ab506a1f43bf82c967326960d278acf3bf8279809648c3ff3ea"
+checksum = "c535f53c0cfa1acace62995a8994fc9cc1f12d202420da96ff306ee24d576469"
 dependencies = [
  "futures-core",
  "pin-project-lite 0.2.6",
- "tokio 1.2.0",
+ "tokio 1.3.0",
 ]
 
 [[package]]
