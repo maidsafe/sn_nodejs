@@ -9,6 +9,8 @@ mod util;
 
 #[module_exports]
 pub fn init(mut exports: JsObject, env: Env) -> Result<()> {
+    env_logger::init();
+
     let safe = safe::define_class(&env)?;
     let keypair = keypair::define_class(&env)?;
     let secret_key = secret_key::define_class(&env)?;

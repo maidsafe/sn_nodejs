@@ -22,6 +22,7 @@ pub fn connect(ctx: CallContext) -> Result<JsObject> {
 
     let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
 
+    log::trace!("Safe.connect({:?}, {:?}, {:?})", kp, path, addr);
     ctx.env.execute_tokio_future(
         async move {
             let mut lock = safe.write().await;

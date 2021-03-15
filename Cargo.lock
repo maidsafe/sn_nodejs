@@ -1182,9 +1182,9 @@ dependencies = [
 
 [[package]]
 name = "napi"
-version = "1.2.0"
+version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ddaa8cda32a9c91ee2fda0c540f553c8cdac5203ce5ed8ef8dbb316d204e3ad"
+checksum = "5e1981522b098db959ffc2e93908bc4d789b515b4fef3d1c0ceb771e68e19e4d"
 dependencies = [
  "futures",
  "napi-build",
@@ -1678,21 +1678,20 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.4.3"
+version = "1.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9251239e129e16308e70d853559389de218ac275b515068abc96829d05b948a"
+checksum = "957056ecddbeba1b26965114e191d2e8589ce74db242b6ea25fc4062427a5c19"
 dependencies = [
  "aho-corasick",
  "memchr",
  "regex-syntax",
- "thread_local",
 ]
 
 [[package]]
 name = "regex-syntax"
-version = "0.6.22"
+version = "0.6.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5eb417147ba9860a96cfe72a0b93bf88fee1744b5636ec99ab20c1aa9376581"
+checksum = "24d5f089152e60f62d28b835fbff2cd2e8dc0baf1ac13343bef92ab7eed84548"
 
 [[package]]
 name = "relative-path"
@@ -1955,20 +1954,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sn_api-nodejs"
-version = "0.0.0"
-dependencies = [
- "bincode",
- "napi",
- "napi-build",
- "napi-derive",
- "rand",
- "sn_api",
- "tokio 1.3.0",
- "tokio-compat-02",
-]
-
-[[package]]
 name = "sn_client"
 version = "0.47.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2048,6 +2033,22 @@ dependencies = [
  "threshold_crypto",
  "tiny-keccak",
  "xor_name",
+]
+
+[[package]]
+name = "sn_nodejs"
+version = "0.0.0"
+dependencies = [
+ "bincode",
+ "env_logger 0.8.3",
+ "log",
+ "napi",
+ "napi-build",
+ "napi-derive",
+ "rand",
+ "sn_api",
+ "tokio 1.3.0",
+ "tokio-compat-02",
 ]
 
 [[package]]
@@ -2138,9 +2139,9 @@ checksum = "1e81da0851ada1f3e9d4312c704aa4f8806f0f9d69faaf8df2f3464b4a9437c2"
 
 [[package]]
 name = "syn"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fd9bc7ccc2688b3344c2f48b9b546648b25ce0b20fc717ee7fa7981a8ca9717"
+checksum = "3fd9d1e9976102a03c542daa2eff1b43f9d72306342f3f8b3ed5fb8908195d6f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2195,15 +2196,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "thread_local"
-version = "1.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8018d24e04c95ac8790716a5987d0fec4f8b27249ffa0f7d33f1369bdfb88cbd"
-dependencies = [
- "once_cell",
 ]
 
 [[package]]
@@ -2382,9 +2374,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-attributes"
-version = "0.1.13"
+version = "0.1.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8a9bd1db7706f2373a190b0d067146caa39350c486f3d455b0e33b431f94c07"
+checksum = "c42e6fa53307c8a17e4ccd4dc81cf5ec38db9209f59b222210375b54ee40d1e2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2418,9 +2410,9 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
 name = "typenum"
-version = "1.12.0"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "373c8a200f9e67a0c95e62a4f52fbf80c23b4381c05a17845531982fa99e6b33"
+checksum = "879f6906492a7cd215bfa4cf595b600146ccfac0c79bcbd1f3000162af5e8b06"
 
 [[package]]
 name = "uhttp_uri"

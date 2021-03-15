@@ -16,6 +16,7 @@
   },
   "scripts": {
     "build": "napi build",
+    "pretest": "npm run build",
     "test": "jest"
   },
   "jest": {
