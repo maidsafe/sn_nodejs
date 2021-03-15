@@ -52,6 +52,14 @@ export class SafeAuthdClient {
     constructor(endpoint?: string);
 
     status(): Promise<AuthdStatus>;
+    unlock(passphrase: string, password: string): Promise<void>;
+    lock(): Promise<void>;
+    create(passphrase: string, password: string): Promise<void>;
+    authed_apps(): Promise<unknown>;
+    revoke_app(app_id: string): Promise<void>;
+    auth_reqs(): Promise<unknown>;
+    allow(req_id: SafeAuthReqId): Promise<void>;
+    deny(req_id: SafeAuthReqId): Promise<void>;
 }
 type AuthdStatus = {
     safe_unlocked: boolean,
@@ -59,6 +67,7 @@ type AuthdStatus = {
     num_notif_subs: number,
     authd_version: string,
 }
+type SafeAuthReqId = string;
 
 
 // Map Rust's BTreeMap to an object. Can only have strings as keys.
