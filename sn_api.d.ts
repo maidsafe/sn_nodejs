@@ -49,6 +49,8 @@ export class SecretKey { }
 
 
 export class SafeAuthdClient {
+    authd_endpoint: string;
+
     constructor(endpoint?: string);
 
     status(): Promise<AuthdStatus>;

@@ -24,6 +24,13 @@ describe('authd_client', () => {
         expect(() => new CliAny(12345)).toThrow();
     });
 
+    test('getter', () => {
+        const cli = new SafeAuthdClient();
+
+        expect(cli).toHaveProperty('authd_endpoint');
+        expect(typeof cli.authd_endpoint).toBe('string');
+    });
+
     test('status', async () => {
         const cli = new SafeAuthdClient();
         const status = await cli.status();

@@ -179,6 +179,18 @@ pub fn deny(ctx: CallContext) -> Result<JsObject> {
 // TODO: subscribe_url
 // TODO: unsubscribe
 
+#[js_function(0)]
+pub fn authd_endpoint_getter(ctx: CallContext) -> Result<JsUnknown> {
+    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+
+    // Possibly buggy because getter should never block.
+    let endpoint = tokio::runtime::Runtime::new()?.block_on(async move {
+        let lock = cli.read().await;
+        lock.authd_endpoint.clone()
+    });
+    ctx.env.to_js_value(&endpoint)
+}
+
 pub fn define_class(env: &Env) -> Result<JsFunction> {
     env.define_class(
         "SafeAuthdClient",
@@ -193,6 +205,7 @@ pub fn define_class(env: &Env) -> Result<JsFunction> {
             Property::new(&env, "auth_reqs")?.with_method(auth_reqs),
             Property::new(&env, "allow")?.with_method(allow),
             Property::new(&env, "deny")?.with_method(deny),
+            Property::new(&env, "authd_endpoint")?.with_getter(authd_endpoint_getter),
         ],
     )
 }
