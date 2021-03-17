@@ -1,7 +1,17 @@
 use napi::*;
 
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
+
+// Workaround to make sure an enum type T is serialised by napi-rs with an 'external tag'.
+// This is so JS code can check what enum variant is actually returned.
+// (see https://github.com/napi-rs/napi-rs/issues/507).
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum Tag<T> {
+    V(T),
+}
 
 /// Helper function to clone Arc to RwLock.
 pub fn unwrap_arc<T: 'static>(ctx: &CallContext) -> Result<Arc<RwLock<T>>> {

@@ -6,6 +6,7 @@ use std::{str::FromStr, sync::Arc, time::Duration};
 use tokio::sync::RwLock;
 
 mod auth;
+mod fetch;
 mod files;
 mod keys;
 mod nrs;
@@ -45,6 +46,7 @@ pub fn define_class(env: &Env) -> Result<JsFunction> {
             Property::new(&env, "nrs_map_container_create")?.with_method(nrs::map_container_create),
             Property::new(&env, "nrs_map_container_add")?.with_method(nrs::map_container_add),
             Property::new(&env, "nrs_map_container_get")?.with_method(nrs::map_container_get),
+            Property::new(&env, "fetch")?.with_method(fetch::fetch),
         ],
     )
 }

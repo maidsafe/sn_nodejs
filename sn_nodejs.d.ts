@@ -11,7 +11,95 @@ export class Safe {
     nrs_map_container_create(name: string, link: string, def: boolean, hard_link: boolean, dry_run: boolean): Promise<[string, ProcessedEntries, NrsMap]>;
     nrs_map_container_add(name: string, link: string, def: boolean, hard_link: boolean, dry_run: boolean): Promise<[number | BigInt, string, ProcessedEntries, NrsMap]>;
     nrs_map_container_get(xor: string): Promise<[number | BigInt, NrsMap]>;
+
+    fetch(url: string, range?: Range): Promise<SafeData>;
 }
+
+// TODO: Verify (Option<u64>, Option<u64>) does indeed resolve into:
+type Range = [BigInt | undefined, BigInt | undefined];
+// Enum.
+type SafeData = SafeKey | Wallet | FilesContainer | PublicBlob | NrsMapContainer | PublicSequence | PrivateSequence;
+
+type XorName = Array<number>; // Not ideal, but this is what napi-rs generates for [u8].
+
+type WalletSpendableBalance = { xorurl: XorUrl, sk: string };
+type XorUrl = string;
+type WalletSpendableBalances = BTreeMap<[boolean, WalletSpendableBalance]>;
+
+type SafeDataType = 'SafeKey' | 'PublicBlob' | 'PrivateBlob' | 'PublicSequence' | 'PrivateSequence' | 'SeqMap' | 'UnseqMap';
+type FileItem = BTreeMap<string>;
+
+type SafeKey = {
+    'SafeKey': {
+        xorurl: string,
+        xorname: XorName,
+        resolved_from: string,
+    }
+};
+type Wallet = {
+    'Wallet': {
+        xorurl: string,
+        xorname: XorName,
+        type_tag: BigInt,
+        balances: WalletSpendableBalances,
+        data_type: SafeDataType,
+        resolved_from: string,
+    }
+};
+type FilesContainer = {
+    'FilesContainer': {
+        xorurl: string,
+        xorname: XorName,
+        type_tag: BigInt,
+        version: BigInt,
+        files_map: FilesMap,
+        data_type: SafeDataType,
+        resolved_from: string,
+    }
+};
+type PublicBlob = {
+    'PublicBlob': {
+        xorurl: string,
+        xorname: XorName,
+        data: Array<number>, // Vec<u8>
+        media_type: string | undefined,
+        metadata: FileItem | undefined,
+        resolved_from: string,
+    }
+};
+type NrsMapContainer = {
+    'NrsMapContainer': {
+        public_name: string | undefined,
+        xorurl: string,
+        xorname: XorName,
+        type_tag: BigInt,
+        version: BigInt,
+        nrs_map: NrsMap,
+        data_type: SafeDataType,
+        resolved_from: string,
+    }
+};
+type PublicSequence = {
+    'PublicSequence': {
+        xorurl: string,
+        xorname: XorName,
+        type_tag: BigInt,
+        version: BigInt,
+        data: Array<number>, // Vec<u8>
+        resolved_from: string,
+    }
+};
+type PrivateSequence = {
+    'PrivateSequence': {
+        xorurl: string,
+        xorname: XorName,
+        type_tag: BigInt,
+        version: BigInt,
+        data: Array<number>, // Vec<u8>
+        resolved_from: string,
+    }
+};
+
 
 type NrsMap = {
     default: DefaultRdf,
