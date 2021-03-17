@@ -3,7 +3,7 @@
  */
 // Override default environment so it will not connect to a Safe network.
 
-import { SafeAuthdClient } from 'sn_api';
+import { SafeAuthdClient } from 'sn_nodejs';
 import crypto from 'crypto';
 
 describe('authd_client', () => {

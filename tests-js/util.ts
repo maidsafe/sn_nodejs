@@ -1,4 +1,4 @@
-import { Safe } from 'sn_api';
+import { Safe } from 'sn_nodejs';
 
 // The environment sets a Safe instance as a global object.
 declare var safe: Safe;

@@ -1,14 +1,16 @@
 {
-  "name": "sn_api",
+  "name": "sn_nodejs",
   "napi": {
-    "name": "sn_api"
+    "name": "sn_nodejs"
   },
-  "main": "sn_api.node",
-  "types": "./sn_api.d.ts",
+  "version": "0.12.0",
+  "main": "sn_nodejs.node",
+  "types": "./sn_nodejs.d.ts",
   "devDependencies": {
     "@napi-rs/cli": "^1.0.0",
+    "@types/jest": "^26.0.20",
     "jest": "^26.6.3",
-    "ts-jest": "^26.5.1",
+    "ts-jest": "^26.5.3",
     "typescript": "^4.1.5"
   },
   "engines": {

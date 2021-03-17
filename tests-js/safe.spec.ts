@@ -3,7 +3,7 @@
  */
 // Override default environment so it will not connect to a Safe network.
 
-import { Safe } from 'sn_api';
+import { Safe } from 'sn_nodejs';
 
 describe('safe', () => {
     test('safe constructor', () => {

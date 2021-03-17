@@ -1,5 +1,5 @@
 const Env = require('jest-environment-node');
-const { Safe } = require('../sn_api');
+const { Safe } = require('../sn_nodejs');
 
 class SafeEnv extends Env {
     async setup() {
