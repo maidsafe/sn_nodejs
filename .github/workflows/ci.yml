@@ -1,0 +1,29 @@
+name: Test
+on: push
+
+jobs:
+  container-job:
+    runs-on: ubuntu-latest
+    container: node:14
+    services:
+      sn:
+        image: docker.io/bzeeman/sn_container:0.2
+        ports:
+          - 12000-12011:12000-12011/udp
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Run test
+        run: npm test
+        env:
+          SN_CONTACT: sn:12000

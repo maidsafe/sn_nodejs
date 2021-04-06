@@ -1,6 +1,11 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
+        // "paths": {
+        //     "sn_nodejs": [
+        //         "./"
+        //     ]
+        // },
         "lib": [
             "es2020"
         ],
