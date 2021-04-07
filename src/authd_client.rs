@@ -4,7 +4,6 @@ use napi_derive::js_function;
 use sn_api::SafeAuthdClient;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tokio_compat_02::FutureExt;
 
 // Internal type of wrapped JS object.
 type Type = Arc<RwLock<SafeAuthdClient>>;
@@ -30,7 +29,6 @@ pub fn status(ctx: CallContext) -> Result<JsObject> {
         async move {
             let mut lock = cli.write().await;
             lock.status()
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -49,7 +47,6 @@ pub fn unlock(ctx: CallContext) -> Result<JsObject> {
         async move {
             let mut lock = cli.write().await;
             lock.unlock(&passphrase, &password)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -65,7 +62,6 @@ pub fn lock(ctx: CallContext) -> Result<JsObject> {
         async move {
             let mut lock = cli.write().await;
             lock.lock()
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -84,7 +80,6 @@ pub fn create(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = cli.read().await;
             lock.create(&passphrase, &password)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -100,7 +95,6 @@ pub fn authed_apps(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = cli.read().await;
             lock.authed_apps()
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -118,7 +112,6 @@ pub fn revoke_app(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = cli.read().await;
             lock.revoke_app(&app_id)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -134,7 +127,6 @@ pub fn auth_reqs(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = cli.read().await;
             lock.auth_reqs()
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -152,7 +144,6 @@ pub fn allow(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = cli.read().await;
             lock.allow(req_id)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -170,7 +161,6 @@ pub fn deny(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = cli.read().await;
             lock.deny(req_id)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },

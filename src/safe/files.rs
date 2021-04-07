@@ -1,8 +1,6 @@
 use napi::*;
 use napi_derive::js_function;
 
-use tokio_compat_02::FutureExt;
-
 #[js_function(5)]
 pub fn container_create(ctx: CallContext) -> Result<JsObject> {
     let location: Option<String> = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
@@ -23,7 +21,6 @@ pub fn container_create(ctx: CallContext) -> Result<JsObject> {
                 follow_links,
                 dry_run,
             )
-            .compat()
             .await
             .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },

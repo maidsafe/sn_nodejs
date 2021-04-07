@@ -20,7 +20,6 @@ class SafeEnv extends Env {
                 }
             }
 
-            console.log('Connecting to node "%s"', contact);
             contact = [contact];
         }
         await this.global.safe.connect(undefined, undefined, contact);

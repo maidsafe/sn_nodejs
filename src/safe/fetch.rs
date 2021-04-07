@@ -2,7 +2,6 @@ use napi::*;
 use napi_derive::js_function;
 
 use sn_api::{fetch::{Range}};
-use tokio_compat_02::FutureExt;
 use crate::util::Tag;
 
 #[js_function(2)]
@@ -16,7 +15,6 @@ pub fn fetch(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = safe.read().await;
             lock.fetch(&url, range)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },

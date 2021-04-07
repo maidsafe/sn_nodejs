@@ -2,7 +2,6 @@ use napi::*;
 use napi_derive::js_function;
 
 use sn_api::SecretKey;
-use tokio_compat_02::FutureExt;
 
 #[js_function(1)]
 pub fn create_preload_test_coins(ctx: CallContext) -> Result<JsObject> {
@@ -14,7 +13,6 @@ pub fn create_preload_test_coins(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = safe.read().await;
             lock.keys_create_preload_test_coins(&preload_amount)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -44,7 +42,6 @@ pub fn balance_from_sk(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = safe.read().await;
             lock.keys_balance_from_sk(&sk)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },

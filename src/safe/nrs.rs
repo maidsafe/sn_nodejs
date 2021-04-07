@@ -1,8 +1,6 @@
 use napi::*;
 use napi_derive::js_function;
 
-use tokio_compat_02::FutureExt;
-
 #[js_function(5)]
 pub fn map_container_create(ctx: CallContext) -> Result<JsObject> {
     let name: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
@@ -17,7 +15,6 @@ pub fn map_container_create(ctx: CallContext) -> Result<JsObject> {
         async move {
             let mut lock = safe.write().await;
             lock.nrs_map_container_create(&name, &link, default, hard_link, dry_run)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -46,7 +43,6 @@ pub fn map_container_add(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = safe.read().await;
             lock.nrs_map_container_add(&name, &link, default, hard_link, dry_run)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },
@@ -72,7 +68,6 @@ pub fn map_container_get(ctx: CallContext) -> Result<JsObject> {
         async move {
             let lock = safe.read().await;
             lock.nrs_map_container_get(&url)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },

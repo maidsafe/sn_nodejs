@@ -3,7 +3,6 @@ use napi_derive::js_function;
 
 use sn_api::{Keypair};
 use std::{collections::HashSet, net::SocketAddr, path::PathBuf};
-use tokio_compat_02::FutureExt;
 
 #[js_function(3)]
 pub fn connect(ctx: CallContext) -> Result<JsObject> {
@@ -27,7 +26,6 @@ pub fn connect(ctx: CallContext) -> Result<JsObject> {
         async move {
             let mut lock = safe.write().await;
             lock.connect(kp, path.as_deref(), addr)
-                .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))
         },

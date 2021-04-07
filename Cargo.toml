@@ -14,8 +14,7 @@ napi = { version = "1", features = ["tokio_rt", "napi6", "serde-json"]}
 napi-derive = "1"
 rand = "0.7"
 sn_api = { git = "https://github.com/b-zee/sn_api.git", rev = "83118ad" }
-tokio = { version = "1", features = ["full"] }
-tokio-compat-02 = "0.2"
+tokio = { version = "1", features = ["sync"] }
 serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
