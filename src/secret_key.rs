@@ -2,6 +2,10 @@ use napi::*;
 use napi_derive::js_function;
 
 use sn_api::SecretKey;
+use std::sync::Arc;
+
+// Internal type of wrapped JS object.
+type Type = Arc<SecretKey>;
 
 #[js_function(0)]
 fn constructor(ctx: CallContext) -> Result<JsUndefined> {
@@ -10,7 +14,7 @@ fn constructor(ctx: CallContext) -> Result<JsUndefined> {
 
 #[js_function(0)]
 fn to_string(ctx: CallContext) -> Result<JsString> {
-    let sk: &SecretKey = ctx.env.unwrap(&ctx.this()?)?;
+    let sk = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.create_string_from_std(format!("{:?}", sk))
 }

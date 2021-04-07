@@ -1,7 +1,7 @@
 use napi::*;
 use napi_derive::js_function;
 
-use sn_api::{Keypair, Safe};
+use sn_api::{Keypair};
 use std::{collections::HashSet, net::SocketAddr, path::PathBuf};
 use tokio_compat_02::FutureExt;
 
@@ -20,7 +20,7 @@ pub fn connect(ctx: CallContext) -> Result<JsObject> {
     let path: Option<PathBuf> = ctx.env.from_js_value(ctx.get::<JsString>(1)?)?;
     let addr: Option<HashSet<SocketAddr>> = ctx.env.from_js_value(ctx.get::<JsObject>(2)?)?;
 
-    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
+    let safe = crate::util::clone_wrapped::<super::Type>(&ctx)?;
 
     log::trace!("Safe.connect({:?}, {:?}, {:?})", kp, path, addr);
     ctx.env.execute_tokio_future(

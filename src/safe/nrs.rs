@@ -1,7 +1,6 @@
 use napi::*;
 use napi_derive::js_function;
 
-use sn_api::Safe;
 use tokio_compat_02::FutureExt;
 
 #[js_function(5)]
@@ -12,7 +11,7 @@ pub fn map_container_create(ctx: CallContext) -> Result<JsObject> {
     let hard_link: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(3)?)?;
     let dry_run: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(4)?)?;
 
-    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
+    let safe = crate::util::clone_wrapped::<super::Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -41,7 +40,7 @@ pub fn map_container_add(ctx: CallContext) -> Result<JsObject> {
     let hard_link: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(3)?)?;
     let dry_run: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(4)?)?;
 
-    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
+    let safe = crate::util::clone_wrapped::<super::Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -67,7 +66,7 @@ pub fn map_container_add(ctx: CallContext) -> Result<JsObject> {
 pub fn map_container_get(ctx: CallContext) -> Result<JsObject> {
     let url: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
 
-    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
+    let safe = crate::util::clone_wrapped::<super::Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {

@@ -6,6 +6,9 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio_compat_02::FutureExt;
 
+// Internal type of wrapped JS object.
+type Type = Arc<RwLock<SafeAuthdClient>>;
+
 #[js_function(1)]
 fn constructor(ctx: CallContext) -> Result<JsUndefined> {
     let endpoint: Option<String> = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
@@ -21,7 +24,7 @@ fn constructor(ctx: CallContext) -> Result<JsUndefined> {
 
 #[js_function(0)]
 pub fn status(ctx: CallContext) -> Result<JsObject> {
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -40,7 +43,7 @@ pub fn unlock(ctx: CallContext) -> Result<JsObject> {
     let passphrase: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
     let password: String = ctx.env.from_js_value(ctx.get::<JsString>(1)?)?;
 
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -56,7 +59,7 @@ pub fn unlock(ctx: CallContext) -> Result<JsObject> {
 
 #[js_function(0)]
 pub fn lock(ctx: CallContext) -> Result<JsObject> {
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -75,7 +78,7 @@ pub fn create(ctx: CallContext) -> Result<JsObject> {
     let passphrase: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
     let password: String = ctx.env.from_js_value(ctx.get::<JsString>(1)?)?;
 
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -91,7 +94,7 @@ pub fn create(ctx: CallContext) -> Result<JsObject> {
 
 #[js_function(0)]
 pub fn authed_apps(ctx: CallContext) -> Result<JsObject> {
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -109,7 +112,7 @@ pub fn authed_apps(ctx: CallContext) -> Result<JsObject> {
 pub fn revoke_app(ctx: CallContext) -> Result<JsObject> {
     let app_id: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
 
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -125,7 +128,7 @@ pub fn revoke_app(ctx: CallContext) -> Result<JsObject> {
 
 #[js_function(0)]
 pub fn auth_reqs(ctx: CallContext) -> Result<JsObject> {
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -143,7 +146,7 @@ pub fn auth_reqs(ctx: CallContext) -> Result<JsObject> {
 pub fn allow(ctx: CallContext) -> Result<JsObject> {
     let req_id: sn_api::SafeAuthReqId = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
 
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -161,7 +164,7 @@ pub fn allow(ctx: CallContext) -> Result<JsObject> {
 pub fn deny(ctx: CallContext) -> Result<JsObject> {
     let req_id: sn_api::SafeAuthReqId = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
 
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -181,7 +184,7 @@ pub fn deny(ctx: CallContext) -> Result<JsObject> {
 
 #[js_function(0)]
 pub fn authd_endpoint_getter(ctx: CallContext) -> Result<JsUnknown> {
-    let cli = crate::util::unwrap_arc::<SafeAuthdClient>(&ctx)?;
+    let cli = crate::util::clone_wrapped::<Type>(&ctx)?;
 
     // Possibly buggy because getter should never block.
     let endpoint = tokio::runtime::Runtime::new()?.block_on(async move {

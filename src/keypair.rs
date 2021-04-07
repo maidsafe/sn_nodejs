@@ -3,6 +3,7 @@ use napi_derive::js_function;
 
 use rand::rngs::OsRng;
 use sn_api::Keypair;
+use std::sync::Arc;
 
 use crate::util;
 
@@ -32,7 +33,7 @@ fn secret_key(ctx: CallContext) -> Result<JsObject> {
         .map_err(|e| Error::from_reason(format!("{:?}", e)))?;
 
     let mut sk_js = util::get_constructor(ctx.env, "SecretKey")?.new(&[] as &[JsNull])?;
-    ctx.env.wrap(&mut sk_js, sk)?;
+    ctx.env.wrap(&mut sk_js, Arc::new(sk))?;
 
     Ok(sk_js)
 }

@@ -1,14 +1,14 @@
 use napi::*;
 use napi_derive::js_function;
 
-use sn_api::{Safe, SecretKey};
+use sn_api::SecretKey;
 use tokio_compat_02::FutureExt;
 
 #[js_function(1)]
 pub fn create_preload_test_coins(ctx: CallContext) -> Result<JsObject> {
     let preload_amount: String = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
 
-    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
+    let safe = crate::util::clone_wrapped::<super::Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
@@ -35,18 +35,15 @@ pub fn create_preload_test_coins(ctx: CallContext) -> Result<JsObject> {
 #[js_function(1)]
 pub fn balance_from_sk(ctx: CallContext) -> Result<JsObject> {
     let sk = ctx.get::<JsObject>(0)?;
-    let sk: &SecretKey = ctx.env.unwrap(&sk)?;
+    let sk: &std::sync::Arc<SecretKey> = ctx.env.unwrap(&sk)?;
+    let sk = sk.clone();
 
-    // TODO: Fix dirty hack to get owned value (preferably by cloning) (upstream).
-    let sk: Vec<u8> = bincode::serialize(&sk).unwrap();
-    let sk: SecretKey = bincode::deserialize(&sk[..]).unwrap();
-
-    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
+    let safe = crate::util::clone_wrapped::<super::Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {
             let lock = safe.read().await;
-            lock.keys_balance_from_sk(sk)
+            lock.keys_balance_from_sk(&sk)
                 .compat()
                 .await
                 .map_err(|e| Error::from_reason(format!("{:?}", e)))

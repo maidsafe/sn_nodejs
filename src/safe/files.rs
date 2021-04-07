@@ -2,7 +2,6 @@ use napi::*;
 use napi_derive::js_function;
 
 use tokio_compat_02::FutureExt;
-use sn_api::Safe;
 
 #[js_function(5)]
 pub fn container_create(ctx: CallContext) -> Result<JsObject> {
@@ -12,7 +11,7 @@ pub fn container_create(ctx: CallContext) -> Result<JsObject> {
     let follow_links: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(3)?)?;
     let dry_run: bool = ctx.env.from_js_value(ctx.get::<JsBoolean>(4)?)?;
 
-    let safe = crate::util::unwrap_arc::<Safe>(&ctx)?;
+    let safe = crate::util::clone_wrapped::<super::Type>(&ctx)?;
 
     ctx.env.execute_tokio_future(
         async move {

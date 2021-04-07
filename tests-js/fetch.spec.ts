@@ -23,7 +23,7 @@ describe('fetch', () => {
             throw new Error('fetched XoR URL should be a FilesContainer');
         }
 
-        expect('/index.txt.' in r.FilesContainer.files_map).toBe(true);
+        expect('/index.txt' in r.FilesContainer.files_map).toBe(true);
     });
 
     test('fetch PublicBlob', async () => {

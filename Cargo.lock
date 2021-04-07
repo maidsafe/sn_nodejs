@@ -813,6 +813,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hex"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "805026a5d0141ffc30abb3be3173848ad46a1b1664fe632428479619a3644d77"
+
+[[package]]
 name = "hex_fmt"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1396,7 +1402,7 @@ dependencies = [
 [[package]]
 name = "qjsonrpc"
 version = "0.2.0"
-source = "git+https://github.com/b-zee/sn_api.git?branch=pr-aliasing#9561ec14c2cd176931c0e5565dacbea6c3623790"
+source = "git+https://github.com/b-zee/sn_api.git?rev=83118ad#83118adc3d2b2001b5b75fbd8bfb3e91abf2cf9b"
 dependencies = [
  "futures",
  "log",
@@ -1410,9 +1416,9 @@ dependencies = [
 
 [[package]]
 name = "qp2p"
-version = "0.10.1"
+version = "0.11.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "caea181b4ebb5fe0c0b6f258567c7ea2214e2a1ae311069cc744e1db47cea207"
+checksum = "e6b50eda8cd67dc1af24c01c94f3227bbe93c13da930804df696bd42aa2b27a2"
 dependencies = [
  "base64 0.12.3",
  "bincode",
@@ -1857,8 +1863,8 @@ checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 
 [[package]]
 name = "sn_api"
-version = "0.21.0"
-source = "git+https://github.com/b-zee/sn_api.git?branch=pr-aliasing#9561ec14c2cd176931c0e5565dacbea6c3623790"
+version = "0.22.0"
+source = "git+https://github.com/b-zee/sn_api.git?rev=83118ad#83118adc3d2b2001b5b75fbd8bfb3e91abf2cf9b"
 dependencies = [
  "async-trait",
  "bincode",
@@ -1894,9 +1900,9 @@ dependencies = [
 
 [[package]]
 name = "sn_client"
-version = "0.50.1"
+version = "0.52.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acf683b7670ddcd3a610c49535231b0f70c9b055a7d073ff84f6d1f08804dbd7"
+checksum = "de59fa4d360bb8ae7cdefa965508da1193b6a0e1667e271df3de5e3559207077"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1929,14 +1935,14 @@ dependencies = [
 
 [[package]]
 name = "sn_data_types"
-version = "0.16.0"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "474a9777c2d8f79ceaf4a4c3224269132a14e74ed3404e726a4bf23b2ed13f68"
+checksum = "cac59b472fe0a6263dcf44d0c3573422e52dc4bc0488415a260dde26158eeb13"
 dependencies = [
  "bincode",
  "crdts",
  "ed25519-dalek",
- "hex_fmt",
+ "hex",
  "multibase 0.8.0",
  "rand 0.7.3",
  "rand_core 0.5.1",
@@ -1950,9 +1956,9 @@ dependencies = [
 
 [[package]]
 name = "sn_messaging"
-version = "8.0.0"
+version = "12.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2119f03b71982b5165f24b7cb28af8fd39e12f7c1d779891a9b9c9d608130433"
+checksum = "77b2983ae0c66e9289efd0d085cd356b5cb37ab941f6e42b6901fb417c737bf6"
 dependencies = [
  "bincode",
  "bytes 1.0.1",
@@ -1978,7 +1984,6 @@ dependencies = [
 name = "sn_nodejs"
 version = "0.0.0"
 dependencies = [
- "bincode",
  "env_logger 0.8.3",
  "log",
  "napi",
@@ -1993,9 +1998,9 @@ dependencies = [
 
 [[package]]
 name = "sn_transfers"
-version = "0.5.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3a21fadc04cc66d65c98d6f4e138f991ada27d4225c63041cf5351089969875"
+checksum = "4bf908f1fd14518ecd9337dc2755e55799fdc5a6c9f6661726ace7715ee5bc64"
 dependencies = [
  "bincode",
  "crdts",

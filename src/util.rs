@@ -1,8 +1,6 @@
 use napi::*;
 
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use tokio::sync::RwLock;
 
 // Workaround to make sure an enum type T is serialised by napi-rs with an 'external tag'.
 // This is so JS code can check what enum variant is actually returned.
@@ -13,10 +11,10 @@ pub enum Tag<T> {
     V(T),
 }
 
-/// Helper function to clone Arc to RwLock.
-pub fn unwrap_arc<T: 'static>(ctx: &CallContext) -> Result<Arc<RwLock<T>>> {
-    let obj: &Arc<RwLock<T>> = ctx.env.unwrap(&ctx.this()?)?;
-    Ok(Arc::clone(&obj))
+/// Helper function to clone from wrapped object.
+pub fn clone_wrapped<T: Clone + 'static>(ctx: &CallContext) -> Result<T> {
+    let obj: &T = ctx.env.unwrap(&ctx.this()?)?;
+    Ok(obj.clone())
 }
 
 /// Retrieve exports from instance data. Should contain constructors.

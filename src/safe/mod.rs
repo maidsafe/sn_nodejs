@@ -11,6 +11,9 @@ mod files;
 mod keys;
 mod nrs;
 
+// Internal type wrapped in JS object.
+pub type Type = Arc<RwLock<Safe>>;
+
 #[js_function(2)]
 fn constructor(ctx: CallContext) -> Result<JsUndefined> {
     let xor_url_base: Option<String> = ctx.env.from_js_value(ctx.get::<JsString>(0)?)?;
@@ -25,7 +28,7 @@ fn constructor(ctx: CallContext) -> Result<JsUndefined> {
 
     log::trace!("Safe.constructor({:?}, {:?})", xor_url_base, time);
     let safe = Safe::new(xor_url_base, time);
-    let safe = Arc::new(RwLock::new(safe));
+    let safe: Type = Arc::new(RwLock::new(safe));
 
     let mut this: JsObject = ctx.this_unchecked();
     ctx.env.wrap(&mut this, safe)?;
