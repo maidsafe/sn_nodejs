@@ -4,12 +4,22 @@ on: push
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    container: node:14
+
     services:
       sn:
-        image: docker.io/bzeeman/sn_container:0.2
-        ports:
-          - 12000-12011:12000-12011/udp
+        image: docker.io/bzeeman/sn_container:0.5.0
+        # volumes:
+        #   - /safe:/root/.safe
+        # ports:
+        #   - 12000-12011:12000-12011/udp
+        #   - 33000:33000/udp
+        # env:
+        #   SN_PUBLIC_IP: 127.0.0.1
+
+    container:
+      image: node:14
+      # volumes:
+      #   - /safe:/github/home/.safe
 
     steps:
       - name: Check out repository code
@@ -24,6 +34,8 @@ jobs:
         run: npm ci
 
       - name: Run test
-        run: npm test
+        run: npm test -- --testPathIgnorePatterns=authd
         env:
           SN_CONTACT: sn:12000
+          # SN_CONTACT: 127.0.0.1:12000
+          # TERM: dumb
