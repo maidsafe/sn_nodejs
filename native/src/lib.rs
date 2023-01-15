@@ -1,6 +1,7 @@
 use env_logger;
 use log::debug;
 use neon::prelude::*;
+use neon::result::Throw;
 use sn_api::{
     fetch::{SafeContentType, SafeDataType},
     xorurl::{XorUrlBase, XorUrlEncoder},
@@ -388,7 +389,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -408,7 +409,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -435,7 +436,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -461,7 +462,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -481,7 +482,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -506,7 +507,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -542,7 +543,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -565,7 +566,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -618,7 +619,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -645,7 +646,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -669,7 +670,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -690,7 +691,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -710,7 +711,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -782,7 +783,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -827,7 +828,7 @@ declare_types! {
                 user.keypair().unwrap_or_else(|err| { panic!(format!("Failed to generate a key pair: {:?}", err)) } )
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -849,7 +850,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -869,7 +870,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -1030,7 +1031,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -1073,7 +1074,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
     }
@@ -1154,7 +1155,7 @@ declare_types! {
                 data
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -1228,7 +1229,7 @@ declare_types! {
                 rt.shutdown_timeout(Duration::from_millis(1));
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 
@@ -1264,7 +1265,7 @@ declare_types! {
                 rt.shutdown_timeout(Duration::from_millis(1));
             };
 
-            let js_value = neon_serde::to_value(&mut cx, &data)?;
+            let js_value = neon_serde::to_value(&mut cx, &data).map_err(|_| Throw)?;
             Ok(js_value)
         }
 

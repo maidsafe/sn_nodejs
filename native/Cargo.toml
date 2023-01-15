@@ -12,15 +12,12 @@ name = "sn_nodejs"
 crate-type = ["cdylib"]
 
 [build-dependencies]
-neon-build = "~0.4.0"
+neon-build = "~0.7.0"
 
 [dependencies]
 env_logger = "~0.7.1"
 log = "~0.4.8"
-neon = { version = "~0.4.0", features = ["event-handler-api"] }
-neon-serde = "~0.4.0"
-sn_api = { package = "safe-api", version = "0.15.0", features = ["app", "authd_client"] }
+neon = { version = "~0.7.0", features = ["event-handler-api"] }
+neon-serde = {git="https://github.com/lucasfernog/neon-serde", branch="refactor/update-neon-0.7"}
+sn_api = { version = "0.18.0", features = ["app", "authd_client"] }
 tokio = { version = "~0.2.21", features = ["rt-core"] }
-
-[features]
-scl-mock = ["sn_api/scl-mock"]

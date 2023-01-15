@@ -9,7 +9,6 @@
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
     "build": "neon build --release",
-    "build-mock": "cross-env RUSTFLAGS=\"--cfg feature=\\\"scl-mock\\\"\" yarn build",
     "download-node-abi": "node-pre-gyp install --fallback-to-build=false || neon build --release",
     "package": "node-pre-gyp package",
     "package-electron": "yarn node-pre-gyp package --runtime=electron --target=8.4.0 --dist-url=https://electronjs.org/headers",
@@ -19,7 +18,6 @@
     "neon-build-electron7": "cross-env npm_config_target=7.3.2 npm_config_arch=x64 npm_config_disturl=https://electronjs.org/headers npm_config_runtime=electron neon build --release",
     "test-api": "yarn test --testPathIgnorePatterns auth",
     "test-auth": "safe auth stop || true && yarn jest auth",
-    "test-with-mock": "yarn build-mock && yarn test --testPathIgnorePatterns auth",
     "test-with-node": "yarn build && yarn test",
     "test": "jest"
   },
